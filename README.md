@@ -1,107 +1,105 @@
-# Weighted Double Score Matching: Simulation Study
+# Weighted Double Score Matching for Survey-Weighted Causal Inference
 
-Reproducibility package for the simulation study in:
+Simulation study reproducibility package for:
 
 > **Zeng, Y., Li, F., and Hong, G. (2026).** *Weighted Double Score Matching for Causal Inference with Survey-Weighted Observational Data.*
 
 ## Overview
 
-This repository contains all code, scripts, and results for the Monte Carlo simulation study comparing weighted double score matching (WDSM) against existing matching methods for causal inference under complex survey designs.
+Double score matching combines propensity scores and prognostic scores to achieve dimension reduction and model robustness in causal inference. This paper develops **weighted double score matching (WDSM)** that incorporates survey design weights throughout score estimation, matching, and outcome analysis for population-level causal inference under complex survey designs.
+
+Key contributions:
+- Unified framework for survey weights in double score matching under **retrospective** (treatment-dependent) and **prospective** (treatment-independent) sampling
+- **Double robustness**: consistent when either the propensity score or prognostic score model is correctly specified
+- **Linearization-based multinomial bootstrap** for variance estimation preserving survey-weighted matching structure
+- Polynomial sieve bias correction for improved finite-sample performance
+
+## R Package
+
+The WDSM estimator is implemented in the [`wdsmatch`](https://github.com/ykzeng-yale/wdsmatch) R package:
+
+```r
+remotes::install_github("ykzeng-yale/wdsmatch")
+
+library(wdsmatch)
+fit <- wdsmatchATE(Y, X, Z, weights, M = 5, sampling = "retrospective")
+fit <- wdsmatchATT(Y, X, Z, weights, M = 5, sampling = "retrospective")
+```
 
 ## Repository Structure
 
 ```
 ├── R/                          Core estimator functions
-│   ├── wdsm_ci_functions.R               PATE WDSM point estimation + Method 1 bootstrap
-│   ├── wdsm_method2_multinomial_bootstrap.R  PATE Method 2 multinomial bootstrap
-│   ├── wdsm_patt_ci_functions.R          PATT WDSM (10-term sieve)
-│   └── dsmatch/                          Unweighted matching (DSM/PSM/PGM)
+│   ├── wdsm_ci_functions.R               PATE: point estimation + bootstrap
+│   ├── wdsm_method2_multinomial_bootstrap.R  PATE: Method 2 multinomial bootstrap
+│   ├── wdsm_patt_ci_functions.R          PATT: point estimation + bootstrap
+│   └── dsmatch/                          Unweighted DSM/PSM/PGM (Zhang & Yang)
 │
-├── Data/                       Super-population data (not in repo; see Data/README.md)
+├── Data/                       Super-population data (see Data/README.md)
 │
-├── Simulations/                Per-scenario simulation scripts
-│   ├── Retrospective/
-│   │   ├── PATE/{GoodOverlap,PoorOverlap}/{CorCor,CorMis,MisCor,MisMis}/
-│   │   └── PATT/{GoodOverlap,PoorOverlap}/{CorCor,CorMis,MisCor,MisMis}/
-│   └── Prospective/
-│       ├── PATE/...
-│       └── PATT/...
-│   Each scenario folder contains:
-│     - compare_methods.R    Main simulation driver
-│     - preprocess_and_run.R Data loading wrapper
-│     - run_m135.sh          SLURM job submission script
+├── Simulations/                32 scenario simulation scripts
+│   ├── {Retrospective,Prospective}/
+│   │   └── {PATE,PATT}/
+│   │       └── {GoodOverlap,PoorOverlap}/
+│   │           └── {CorCor,CorMis,MisCor,MisMis}/
+│   │               ├── compare_methods.R    Simulation driver
+│   │               ├── preprocess_and_run.R Data wrapper
+│   │               └── run_m135.sh          SLURM submission
 │
-├── Results/                    Simulation output (1,000 replications)
-│   ├── PATE/                   16 .RData files
-│   └── PATT/                   16 .RData files
+├── Results/                    1,000-replication output
+│   ├── PATE/ (16 .RData)
+│   └── PATT/ (16 .RData)
 │
 ├── Tables/
-│   ├── All_12_Simulation_Tables.txt   LaTeX tables (4 tables × PATE + PATT)
-│   └── generate_tables.R             Script to regenerate from Results/
+│   ├── All_12_Simulation_Tables.txt
+│   └── generate_tables.R
 │
 └── Figures/
-    ├── generate_figures.R             Vertical layout figure generator
-    ├── generate_figures_transposed.R  Horizontal layout figure generator
-    ├── Retrospective/{horizontal,vertical}/{png,pdf}/
-    └── Prospective/{horizontal,vertical}/{png,pdf}/
+    ├── generate_figures.R
+    ├── generate_figures_transposed.R
+    └── {Retrospective,Prospective}/{horizontal,vertical}/{png,pdf}/
 ```
 
 ## Simulation Design
 
+**Estimands**: PATE = E[Y(1) - Y(0)], PATT = E[Y(1) - Y(0) | Z = 1]
+
 | Factor | Levels |
 |--------|--------|
-| **Estimand** | PATE, PATT |
-| **Sampling** | Retrospective (treatment-dependent), Prospective (multi-stage) |
-| **Overlap** | Good (δ_z = 0.6), Poor (δ_z = 2.0) |
-| **Model specification** | Cor\|Cor, Mis\|Cor, Cor\|Mis, Mis\|Mis |
-| **Matching ratio** | M = 1, 3, 5 (for WDSM) |
-| **Replications** | 1,000 |
-| **Bootstrap** | B = 200 (multinomial, linearization-based) |
+| Sampling | Retrospective (π_z(X) depends on Z), Prospective (π(X) independent of Z) |
+| Overlap | Good (δ_z = 0.6), Poor (δ_z = 2.0) |
+| Model spec | Cor\|Cor, Mis\|Cor, Cor\|Mis, Mis\|Mis (PS\|PGS) |
+| Replications | 1,000 |
+| Bootstrap | B = 200, multinomial with linearization |
+| Sieve | 10-term polynomial basis in (Ψ_0, Ψ_1, logit(e)) |
 
-**Total: 32 scenarios** (2 × 2 × 2 × 4)
+**Methods compared**: PSM, PGM, DSM, SW-PSM (MatchIt), **WDSM** (M = 1, 3, 5)
 
-## Methods Compared
+**Metrics**: Relative bias (%), relative efficiency (variance ratio to PSM Cor|Cor), coverage of 95% CI
 
-| Method | Abbreviation | Scores Used | Survey Weights |
-|--------|-------------|-------------|----------------|
-| Propensity Score Matching | PSM | PS only | No |
-| Prognostic Score Matching | PGM | PGS only | No |
-| Double Score Matching | DSM | PS + PGS | No |
-| Survey-Weighted PS Full Matching | SW-PSM | PS | Yes (MatchIt) |
-| **Weighted Double Score Matching** | **WDSM** | **PS + PGS** | **Yes** |
+## Score Estimation
 
-## R Package
-
-The WDSM estimator is available as an R package:
-
-```r
-remotes::install_github("ykzeng-yale/wdsmatch")
-```
-
-See [wdsmatch repository](https://github.com/ykzeng-yale/wdsmatch) for documentation and usage.
-
-## HPC Configuration
-
-Simulations were run on the Yale Bouchet HPC cluster:
-- **Partition**: `day_amd` (64 CPUs per job)
-- **R version**: 4.4.2 (gfbf-2024a)
-- **Runtime**: ~1.5 hours per scenario (1,000 reps)
+| Component | Retrospective | Prospective |
+|-----------|--------------|-------------|
+| Propensity score e(X) | Survey-weighted GLM | Unweighted GLM |
+| Prognostic score Ψ_z(X) | Unweighted OLS | Unweighted OLS |
 
 ## Reproducing Results
 
-1. Obtain population data files (contact authors; see `Data/README.md`)
-2. Install R dependencies: `install.packages(c("MatchIt", "marginaleffects", "survey", "sampling", "parallel", "foreach", "doParallel"))`
-3. Install WDSM package: `remotes::install_github("ykzeng-yale/wdsmatch")`
-4. Place population data in each scenario's folder
-5. Submit SLURM jobs: `cd Simulations/.../CorCor && sbatch run_m135.sh`
-6. After completion, collect results into `Results/`
-7. Regenerate tables: `cd Tables && Rscript generate_tables.R`
-8. Regenerate figures: `cd Figures && Rscript generate_figures.R && Rscript generate_figures_transposed.R`
+1. Obtain population data (contact authors; see `Data/README.md`)
+2. Install dependencies: `install.packages(c("MatchIt", "marginaleffects", "survey", "sampling", "parallel", "foreach", "doParallel", "R.utils"))`
+3. Place population data in scenario folders
+4. Submit SLURM jobs: `sbatch run_m135.sh`
+5. Regenerate outputs: `Rscript generate_tables.R` and `Rscript generate_figures.R`
 
-## License
+## HPC
 
-GPL-3
+Yale Bouchet cluster: `day_amd` partition, 64 CPUs, R 4.4.2, ~1.5 hrs/scenario
 
 ## Contact
 
 Yukang Zeng — ykzeng2019@gmail.com
+
+## License
+
+GPL-3

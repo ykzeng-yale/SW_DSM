@@ -1,0 +1,7 @@
+# Large population data files (>80MB each)
+Data/*.RData
+
+# R build artifacts
+.Rhistory
+.RData
+.Rproj.user

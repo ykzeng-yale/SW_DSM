@@ -96,9 +96,9 @@
 & \cellcolor[rgb]{0.92,0.92,0.92}PGM & \cellcolor[rgb]{0.92,0.92,0.92}\textendash & \cellcolor[rgb]{0.92,0.92,0.92}\texttimes & \cellcolor[rgb]{0.92,0.92,0.92}5.9 & \cellcolor[rgb]{0.92,0.92,0.92}5.9 & \cellcolor[rgb]{0.92,0.92,0.92}11.4 & \cellcolor[rgb]{0.92,0.92,0.92}11.4 & \cellcolor[rgb]{0.92,0.92,0.92}2.35 & \cellcolor[rgb]{0.92,0.92,0.92}2.35 & \cellcolor[rgb]{0.92,0.92,0.92}1.78 & \cellcolor[rgb]{0.92,0.92,0.92}1.78 & \cellcolor[rgb]{0.92,0.92,0.92}81.4 & \cellcolor[rgb]{0.92,0.92,0.92}81.4 & \cellcolor[rgb]{0.92,0.92,0.92}67.3 & \cellcolor[rgb]{0.92,0.92,0.92}67.3 \\[2pt]
 & DSM & \texttimes & \texttimes & 5.9 & 5.8 & 6.3 & 10.5 & 2.30 & 2.32 & 2.00 & 1.76 & 82.2 & 83.2 & 87.0 & 71.1 \\[2pt]
 & \cellcolor[rgb]{0.92,0.92,0.92}SW-PSM & \cellcolor[rgb]{0.92,0.92,0.92}\checkmark & \cellcolor[rgb]{0.92,0.92,0.92}\textendash & \cellcolor[rgb]{0.92,0.92,0.92}$-$0.6 & \cellcolor[rgb]{0.92,0.92,0.92}$-$0.7 & \cellcolor[rgb]{0.92,0.92,0.92}$-$0.6 & \cellcolor[rgb]{0.92,0.92,0.92}$-$0.7 & \cellcolor[rgb]{0.92,0.92,0.92}1.89 & \cellcolor[rgb]{0.92,0.92,0.92}1.88 & \cellcolor[rgb]{0.92,0.92,0.92}1.89 & \cellcolor[rgb]{0.92,0.92,0.92}1.88 & \cellcolor[rgb]{0.92,0.92,0.92}92.5 & \cellcolor[rgb]{0.92,0.92,0.92}91.7 & \cellcolor[rgb]{0.92,0.92,0.92}92.5 & \cellcolor[rgb]{0.92,0.92,0.92}91.7 \\[2pt]
-& WDSM ($M$=1) & \checkmark & \texttimes & $-$0.7 & $-$0.7 & 2.8 & 3.5 & 1.92 & 2.14 & 1.32 & 0.78 & 94.3 & 94.0 & 94.1 & 93.2 \\[2pt]
-& WDSM ($M$=3) & \checkmark & \texttimes & $-$0.6 & $-$0.6 & 3.0 & 3.7 & 2.15 & 2.35 & 1.46 & 0.83 & 94.0 & 94.2 & 93.9 & 93.0 \\[2pt]
-& WDSM ($M$=5) & \checkmark & \texttimes & $-$0.6 & $-$0.6 & 3.0 & 3.7 & 2.14 & 2.40 & 1.48 & 0.84 & 94.4 & 94.5 & 94.3 & 93.5 \\
+& WDSM ($M$=1) & \checkmark & \texttimes & $-$0.7 & $-$0.8 & $-$0.4 & 3.8 & 2.11 & 2.14 & 1.73 & 1.52 & 93.1 & 92.8 & 94.9 & 89.8 \\[2pt]
+& WDSM ($M$=3) & \checkmark & \texttimes & $-$0.6 & $-$0.6 & $-$0.3 & 4.0 & 2.28 & 2.32 & 1.93 & 1.66 & 93.4 & 93.1 & 95.0 & 90.3 \\[2pt]
+& WDSM ($M$=5) & \checkmark & \texttimes & $-$0.6 & $-$0.6 & $-$0.2 & 4.0 & 2.34 & 2.33 & 1.97 & 1.70 & 93.7 & 93.8 & 95.0 & 91.1 \\
 \midrule
 \multirow{7}{*}{PATT}
 & PSM & \texttimes & \textendash & 5.9 & 11.4 & 5.9 & 11.4 & 1.00 & 0.81 & 1.00 & 0.81 & 96.2 & 83.8 & 96.2 & 83.9 \\[2pt]
@@ -136,9 +136,9 @@
 & \cellcolor[rgb]{0.92,0.92,0.92}PGM & \cellcolor[rgb]{0.92,0.92,0.92}\textendash & \cellcolor[rgb]{0.92,0.92,0.92}\texttimes & \cellcolor[rgb]{0.92,0.92,0.92}5.6 & \cellcolor[rgb]{0.92,0.92,0.92}5.6 & \cellcolor[rgb]{0.92,0.92,0.92}23.4 & \cellcolor[rgb]{0.92,0.92,0.92}23.4 & \cellcolor[rgb]{0.92,0.92,0.92}21.74 & \cellcolor[rgb]{0.92,0.92,0.92}21.74 & \cellcolor[rgb]{0.92,0.92,0.92}12.82 & \cellcolor[rgb]{0.92,0.92,0.92}12.82 & \cellcolor[rgb]{0.92,0.92,0.92}88.4 & \cellcolor[rgb]{0.92,0.92,0.92}88.4 & \cellcolor[rgb]{0.92,0.92,0.92}48.5 & \cellcolor[rgb]{0.92,0.92,0.92}48.5 \\[2pt]
 & DSM & \texttimes & \texttimes & 5.3 & 5.4 & 5.6 & 17.3 & 7.70 & 7.71 & 6.84 & 6.34 & 91.6 & 91.7 & 94.1 & 82.9 \\[2pt]
 & \cellcolor[rgb]{0.92,0.92,0.92}SW-PSM & \cellcolor[rgb]{0.92,0.92,0.92}\checkmark & \cellcolor[rgb]{0.92,0.92,0.92}\textendash & \cellcolor[rgb]{0.92,0.92,0.92}$-$1.5 & \cellcolor[rgb]{0.92,0.92,0.92}$-$1.1 & \cellcolor[rgb]{0.92,0.92,0.92}$-$1.5 & \cellcolor[rgb]{0.92,0.92,0.92}$-$1.1 & \cellcolor[rgb]{0.92,0.92,0.92}4.57 & \cellcolor[rgb]{0.92,0.92,0.92}4.42 & \cellcolor[rgb]{0.92,0.92,0.92}4.57 & \cellcolor[rgb]{0.92,0.92,0.92}4.42 & \cellcolor[rgb]{0.92,0.92,0.92}82.8 & \cellcolor[rgb]{0.92,0.92,0.92}83.3 & \cellcolor[rgb]{0.92,0.92,0.92}82.8 & \cellcolor[rgb]{0.92,0.92,0.92}83.3 \\[2pt]
-& WDSM ($M$=1) & \checkmark & \texttimes & $-$1.7 & $-$1.5 & $-$1.8 & 9.8 & 6.36 & 6.45 & 4.73 & 4.48 & 93.2 & 94.3 & 95.0 & 85.0 \\[2pt]
-& WDSM ($M$=3) & \checkmark & \texttimes & $-$1.2 & $-$1.1 & $-$0.8 & 10.9 & 7.31 & 7.45 & 6.11 & 5.60 & 93.4 & 93.6 & 95.7 & 84.9 \\[2pt]
-& WDSM ($M$=5) & \checkmark & \texttimes & $-$0.9 & $-$0.9 & $-$0.5 & 11.1 & 7.78 & 7.83 & 6.49 & 5.91 & 94.0 & 94.1 & 94.7 & 85.1 \\
+& WDSM ($M$=1) & \checkmark & \texttimes & $-$1.8 & $-$1.6 & $-$1.9 & 9.7 & 6.36 & 6.45 & 4.78 & 4.46 & 93.3 & 94.3 & 95.2 & 85.3 \\[2pt]
+& WDSM ($M$=3) & \checkmark & \texttimes & $-$1.2 & $-$1.1 & $-$0.8 & 11.0 & 7.30 & 7.43 & 6.05 & 5.63 & 93.3 & 93.4 & 95.6 & 84.7 \\[2pt]
+& WDSM ($M$=5) & \checkmark & \texttimes & $-$0.9 & $-$0.9 & $-$0.6 & 11.2 & 7.75 & 7.84 & 6.38 & 5.87 & 93.7 & 94.2 & 94.8 & 85.1 \\
 \midrule
 \multirow{7}{*}{PATT}
 & PSM & \texttimes & \textendash & 6.7 & 24.3 & 6.7 & 24.3 & 1.00 & 0.90 & 1.00 & 0.90 & 95.5 & 72.9 & 95.5 & 72.9 \\[2pt]

@@ -9,7 +9,7 @@ if (!require(dsmatch)) { install.packages("dsmatch"); library(dsmatch) }
 source("WDSM_adaptive.R")
 
 set.seed(2024)
-B_BOOTSTRAP <- 50
+B_BOOTSTRAP <- 200
 
 cat("\n===============================================================================\n")
 cat("   ANALYSIS 10: Sleep Duration → HbA1c\n")
@@ -67,7 +67,7 @@ cat(" Done\n")
 cat("Method 4: Weighted...")
 df <- data.frame(Y=Y, A=A, sw=sw, data_complete[, ps_vars])
 df$sw_norm <- df$sw * nrow(df) / sum(df$sw)
-m <- matchit(as.formula(paste("A ~", paste(ps_vars, collapse=" + "))), data=df, method="full", estimand="ATE")
+m <- matchit(as.formula(paste("A ~", paste(ps_vars, collapse=" + "))), data=df, method="full", estimand="ATE", s.weights=~sw_norm)
 md <- match.data(m)
 md$sw <- df$sw_norm[as.numeric(rownames(md))]
 fit <- lm(as.formula(paste("Y ~ A * (", paste(ps_vars, collapse=" + "), ")")), data=md, weights=weights)
@@ -84,7 +84,7 @@ wdsm_boot <- bootstrap_adaptive_wdsm(data=wdsm_data,
                                      ps_formula=as.formula(paste("A ~", paste(ps_vars, collapse=" + "))),
                                      pg_formula=as.formula(paste("~", paste(ps_vars, collapse=" + "))),
                                      outcome_var="Y", treatment_var="A", weight_var="survey_weight",
-                                     n_bootstrap=50, M=5, use_bias_correction=TRUE, verbose=FALSE)
+                                     n_bootstrap=B_BOOTSTRAP, M=5, use_bias_correction=TRUE, verbose=FALSE)
 results$wdsm <- list(estimate=wdsm_boot$point_estimate$tau,  # Extract tau value!
                      ci=c(wdsm_boot$ci_lower, wdsm_boot$ci_upper))
 cat(" Done\n\n")
@@ -120,4 +120,3 @@ for(m in c('dsm','pgm','psm','ps_full','wdsm')) {
 }
 cat("Sample avg:", round(sample_avg,3), "| Pop avg:", round(pop_avg,3), "| Bias:", sprintf("%+.1f%%", bias_pct), "\n")
 cat("\n✅ COMPLETE - FILE SAVED\n")
-

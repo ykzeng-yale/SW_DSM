@@ -1,66 +1,57 @@
-# Case Study Analyses
+# Case study analyses
 
-Corrected case study analyses for the paper using the `wdsmatch` R package.
+## Verified implementation update — September 2026
 
-## Case Study 1: NSDUH — Early Marijuana Use and Mental Illness
+These results were rerun from patched copies of the original functions with seed **2024**, **B=200**, and Wald intervals. They supersede the earlier README tables. These functions do not use a replacement implementation from the wdsmatch package.
 
-- **Data**: 2023 National Survey on Drug Use and Health (NSDUH)
-- **Sampling design**: **Prospective** (non-informative) — PS estimated without survey weights
-- **Treatment**: Early marijuana use initiation (before age 15)
-- **Outcomes**: AMIPY (any mental illness past year), SMIPY (serious mental illness past year)
-- **N**: 17,471 young adults aged 18–29
-- **Methods**: PSM, PGM, DSM, SW-PSM, WDSM (M=5)
+### NSDUH
 
-### Corrected WDSM Results (M=5, B=200)
+Original sample: 17,471 adults aged 18–29 (1,877 treated). Prospective WDSM uses unweighted first-stage propensity and prognostic fits, survey-weighted imputation/correction, and an outer Hájek average.
 
-| Outcome | Estimate | 95% CI |
-|---------|----------|--------|
-| AMIPY | 0.060 | [0.033, 0.147] |
-| SMIPY | 0.026 | [0.007, 0.114] |
+| Outcome | M | Estimate (risk difference) | 95% CI |
+|---|---:|---:|---|
+| AMIPY | 5 | 0.065414 | [-0.004752, 0.135581] |
+| SMIPY | 5 | 0.018153 | [-0.016620, 0.052926] |
 
-## Case Study 2: NHANES — Short Sleep Duration and HbA1c
+### NHANES
 
-- **Data**: NHANES 2007–2018
-- **Sampling design**: **Retrospective** (informative) — PS estimated with survey weights
-- **Treatment**: Short sleep duration (<7 hours/night)
-- **Outcome**: HbA1c (% glycated hemoglobin)
-- **N**: 3,793 non-diabetic adults aged 40–70
-- **Methods**: PSM, PGM, DSM, SW-PSM, WDSM (M=1,3,5)
+Saved sample: 3,793 adults aged 40–70 from **2015–2018**, after excluding reported diagnosed diabetes. Retrospective WDSM uses weighted propensity fits and unweighted prognostic fits. All methods in the primary comparison use seven covariates, including smoking. Original numeric coding and sample exclusions were preserved.
 
-### Corrected WDSM Results (B=200)
+| Method | M | Estimate (HbA1c percentage points) | 95% CI |
+|---|---:|---:|---|
+| WDSM | 1 | 0.070467 | [0.004005, 0.136929] |
+| WDSM | 3 | 0.074021 | [0.014437, 0.133606] |
+| WDSM | 5 | 0.074145 | [0.014311, 0.133979] |
+| SW-PSM | full | 0.070768 | [0.006834, 0.134703] |
 
-| M | Estimate | 95% CI |
-|---|----------|--------|
-| 1 | 0.116 | [0.023, 0.140] |
-| 3 | 0.086 | [0.023, 0.140] |
-| 5 | 0.079 | [0.023, 0.140] |
+SW-PSM also has an interval excluding zero. WDSM estimates do not decrease with M, and the M=3/M=5 intervals are nearly identical. These comparisons do not establish bias relative to an unknown causal effect.
 
-## Bugs Fixed in Corrected Analysis
+## Current files
 
-1. PGS was estimated with survey weights (should be unweighted per Eq. 4)
-2. NHANES sieve used probability-scale PS (should use logit)
-3. NSDUH was treated as retrospective (should be prospective)
-4. Bootstrap PGS re-estimation used survey weights (should use multinomial only)
+- NHANES: `0727 Test (SW_DSM)/Case Study Data/NHANES/WDSM_adaptive.R`
+- NSDUH: `0727 Test (SW_DSM)/Case Study Data/SAMHSA 0914/Analysis/Scripts/wdsm_flexible.R`
+- The NHANES `ANALYSIS_10_SLEEP_HBA1C_FIXED.R` caller now supplies sampling weights to full matching and uses B=200. Other historical runners and saved results are not automatically updated.
+- `verified_2026_09/run_verified_wdsm.R` reproduces the five WDSM results above from saved inputs with the recorded RNG protocol.
+- `verified_2026_09/results.csv` contains all 17 comparisons. This update adds no participant data or fitted-model objects.
 
-## Files
+Run from the repository root with original inputs available:
 
-```
-CaseStudy/
-├── README.md
-├── NSDUH/
-│   ├── run_wdsm_corrected.R          Corrected analysis using wdsmatch package
-│   ├── 11_complete_both_outcomes.R    Original full comparison script
-│   └── wdsm_flexible_OLD_BUGGY.R     Old WDSM function (buggy, for reference)
-├── NHANES/
-│   ├── run_wdsm_corrected.R          Corrected analysis using wdsmatch package
-│   ├── ANALYSIS_10_SLEEP_HBA1C_FIXED.R  Original analysis script
-│   └── WDSM_PATE_Retrospective_OLD_BUGGY.R  Old WDSM function (buggy)
-└── Figures/
-    ├── CaseStudy_Combined_WDSM.png   Updated figure
-    ├── CaseStudy_Combined_WDSM.pdf
-    └── visualize_casestudy.R         Figure generation script
+```sh
+Rscript CaseStudy/verified_2026_09/run_verified_wdsm.R
 ```
 
-## Original full folder snapshot
+## Corrections and scope
 
-The unchanged `0727 Test (SW_DSM)` folder is preserved in the [2026-09-07 snapshot](0727-snapshot/README.md), with browsable code and a complete downloadable archive including all data and saved results. This is a preservation upload; no new numerical analysis has been run.
+Matching uses **probability-scale propensity and the appropriate arm-specific prognostic score**, with pooled unweighted componentwise standardization. The previous README's claim that logit-scale scores were required was incorrect for this manuscript specification. Bias correction uses a survey-weighted complete quadratic in the same double score. This fixed basis does not itself prove a nonparametric rate assumption.
+
+NHANES propensity fitting weights are normalized by a common constant to prevent the original GLM initialization failure without changing the estimating equation. Convergence is checked. Replications refit nuisance regressions but retain the original reuse coefficients, as specified in the current manuscript. They do not rematch zero-multiplicity observations or silently omit failed imputations. NSDUH uses an equivalent rowwise distance computation to avoid large matrices.
+
+WDSM intervals are **Wald intervals from B-divisor replication variance**, not the old NHANES bias-corrected percentile intervals. SW-PSM retains matched-subclass cluster-robust covariance, not survey-PSU clustering; matching and survey outcome weights are combined exactly once. Unweighted comparisons retain the original dsmatch procedures.
+
+NHANES restores each original M-specific starting RNG state and extends 50 draws to 200, preserving its first 50 draws. Extended runs overlap in random draws. NSDUH resets 2024 per outcome. All five WDSM runs completed 200/200 replications and matched independent numerical calculations to approximately 1e-15.
+
+Numerical agreement is **not a completed proof of estimated-score or bootstrap validity**. Final appendix justification and NHANES special-value coding remain author-review items. Refused/unknown codes were retained for reproduction; changing their handling requires rerunning. These checks do not establish design-valid multistage-survey inference.
+
+## Historical archive
+
+The [2026-09-07 snapshot](0727-snapshot/README.md) retains the original complete folder, data and old results. It is historical, not the current numerical analysis.

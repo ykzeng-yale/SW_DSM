@@ -8,9 +8,18 @@
 #' - Real variable names from datasets
 #' - No hardcoded interactions
 #' - Proper handling of survey weights
+#'
+#' Local corrected copy of the original NSDUH function; original source is unchanged.
+#' Prospective specification: unweighted PS/PGS, own-arm probability-score
+#' double scores, pooled unweighted component moments, arm-specific quadratic
+#' survey-weighted bias correction, fixed-original-reuse multinomial replication.
+#' Bootstrap standardization and PS/PGS fitting use multiplicities, not survey weights.
+#' No propensity clipping, rank-deficient fallback, or tie jitter is applied.
+#' Numerical implementation only: successful execution does not prove inference validity.
 
 wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_formula,
-                         weight_var, M = 5, B = 200, alpha = 0.05, verbose = TRUE) {
+                         weight_var, M = 5, B = 200, alpha = 0.05, verbose = TRUE,
+                         bootstrap_counts = NULL) {
   
   # Extract variables from data
   Y <- data[[outcome_var]]
@@ -18,11 +27,23 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
   w <- data[[weight_var]]
   n <- length(Y)
   
-  if (!require(survey, quietly = TRUE)) {
-    stop("Package 'survey' is required. Please install it.")
+  if (!all(A %in% 0:1) || !all(is.finite(Y)) ||
+      !all(is.finite(w) & w > 0) || B < 2 || M < 1 ||
+      B != as.integer(B) || M != as.integer(M)) stop("Invalid outcome, treatment, weights, M, or B.")
+  if (!is.null(bootstrap_counts)) {
+    bootstrap_counts <- as.matrix(bootstrap_counts)
+    if (!identical(dim(bootstrap_counts), c(as.integer(n), as.integer(B))) ||
+        any(!is.finite(bootstrap_counts) | bootstrap_counts < 0 |
+            bootstrap_counts != floor(bootstrap_counts)) ||
+        any(colSums(bootstrap_counts) != n)) stop("Invalid supplied multinomial draws.")
   }
-  
-  # Helper: weighted standardization
+  check_fit <- function(fit, label) {
+    if (fit$rank != length(coef(fit)) || any(!is.finite(coef(fit))) ||
+        (!is.null(fit$converged) && !fit$converged)) stop(paste(label, "fit failed or was rank deficient."))
+  }
+
+  # Helper: weights here are row multiplicities (all ones for the point fit).
+  # Division by sum(weights) matches component moments of the replicated sample.
   standardize_weighted <- function(X, weights) {
     X <- as.matrix(X)
     w_sum <- sum(weights)
@@ -30,7 +51,7 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
     X_centered <- sweep(X, 2, X_mean, "-")
     X_var <- colSums(weights * X_centered^2) / w_sum
     X_sd <- sqrt(X_var)
-    X_sd[X_sd < 1e-10] <- 1
+    if (any(!is.finite(X_sd) | X_sd <= 0)) stop("Degenerate matching score.")
     X_std <- sweep(X_centered, 2, X_sd, "/")
     return(X_std)
   }
@@ -60,37 +81,36 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
     }
   }
   
-  # ---------- Step 2: Fit PROPENSITY SCORES with survey weights ----------
+  # ---------- Step 2: Fit PROPENSITY SCORES without survey weights ----------
   if (verbose) cat("\nFitting propensity score model...\n")
   
-  ps_design <- svydesign(ids = ~1, weights = ~weights, data = model_data)
-  
   ps_model <- tryCatch({
-    svyglm(ps_formula, design = ps_design, family = quasibinomial(link = "logit"))
+    glm(ps_formula, data = model_data, family = quasibinomial(link = "logit"), na.action = na.fail)
   }, error = function(e) {
     cat("Error in PS model:", e$message, "\n")
     stop("Failed to fit propensity score model")
   })
   
-  e_hat <- fitted(ps_model)
-  e_hat <- pmax(0.001, pmin(0.999, e_hat))  # Trim for stability
-  logit_e_hat <- qlogis(e_hat)
+  check_fit(ps_model, "Prospective propensity")
+  e_hat <- plogis(predict(ps_model, newdata = model_data, type = "link"))
   
   if (verbose) {
     cat("Propensity score range:", round(range(e_hat), 4), "\n")
   }
   
-  # ---------- Step 3: Fit PROGNOSTIC SCORES with survey weights ----------
+  # ---------- Step 3: Fit PROGNOSTIC SCORES without survey weights ----------
   if (verbose) cat("\nFitting prognostic score models...\n")
   
   # Fit separate models for treated and control
   # Control group model (psi_0)
   control_data <- model_data[A == 0, ]
-  pg_model_0 <- lm(pgs_formula, data = control_data, weights = weights)
+  pg_model_0 <- lm(pgs_formula, data = control_data, na.action = na.fail)
+  check_fit(pg_model_0, "Control prognostic")
   
   # Treated group model (psi_1)
   treated_data <- model_data[A == 1, ]
-  pg_model_1 <- lm(pgs_formula, data = treated_data, weights = weights)
+  pg_model_1 <- lm(pgs_formula, data = treated_data, na.action = na.fail)
+  check_fit(pg_model_1, "Treated prognostic")
   
   # Predict for all units
   psi_0 <- predict(pg_model_0, newdata = model_data)
@@ -104,47 +124,39 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
   # ---------- Step 4: Apply POLYNOMIAL SIEVE for bias correction ----------
   if (verbose) cat("\nApplying polynomial sieve correction...\n")
   
-  # Create rich polynomial basis (following dsmatchATE)
-  sieve_basis <- cbind(
-    psi_0,                    # mu0
-    psi_1,                    # mu1  
-    psi_0^2,                  # mu0^2
-    psi_1^2,                  # mu1^2
-    psi_0 * psi_1,            # mu0*mu1
-    e_hat,                    # ps
-    e_hat^2,                  # ps^2
-    e_hat * psi_0,            # ps*mu0
-    e_hat * psi_1,            # ps*mu1
-    e_hat * psi_0 * psi_1     # ps*mu0*mu1
-  )
-  colnames(sieve_basis) <- c("psi0", "psi1", "psi0_sq", "psi1_sq", "psi0_psi1",
-                             "ps", "ps_sq", "ps_psi0", "ps_psi1", "ps_psi0_psi1")
-  
+  # Each bias-correction regression uses only its own double score.
+  D_0 <- cbind(e_hat, psi_0)
+  D_1 <- cbind(e_hat, psi_1)
+  D_0_std <- standardize_weighted(D_0, rep(1, n))
+  D_1_std <- standardize_weighted(D_1, rep(1, n))
+  make_sieve <- function(D) {
+    data.frame(ps = D[, 1], psi = D[, 2], ps_sq = D[, 1]^2,
+               ps_psi = D[, 1] * D[, 2], psi_sq = D[, 2]^2)
+  }
+  sieve_basis_0 <- make_sieve(D_0_std)
+  sieve_basis_1 <- make_sieve(D_1_std)
+
   # Fit outcome model for treated units
-  mu1_data <- data.frame(Y = Y[A == 1], sieve_basis[A == 1, , drop = FALSE])
-  mu1_sieve_model <- lm(Y ~ ., data = mu1_data, weights = w[A == 1])
-  mu_hat_1 <- predict(mu1_sieve_model, newdata = data.frame(sieve_basis))
-  
+  mu1_data <- data.frame(Y = Y[A == 1], sieve_basis_1[A == 1, , drop = FALSE])
+  mu1_sieve_model <- lm(Y ~ ., data = mu1_data, weights = w[A == 1], na.action = na.fail)
+  check_fit(mu1_sieve_model, "Treated sieve")
+  mu_hat_1 <- predict(mu1_sieve_model, newdata = sieve_basis_1)
+
   # Fit outcome model for control units
-  mu0_data <- data.frame(Y = Y[A == 0], sieve_basis[A == 0, , drop = FALSE])
-  mu0_sieve_model <- lm(Y ~ ., data = mu0_data, weights = w[A == 0])
-  mu_hat_0 <- predict(mu0_sieve_model, newdata = data.frame(sieve_basis))
-  
-  # ---------- Step 5: Form DOUBLE SCORES for matching ----------
+  mu0_data <- data.frame(Y = Y[A == 0], sieve_basis_0[A == 0, , drop = FALSE])
+  mu0_sieve_model <- lm(Y ~ ., data = mu0_data, weights = w[A == 0], na.action = na.fail)
+  check_fit(mu0_sieve_model, "Control sieve")
+  mu_hat_0 <- predict(mu0_sieve_model, newdata = sieve_basis_0)
+
+  # ---------- Step 5: Match on the standardized DOUBLE SCORES ----------
   if (verbose) cat("\nPerforming double score matching (M =", M, ")...\n")
-  
-  # Use prognostic scores for matching
-  D_0 <- cbind(logit_e_hat, psi_0)
-  D_1 <- cbind(logit_e_hat, psi_1)
-  
-  # Standardize for matching
-  D_0_std <- standardize_weighted(D_0, w)
-  D_1_std <- standardize_weighted(D_1, w)
-  
-  # Build distance matrices
-  dist_D0 <- as.matrix(dist(D_0_std))
-  dist_D1 <- as.matrix(dist(D_1_std))
-  
+
+  # Equivalent rowwise Euclidean distances avoid two full n-by-n matrices.
+  # Donor order and stable original-row tie breaking are retained; no jitter.
+  row_distances <- function(D, i, donors) {
+    sqrt((D[donors, 1] - D[i, 1])^2 + (D[donors, 2] - D[i, 2])^2)
+  }
+
   # ---------- Step 6: Compute Weighted Reuse Factor (Ktilde) ----------
   if (verbose) cat("Computing reuse factors...\n")
   
@@ -157,6 +169,7 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
   
   treated_idx <- which(A == 1)
   control_idx <- which(A == 0)
+  if (length(treated_idx) < M || length(control_idx) < M) stop("Insufficient donors.")
   
   # Store matches for fixed matching in bootstrap
   matches_0 <- list()  # Matches for treated units
@@ -164,9 +177,9 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
   
   # For each treated unit, find M nearest controls
   for (i in treated_idx) {
-    dists <- dist_D0[i, control_idx]
+    dists <- row_distances(D_0_std, i, control_idx)
     if (length(control_idx) >= M) {
-      donors <- control_idx[order(dists)[1:M]]
+      donors <- control_idx[order(dists, method = "radix")[seq_len(M)]]
       matches_0[[i]] <- donors
       donor_weight_sum <- sum(w[donors])
       
@@ -179,9 +192,9 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
   
   # For each control unit, find M nearest treated
   for (i in control_idx) {
-    dists <- dist_D1[i, treated_idx]
+    dists <- row_distances(D_1_std, i, treated_idx)
     if (length(treated_idx) >= M) {
-      donors <- treated_idx[order(dists)[1:M]]
+      donors <- treated_idx[order(dists, method = "radix")[seq_len(M)]]
       matches_1[[i]] <- donors
       donor_weight_sum <- sum(w[donors])
       
@@ -215,56 +228,55 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
   if (verbose) cat("\nRunning bootstrap (B =", B, ")...")
   
   compute_boot_estimate <- function(Y_b, A_b, w_b, model_data_b, 
-                                   Ktilde_fixed, ps_formula, pgs_formula) {
+                                   Ktilde_fixed, ps_formula, pgs_formula, multiplicities) {
     
     omega_b <- w_b / sum(w_b)
     
     # Update weights in model data
     model_data_b$weights <- w_b
+    model_data_b$multiplicity <- multiplicities
     
-    # Re-estimate propensity scores
-    ps_design_b <- svydesign(ids = ~1, weights = ~weights, data = model_data_b)
-    ps_model_b <- tryCatch({
-      svyglm(ps_formula, design = ps_design_b, family = quasibinomial(link = "logit"))
-    }, error = function(e) NULL)
-    
-    if (is.null(ps_model_b)) return(NA)
-    
-    e_hat_b <- fitted(ps_model_b)
-    e_hat_b <- pmax(0.001, pmin(0.999, e_hat_b))
-    
-    # Re-estimate prognostic scores
+    # Prospective PS and both prognostic fits use multiplicities only.
+    ps_model_b <- glm(ps_formula, data = model_data_b, weights = multiplicity,
+                      family = quasibinomial(link = "logit"), na.action = na.fail)
+    check_fit(ps_model_b, "Replicate propensity")
+    e_hat_b <- plogis(predict(ps_model_b, newdata = model_data_b, type = "link"))
+
     control_data_b <- model_data_b[A_b == 0, ]
-    if (nrow(control_data_b) < 10) return(NA)
-    pg_model_0_b <- lm(pgs_formula, data = control_data_b, weights = weights)
-    
+    pg_model_0_b <- lm(pgs_formula, data = control_data_b, weights = multiplicity,
+                       na.action = na.fail)
+    check_fit(pg_model_0_b, "Replicate control prognostic")
     treated_data_b <- model_data_b[A_b == 1, ]
-    if (nrow(treated_data_b) < 10) return(NA)
-    pg_model_1_b <- lm(pgs_formula, data = treated_data_b, weights = weights)
-    
+    pg_model_1_b <- lm(pgs_formula, data = treated_data_b, weights = multiplicity,
+                       na.action = na.fail)
+    check_fit(pg_model_1_b, "Replicate treated prognostic")
     psi_0_b <- predict(pg_model_0_b, newdata = model_data_b)
     psi_1_b <- predict(pg_model_1_b, newdata = model_data_b)
-    
-    # Re-apply polynomial sieve
-    sieve_basis_b <- cbind(
-      psi_0_b, psi_1_b, psi_0_b^2, psi_1_b^2, psi_0_b * psi_1_b,
-      e_hat_b, e_hat_b^2, e_hat_b * psi_0_b, e_hat_b * psi_1_b, 
-      e_hat_b * psi_0_b * psi_1_b
-    )
-    colnames(sieve_basis_b) <- c("psi0", "psi1", "psi0_sq", "psi1_sq", "psi0_psi1",
-                                 "ps", "ps_sq", "ps_psi0", "ps_psi1", "ps_psi0_psi1")
-    
-    mu1_data_b <- data.frame(Y = Y_b[A_b == 1], sieve_basis_b[A_b == 1, , drop = FALSE])
-    mu1_sieve_model_b <- lm(Y ~ ., data = mu1_data_b, weights = w_b[A_b == 1])
-    mu_hat_1_b <- predict(mu1_sieve_model_b, newdata = data.frame(sieve_basis_b))
-    
-    mu0_data_b <- data.frame(Y = Y_b[A_b == 0], sieve_basis_b[A_b == 0, , drop = FALSE])
-    mu0_sieve_model_b <- lm(Y ~ ., data = mu0_data_b, weights = w_b[A_b == 0])
-    mu_hat_0_b <- predict(mu0_sieve_model_b, newdata = data.frame(sieve_basis_b))
-    
+
+    # Recompute the same component moments at the replicate multiplicities.
+    D_0_b <- standardize_weighted(cbind(e_hat_b, psi_0_b), multiplicities)
+    D_1_b <- standardize_weighted(cbind(e_hat_b, psi_1_b), multiplicities)
+    sieve_basis_0_b <- make_sieve(D_0_b)
+    sieve_basis_1_b <- make_sieve(D_1_b)
+
+    mu1_data_b <- data.frame(Y = Y_b[A_b == 1], sieve_basis_1_b[A_b == 1, , drop = FALSE])
+    mu1_sieve_model_b <- lm(Y ~ ., data = mu1_data_b, weights = w_b[A_b == 1],
+                            na.action = na.fail)
+    check_fit(mu1_sieve_model_b, "Replicate treated sieve")
+    mu_hat_1_b <- predict(mu1_sieve_model_b, newdata = sieve_basis_1_b)
+
+    mu0_data_b <- data.frame(Y = Y_b[A_b == 0], sieve_basis_0_b[A_b == 0, , drop = FALSE])
+    mu0_sieve_model_b <- lm(Y ~ ., data = mu0_data_b, weights = w_b[A_b == 0],
+                            na.action = na.fail)
+    check_fit(mu0_sieve_model_b, "Replicate control sieve")
+    mu_hat_0_b <- predict(mu0_sieve_model_b, newdata = sieve_basis_0_b)
+
     # Same-arm residuals
     mu_hat_A_b <- ifelse(A_b == 1, mu_hat_1_b, mu_hat_0_b)
     
+    # Manuscript fixed-original-reuse equation: Ktilde_i = K_i / w_i,
+    # so omega_b,i (1 + Ktilde_i) = m_i (w_i + K_i) / sum_j(m_j w_j).
+    # The original match sets and Ktilde are not recomputed.
     # Bootstrap estimate with FIXED Ktilde
     tau_b <- sum(omega_b * (mu_hat_1_b - mu_hat_0_b)) +
              sum(omega_b[A_b == 1] * (1 + Ktilde_fixed[A_b == 1]) * (Y_b[A_b == 1] - mu_hat_A_b[A_b == 1])) -
@@ -273,37 +285,39 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
     return(tau_b)
   }
   
-  # Run bootstrap
-  tau_boot <- numeric(B)
-  
-  for (b in 1:B) {
-    if (verbose && b %% 50 == 0) cat(".")
-    
-    # Generate multinomial weights
-    m_star <- rmultinom(1, n, rep(1/n, n))[, 1]
+  # All-one multiplicities must reproduce the point estimate.
+  identity_estimate <- compute_boot_estimate(Y, A, w, model_data, Ktilde,
+                                             ps_formula, pgs_formula, rep(1, n))
+  identity_error <- abs(identity_estimate - tau_hat)
+  if (!is.finite(identity_error) || identity_error > 1e-9) stop("All-one replicate identity failed.")
+
+  # Run bootstrap, retaining a diagnostic for every attempted replication.
+  tau_boot <- rep(NA_real_, B)
+  bootstrap_errors <- rep("", B)
+  for (b in seq_len(B)) {
+    if (verbose && b %% 25 == 0) cat(" Replication", b, "/", B, "\n")
+    m_star <- if (is.null(bootstrap_counts)) {
+      as.vector(rmultinom(1, n, rep(1/n, n)))
+    } else bootstrap_counts[, b]
     w_b <- m_star * w
-    
-    # Compute bootstrap estimate
-    tau_boot[b] <- compute_boot_estimate(Y, A, w_b, model_data,
-                                        Ktilde, ps_formula, pgs_formula)
+    tau_boot[b] <- tryCatch(
+      compute_boot_estimate(Y, A, w_b, model_data, Ktilde, ps_formula,
+                            pgs_formula, m_star),
+      error = function(e) {
+        bootstrap_errors[b] <<- conditionMessage(e)
+        NA_real_
+      })
   }
-  
   if (verbose) cat(" Done!\n")
-  
-  # Remove NA values
-  valid_boots <- !is.na(tau_boot)
-  tau_boot_valid <- tau_boot[valid_boots]
-  n_valid <- length(tau_boot_valid)
-  
-  if (n_valid < B * 0.5) {
-    warning(paste("Only", n_valid, "out of", B, "bootstrap samples were valid"))
-  }
-  
-  # Compute bootstrap SE and CI
-  se_boot <- sd(tau_boot_valid)
+
+  valid_boots <- is.finite(tau_boot)
+  n_valid <- sum(valid_boots)
+  if (n_valid != B) warning(paste(n_valid, "of", B, "replications valid; SE/CI withheld."))
+  # Manuscript variance uses B, not B - 1. Fail closed on any invalid draw.
+  se_boot <- if (n_valid == B) sqrt(mean((tau_boot - mean(tau_boot))^2)) else NA_real_
   ci_lower <- tau_hat - qnorm(1 - alpha/2) * se_boot
   ci_upper <- tau_hat + qnorm(1 - alpha/2) * se_boot
-  
+
   if (verbose) {
     cat("\nResults:\n")
     cat("  Estimate: τ̂ =", round(tau_hat, 4), "\n")
@@ -319,7 +333,21 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
     ci_lower = ci_lower,
     ci_upper = ci_upper,
     n_boot_valid = n_valid,
-    bootstrap_estimates = tau_boot_valid,
+    bootstrap_estimates = tau_boot,
+    bootstrap_errors = bootstrap_errors,
+    identity_error = identity_error,
+    raw_estimate = sum(omega * (2 * A - 1) * (1 + Ktilde) * Y),
+    matches_0 = matches_0,
+    matches_1 = matches_1,
+    mu_hat_0 = mu_hat_0,
+    mu_hat_1 = mu_hat_1,
+    settings = list(design = "prospective", PS = "unweighted",
+                    PGS = "unweighted within arm", M = M, B = B,
+                    standardization = "pooled unweighted component moments; replicate multiplicities",
+                    score = "probability propensity and own-arm prognostic score",
+                    sieve = "complete quadratic on each arm-specific double score",
+                    replication = "fixed original reuse; full nuisance refits",
+                    CI = "normal/Wald; B-divisor replication variance"),
     Ktilde = Ktilde,
     ps_model = ps_model,
     pg_model_0 = pg_model_0,
@@ -332,7 +360,6 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
   return(result)
 }
 
-cat("WDSM Flexible Version loaded successfully!\n")
+cat("Corrected NSDUH prospective WDSM function loaded successfully!\n")
 cat("This version accepts formula objects for PS and PGS models.\n")
 cat("Usage: wdsm_flexible(data, outcome_var, treatment_var, ps_formula, pgs_formula, weight_var, ...)\n")
-

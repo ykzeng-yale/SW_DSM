@@ -1,8 +1,0 @@
-print.wdsmatch          Print method for wdsmatch objects
-summary.wdsmatch        Summary method for wdsmatch objects
-survey_obs              Simulated Survey Observational Data
-wdsmatchATE             Weighted Double Score Matching Estimator for
-                        Population Average Treatment Effect
-wdsmatchATT             Weighted Double Score Matching Estimator for
-                        Population Average Treatment Effect on the
-                        Treated

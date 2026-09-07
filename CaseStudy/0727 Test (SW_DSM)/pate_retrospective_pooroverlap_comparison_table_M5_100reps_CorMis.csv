@@ -1,3 +1,0 @@
-"Scenario","M","Method","N_Valid","Mean_Estimate","Bias","Rel_Bias","Empirical_SE","Mean_SE","SE_Ratio","Coverage","RMSE"
-"CorMis",5,"ps_weighted",100,0.9151,0.0487,0.0562,0.2248,0.1518,0.6753,0.79,0.2289
-"CorMis",5,"wdsm_multinomial",1,1.0735,0.2071,0.2391,NA,0.0894,NA,0,0.2071

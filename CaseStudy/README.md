@@ -28,16 +28,18 @@ SW-PSM also has an interval excluding zero. WDSM estimates do not decrease with 
 
 ## Current files
 
-- NHANES: `0727 Test (SW_DSM)/Case Study Data/NHANES/WDSM_adaptive.R`
-- NSDUH: `0727 Test (SW_DSM)/Case Study Data/SAMHSA 0914/Analysis/Scripts/wdsm_flexible.R`
+- NHANES: `NHANES/WDSM_adaptive.R`
+- NSDUH: `NSDUH/wdsm_flexible.R`
 - The NHANES `ANALYSIS_10_SLEEP_HBA1C_FIXED.R` caller now supplies sampling weights to full matching and uses B=200. Other historical runners and saved results are not automatically updated.
-- `verified_2026_09/run_verified_wdsm.R` reproduces the five WDSM results above from saved inputs with the recorded RNG protocol.
-- `verified_2026_09/results.csv` contains all 17 comparisons. This update adds no participant data or fitted-model objects.
+- `NHANES/run_wdsm_corrected.R` and `NSDUH/run_wdsm_corrected.R` reproduce the five WDSM results above from saved inputs with the recorded RNG protocol.
+- `Figures/results.csv` contains all 17 comparisons. This update adds no participant data or fitted-model objects.
 
 Run from the repository root with original inputs available:
 
 ```sh
-Rscript CaseStudy/verified_2026_09/run_verified_wdsm.R
+Rscript CaseStudy/NHANES/run_wdsm_corrected.R
+Rscript CaseStudy/NSDUH/run_wdsm_corrected.R
+python3 CaseStudy/Figures/plot_corrected_case_studies.py
 ```
 
 ## Corrections and scope
@@ -52,6 +54,9 @@ NHANES restores each original M-specific starting RNG state and extends 50 draws
 
 Numerical agreement is **not a completed proof of estimated-score or bootstrap validity**. Final appendix justification and NHANES special-value coding remain author-review items. Refused/unknown codes were retained for reproduction; changing their handling requires rerunning. These checks do not establish design-valid multistage-survey inference.
 
-## Historical archive
 
-The [2026-09-07 snapshot](0727-snapshot/README.md) retains the original complete folder, data and old results. It is historical, not the current numerical analysis.
+## Inputs and figures
+
+Participant data are not included in these analysis directories. Set `NHANES_INPUT` to the original `WDSM_M1_M3_M5_ANALYSIS_10.rda` containing `data_prep`, and `NSDUH_INPUT` to the original `complete_case_data.rds`. Default paths are the respective study directories under `data/`. The original NHANES broad analysis runner additionally requires its raw input and dependencies; use `run_wdsm_corrected.R` for the exact reported WDSM reproduction.
+
+The corrected PNG/PDF in `Figures/` use `Figures/results.csv`. Historical 0727 directories and the duplicate verification directory were removed from the current branch; prior versions remain recoverable from Git history.

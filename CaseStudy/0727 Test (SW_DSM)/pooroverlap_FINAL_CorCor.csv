@@ -1,6 +1,0 @@
-"Scenario","M","Method","N_Valid","Mean_Estimate","Bias","Rel_Bias","Empirical_SE","Mean_SE","SE_Ratio","Coverage","RMSE"
-"CorCor","1:1","dsm_unweighted",100,0.9601,0.0937,0.1081,0.0862,0.0932,1.0805,0.83,0.127
-"CorCor","1:1","pg_unweighted",100,0.9519,0.0855,0.0987,0.0564,0.0564,1.0011,0.63,0.1022
-"CorCor","1:1","ps_unweighted",100,1.0456,0.1792,0.2068,0.248,0.2616,1.0548,0.89,0.305
-"CorCor","1:1","ps_weighted",100,0.8734,0.007,0.0081,0.1606,0.1127,0.7019,0.81,0.16
-"CorCor","1:1","wdsm_multinomial",100,0.8404,-0.026,-0.03,0.11,0.0697,0.6336,0.79,0.1125

@@ -1,2 +1,0 @@
-"Scenario","M","Method","N_Valid","Mean_Estimate","Bias","Rel_Bias","Empirical_SE","Mean_SE","SE_Ratio","Coverage","RMSE"
-"MisMis",5,"ps_weighted",100,1.1568,0.2904,0.3352,0.2099,0.1544,0.7355,0.46,0.3577

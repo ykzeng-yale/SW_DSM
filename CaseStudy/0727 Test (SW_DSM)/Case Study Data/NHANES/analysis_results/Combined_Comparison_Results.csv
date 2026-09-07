@@ -1,7 +1,0 @@
-"Analysis","Method","Estimate","CI_Lower","CI_Upper","Significant","Percent Change"
-"Race (Black vs White)","Unweighted DSM",0.0232,0.0022,0.0443,"Yes","2.35%"
-"Race (Black vs White)","Survey-Weighted PS Full",-0.0321,-0.0572,-0.0069,"Yes","-3.15%"
-"Race (Black vs White)","WDSM",0.0156,-0.0033,0.0393,"No","1.58%"
-"Lead Exposure (High vs Low)","Unweighted DSM",-0.0014,-0.0176,0.0148,"No","-0.14%"
-"Lead Exposure (High vs Low)","Survey-Weighted PS Full",-0.0109,-0.03,0.0083,"No","-1.08%"
-"Lead Exposure (High vs Low)","WDSM",-0.0033,-0.0215,0.0152,"No","-0.33%"

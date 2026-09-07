@@ -1,45 +1,44 @@
-#!/usr/bin/env Rscript
-# NHANES Case Study: WDSM analysis using wdsmatch package
-# Sampling design: RETROSPECTIVE (informative)
-# Treatment: Short sleep duration (<7 hours)
-# Outcome: HbA1c (% glycated hemoglobin)
-
-library(wdsmatch)
-library(dplyr)
-
-load("data/nhanes_2007_2018.rda")
-
-analytic_data <- nhanes_2007_2018 %>%
-  filter(!is.na(sld012), !is.na(lbxgh), ridageyr >= 40, ridageyr <= 70,
-         !is.na(diq010), diq010 != 1)
-
-ps_vars <- c("ridageyr", "riagendr", "ridreth1", "bmxbmi", "dmdeduc2", "indfmpir")
-if ("smq020" %in% names(analytic_data)) ps_vars <- c(ps_vars, "smq020")
-
-complete_idx <- complete.cases(analytic_data[, c("lbxgh", "sld012", ps_vars, "wtmec2yr")])
-data_complete <- analytic_data[complete_idx, ]
-
-Y <- data_complete$lbxgh
-Z <- ifelse(data_complete$sld012 < 7, 1, 0)
-w <- data_complete$wtmec2yr
-X <- data_complete[, ps_vars]
-
-ps_formula <- as.formula(paste("Z ~", paste(ps_vars, collapse = " + ")))
-pg_formula <- as.formula(paste("Y ~", paste(ps_vars, collapse = " + ")))
-
-cat("N:", nrow(data_complete), "Short sleep:", sum(Z == 1), "Adequate:", sum(Z == 0), "\n\n")
-
-for (M in c(1, 3, 5)) {
-  cat(sprintf("=== WDSM (M=%d) ===\n", M))
-
-  set.seed(2024)
-  fit <- wdsmatchATE(
-    Y = Y, X = X, Z = Z, weights = w, M = M,
-    model.ps = ps_formula, model.pg = pg_formula,
-    sampling = "retrospective",
-    varest = TRUE, boots = 200
-  )
-
-  cat(sprintf("  Estimate: %.4f\n  SE: %.4f\n  95%% CI: [%.4f, %.4f]\n\n",
-              fit$estimate, fit$se, fit$ci[1], fit$ci[2]))
+# Run from the repository root. Supply the original input locally; no automatic downloads.
+repo <- normalizePath(getwd(), mustWork=TRUE)
+options(warn=2)
+RNGkind("Mersenne-Twister", "Inversion", "Rejection")
+rows <- list()
+nh <- new.env()
+sys.source(file.path(repo,"CaseStudy","NHANES","WDSM_adaptive.R"), nh)
+saved <- new.env()
+load(Sys.getenv("NHANES_INPUT", file.path(repo,"CaseStudy","NHANES","data","WDSM_M1_M3_M5_ANALYSIS_10.rda")), saved)
+raw <- saved$data_prep
+vars <- c("ridageyr","riagendr","ridreth1","dmdeduc2","indfmpir","bmxbmi","smq020")
+d <- as.data.frame(raw)
+d$Y <- d$lbxgh
+d$A <- as.numeric(d$sld012 < 7)
+d$survey_weight <- d$wtmec2yr
+stopifnot(nrow(d)==3793, all(complete.cases(d[,c("Y","A","survey_weight",vars)])))
+# Original all-analysis runner seeds once. Advance only its multinomial calls.
+set.seed(2024)
+for (previous_n in c(12164,5876,14021,14381,8973)) {
+  for (b in seq_len(150)) invisible(rmultinom(1,previous_n,rep(1/previous_n,previous_n)))
 }
+starts <- list()
+for (M in c(1,3,5)) {
+  starts[[as.character(M)]] <- .Random.seed
+  for (b in seq_len(50)) invisible(rmultinom(1,nrow(d),rep(1/nrow(d),nrow(d))))
+}
+for (M in c(1,3,5)) {
+  .Random.seed <- starts[[as.character(M)]]
+  fit <- nh$bootstrap_adaptive_wdsm(d,reformulate(vars,"A"),reformulate(vars),
+    M=M,n_bootstrap=200,seed=NULL,sampling_design="retrospective")
+  rows[[paste0("NHANES",M)]] <- data.frame(study="NHANES",outcome="HbA1c",M=M,
+    estimate=fit$point_estimate$tau,SE=fit$se,lower=fit$ci_lower,upper=fit$ci_upper)
+}
+tab <- do.call(rbind,rows)
+rownames(tab) <- NULL
+reference <- read.csv(file.path(repo,"CaseStudy","Figures","results.csv"))
+reference <- subset(reference,method=="WDSM")
+key <- function(x) paste(x$study,x$outcome,x$M)
+reference <- reference[match(key(tab),key(reference)),]
+stopifnot(max(abs(as.matrix(tab[,c("estimate","SE","lower","upper")])-
+  as.matrix(reference[,c("estimate","SE","lower","upper")]))) < 1e-8)
+write.csv(tab,file.path(repo,"CaseStudy","NHANES","rerun_wdsm_summary.csv"),row.names=FALSE)
+print(tab,digits=12)
+cat("Verified against the published numerical table. This is not a proof of inference validity.\n")

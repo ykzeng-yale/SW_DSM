@@ -25,18 +25,18 @@ library(Matching)  # Required for dsmatchATE
 
 # Source functions
 # Source all dsmatch helper functions first
-source("dsmatch-master/R/is.lp.R")
-source("dsmatch-master/R/is.ps.R")
-source("dsmatch-master/R/is.pg.R")
-source("dsmatch-master/R/estforboot_dsATE.R")
-source("dsmatch-master/R/estforboot_psATE.R")
-source("dsmatch-master/R/estforboot_pgATE.R")
-source("dsmatch-master/R/estforboot_covATE.R")
-source("dsmatch-master/R/dsmatchATE.R")
-source("Analysis/Scripts/wdsm_flexible.R")
+source("R/dsmatch/is.lp.R")
+source("R/dsmatch/is.ps.R")
+source("R/dsmatch/is.pg.R")
+source("R/dsmatch/estforboot_dsATE.R")
+source("R/dsmatch/estforboot_psATE.R")
+source("R/dsmatch/estforboot_pgATE.R")
+source("R/dsmatch/estforboot_covATE.R")
+source("R/dsmatch/dsmatchATE.R")
+source("CaseStudy/NSDUH/wdsm_flexible.R")
 
 # Set working directory
-setwd("/Users/yukang/Desktop/Yale Causal Inference Biostat Research (0318-)/PSM:DSM_SW/Case Study Data/SAMHSA 0914")
+# Run from the repository root.
 
 # ============================================================================
 # 1. Load and Prepare Data
@@ -44,7 +44,7 @@ setwd("/Users/yukang/Desktop/Yale Causal Inference Biostat Research (0318-)/PSM:
 
 cat("\n--- Loading Data ---\n")
 
-analytic_data <- readRDS("Analysis/Results/03_analytic_dataset/complete_case_data.rds")
+analytic_data <- readRDS(Sys.getenv("NSDUH_INPUT", "CaseStudy/NSDUH/data/complete_case_data.rds"))
 
 # Prepare data with all necessary variables
 comparison_data <- analytic_data %>%

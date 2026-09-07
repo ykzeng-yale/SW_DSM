@@ -1,0 +1,156 @@
+Warning message:
+'memory.limit()' is Windows-specific 
+[1] Inf
+Warning message:
+'memory.limit()' is Windows-specific 
+Warning message:
+package ‘MASS’ was built under R version 4.4.1 
+Warning message:
+package ‘nnet’ was built under R version 4.4.1 
+Warning message:
+package ‘MatchIt’ was built under R version 4.4.1 
+Loading required package: foreach
+Loading required package: iterators
+Warning message:
+package ‘boot’ was built under R version 4.4.1 
+Warning message:
+package ‘marginaleffects’ was built under R version 4.4.1 
+Loading required package: usethis
+Warning message:
+package ‘usethis’ was built under R version 4.4.1 
+Loading required package: grid
+Loading required package: Matrix
+Loading required package: survival
+
+Attaching package: ‘survival’
+
+The following object is masked from ‘package:boot’:
+
+    aml
+
+
+Attaching package: ‘survey’
+
+The following object is masked from ‘package:graphics’:
+
+    dotchart
+
+Warning messages:
+1: package ‘Matrix’ was built under R version 4.4.1 
+2: package ‘survival’ was built under R version 4.4.1 
+
+Attaching package: ‘sampling’
+
+The following objects are masked from ‘package:survival’:
+
+    cluster, strata
+
+Warning message:
+package ‘sampling’ was built under R version 4.4.1 
+Loading custom functions...
+
+Attaching package: ‘dplyr’
+
+The following object is masked from ‘package:MASS’:
+
+    select
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+
+Attaching package: ‘tidyr’
+
+The following objects are masked from ‘package:Matrix’:
+
+    expand, pack, unpack
+
+
+Attaching package: ‘purrr’
+
+The following objects are masked from ‘package:foreach’:
+
+    accumulate, when
+
+
+Attaching package: ‘matrixStats’
+
+The following object is masked from ‘package:dplyr’:
+
+    count
+
+
+Attaching package: ‘Hmisc’
+
+The following objects are masked from ‘package:dplyr’:
+
+    src, summarize
+
+The following object is masked from ‘package:survey’:
+
+    deff
+
+The following objects are masked from ‘package:base’:
+
+    format.pval, units
+
+Warning messages:
+1: package ‘mvtnorm’ was built under R version 4.4.1 
+2: package ‘purrr’ was built under R version 4.4.1 
+3: package ‘matrixStats’ was built under R version 4.4.1 
+4: package ‘Hmisc’ was built under R version 4.4.1 
+WDSM Method 2 with Polynomial Sieve: Module loaded successfully.
+Main function: method2_multinomial_bootstrap_ci()
+Wrapper function: compute_wdsm_method2_ci()
+ℹ Loading dsmatch
+
+============================================================
+Loading population data...
+============================================================
+
+True Population PATE: 0.8664 
+
+============================================================
+Running Local Test: PATE Retrospective Comparison
+============================================================
+Configuration:
+  - Replicates: 10 
+  - Cores: 2 
+  - Sample size: 5000 (retrospective)
+  - Bootstrap iterations: 200
+  - Methods: DSM, PG, PS (unweighted), PS Full (weighted), WDSM
+============================================================
+
+starting worker pid=76519 on localhost:11932 at 17:31:56.697
+starting worker pid=76520 on localhost:11932 at 17:31:56.710
+Starting simulation...
+WDSM Method 2 with Polynomial Sieve: Module loaded successfully.
+Main function: method2_multinomial_bootstrap_ci()
+Wrapper function: compute_wdsm_method2_ci()
+WDSM Method 2 with Polynomial Sieve: Module loaded successfully.
+Main function: method2_multinomial_bootstrap_ci()
+Wrapper function: compute_wdsm_method2_ci()
+WDSM Method 2 with Polynomial Sieve: Module loaded successfully.
+Main function: method2_multinomial_bootstrap_ci()
+Wrapper function: compute_wdsm_method2_ci()
+WDSM Method 2 with Polynomial Sieve: Module loaded successfully.
+Main function: method2_multinomial_bootstrap_ci()
+Wrapper function: compute_wdsm_method2_ci()
+WDSM Method 2 with Polynomial Sieve: Module loaded successfully.
+Main function: method2_multinomial_bootstrap_ci()
+Wrapper function: compute_wdsm_method2_ci()
+WDSM Method 2 with Polynomial Sieve: Module loaded successfully.
+Main function: method2_multinomial_bootstrap_ci()
+Wrapper function: compute_wdsm_method2_ci()
+Completed 5 of 10 replicates
+WDSM Method 2 with Polynomial Sieve: Module loaded successfully.
+Main function: method2_multinomial_bootstrap_ci()
+Wrapper function: compute_wdsm_method2_ci()
+WDSM Method 2 with Polynomial Sieve: Module loaded successfully.
+Main function: method2_multinomial_bootstrap_ci()
+Wrapper function: compute_wdsm_method2_ci()

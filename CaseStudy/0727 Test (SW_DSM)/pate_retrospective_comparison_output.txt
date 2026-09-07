@@ -1,0 +1,186 @@
+Warning message:
+'memory.limit()' is Windows-specific 
+Loading required package: grid
+Loading required package: Matrix
+Loading required package: survival
+
+Attaching package: ‘survey’
+
+The following object is masked from ‘package:graphics’:
+
+    dotchart
+
+Warning messages:
+1: package ‘Matrix’ was built under R version 4.4.1 
+2: package ‘survival’ was built under R version 4.4.1 
+
+Attaching package: ‘sampling’
+
+The following objects are masked from ‘package:survival’:
+
+    cluster, strata
+
+Warning message:
+package ‘sampling’ was built under R version 4.4.1 
+Warning message:
+package ‘MASS’ was built under R version 4.4.1 
+Warning message:
+package ‘nnet’ was built under R version 4.4.1 
+Warning message:
+package ‘MatchIt’ was built under R version 4.4.1 
+Loading required package: foreach
+Loading required package: iterators
+
+Attaching package: ‘boot’
+
+The following object is masked from ‘package:survival’:
+
+    aml
+
+Warning message:
+package ‘boot’ was built under R version 4.4.1 
+Loaded glmnet 4.1-8
+Warning message:
+package ‘marginaleffects’ was built under R version 4.4.1 
+Warning message:
+'memory.limit()' is Windows-specific 
+Warning message:
+'memory.limit()' is Windows-specific 
+Warning message:
+'memory.limit()' is Windows-specific 
+Warning message:
+'memory.limit()' is Windows-specific 
+Warning message:
+'memory.limit()' is Windows-specific 
+ℹ Loading dsmatch
+
+Attaching package: ‘dplyr’
+
+The following object is masked from ‘package:MASS’:
+
+    select
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+WDSM Method 1: Exponential Bootstrap module loaded successfully.
+Main function: method1_exponential_bootstrap_ci()
+Wrapper function: compute_wdsm_method1_ci()
+Warning message:
+package ‘mvtnorm’ was built under R version 4.4.1 
+
+Attaching package: ‘tidyr’
+
+The following objects are masked from ‘package:Matrix’:
+
+    expand, pack, unpack
+
+
+Attaching package: ‘purrr’
+
+The following objects are masked from ‘package:foreach’:
+
+    accumulate, when
+
+
+Attaching package: ‘matrixStats’
+
+The following object is masked from ‘package:dplyr’:
+
+    count
+
+
+Attaching package: ‘Hmisc’
+
+The following objects are masked from ‘package:dplyr’:
+
+    src, summarize
+
+The following object is masked from ‘package:survey’:
+
+    deff
+
+The following objects are masked from ‘package:base’:
+
+    format.pval, units
+
+Warning messages:
+1: package ‘purrr’ was built under R version 4.4.1 
+2: package ‘matrixStats’ was built under R version 4.4.1 
+3: package ‘Hmisc’ was built under R version 4.4.1 
+
+True Population PATE: 0.8664 
+
+============================================================
+Running PATE Retrospective Sampling Comparison
+============================================================
+
+Sample size: 5000 
+Running 100 replicates in parallel using 5 cores...
+Warning message:
+In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): run_single_replicate
+
+Total runtime: 89.29 minutes
+
+
+============================================================
+====================
+FINAL RESULTS SUMMARY - PATE RETROSPECTIVE SAMPLING
+============================================================
+
+                     Method Mean_Estimate      Bias Mean_SE Empirical_SD
+1          DSM (Unweighted)        0.9175  0.051084 0.05341      0.05850
+2           PG (Unweighted)        0.9202  0.053837 0.05208      0.04996
+3           PS (Unweighted)        0.9272  0.060759 0.11115      0.08236
+4 PS Full (Survey-Weighted)        0.8600 -0.006344 0.06167      0.06336
+5             Method 1 WDSM        0.8998  0.033367 0.05979      0.05340
+  Relative_Bias Relative_Efficiency Coverage CI_Width
+1      0.058962               1.982     0.86   0.2093
+2      0.062139               2.718     0.83   0.2042
+3      0.070129               1.000     0.96   0.4357
+4     -0.007322               1.690     0.92   0.2418
+5      0.038513               2.379     0.95   0.2344
+
+
+Results saved to 'pate_retrospective_comparison_results.RData'
+Warning message:
+package ‘ggplot2’ was built under R version 4.4.1 
+
+Plot saved to 'pate_retrospective_comparison_plot.pdf'
+
+
+Detailed Results Table:
+                    Method Estimate    Bias     SE Emp_SD Bias_Percent
+          DSM (Unweighted)   0.9175  0.0511 0.0534 0.0585         5.9%
+           PG (Unweighted)   0.9202  0.0538 0.0521 0.0500         6.2%
+           PS (Unweighted)   0.9272  0.0608 0.1111 0.0824         7.0%
+ PS Full (Survey-Weighted)   0.8600 -0.0063 0.0617 0.0634        -0.7%
+             Method 1 WDSM   0.8998  0.0334 0.0598 0.0534         3.9%
+ Efficiency Coverage CI_Width
+       1.98    86.0%   0.2093
+       2.72    83.0%   0.2042
+       1.00    96.0%   0.4357
+       1.69    92.0%   0.2418
+       2.38    95.0%   0.2344
+
+
+Detailed results table saved to 'pate_retrospective_comparison_table.csv'
+
+
+Diagnostic Summary:
+================
+
+Total computation time: 89.29 minutes
+Average time per replicate: 53.58 seconds
+
+Bias-variance plot saved to 'pate_retrospective_bias_variance_plot.pdf'
+
+============================================================
+Analysis Complete!
+============================================================

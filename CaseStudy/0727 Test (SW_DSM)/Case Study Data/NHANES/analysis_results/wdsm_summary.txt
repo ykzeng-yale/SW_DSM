@@ -1,0 +1,13 @@
+WDSM Analysis Summary for NHANES Telomere Length Data
+Date: 20346 
+================================================
+
+Simple Variable Encoding Method:
+  PATE = 0.032 
+  SE = 0.0073 
+  95% CI: [ 0.0218 ,  0.0469 ]
+
+PCA Method:
+  PATE = 0.0157 
+  SE = 0.0096 
+  95% CI: [ 0.0052 ,  0.0406 ]

@@ -1,0 +1,3 @@
+"Method","Outcome","Sample_Size","Treated","Control","Weighted_N","Estimate","SE","CI_Lower","CI_Upper","P_Value"
+"WDSM (M=5)","Any Mental Illness (AMIPY)",17471,1877,15594,51794162.8992302,421.951935835469,2451.40701492331,-4382.71752486305,5226.62139653399,0.863338135398261
+"Simple Weighted Diff","Any Mental Illness (AMIPY)",17471,1877,15594,51794162.8992302,0.146904584417179,NA,NA,NA,NA

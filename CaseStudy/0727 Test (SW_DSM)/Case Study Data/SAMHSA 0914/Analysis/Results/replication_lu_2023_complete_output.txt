@@ -1,0 +1,94 @@
+Warning message:
+'memory.limit()' is Windows-specific 
+
+================================================================
+EXACT REPLICATION: Lu et al. (2023)
+Young Adults 18-25, NSDUH 2023
+================================================================
+
+Warning messages:
+1: package 'ggplot2' was built under R version 4.4.1 
+2: package 'purrr' was built under R version 4.4.1 
+3: package 'lubridate' was built under R version 4.4.1 
+4: package 'Matrix' was built under R version 4.4.1 
+5: package 'survival' was built under R version 4.4.1 
+6: package 'knitr' was built under R version 4.4.1 
+Loading NSDUH 2023 data...
+
+=== STEP 1: Sample Selection ===
+
+Lu et al. sample: Young adults aged 18-25
+NSDUH variable: CATAG7 (1=12-13, 2=14-15, 3=16-17, 4=18-20, 5=21-25, 6=26-34, 7=35+)
+
+Our sample size (NSDUH 2023):
+  Total young adults 18-25: 13587 
+
+Lu et al. sample size (NSDUH 2011-2019 pooled):
+  Total: 207,895
+  Per year average: 23099 
+
+Our sample vs their average per year:
+  Ratio: 0.588 
+
+=== STEP 2: Creating Demographics (Matching Lu et al.) ===
+
+Variables created successfully!
+
+=== STEP 3: TABLE 1 Replication ===
+
+TABLE 1: Sample Characteristics Comparison
+Lu et al. (2011-2019 pooled) vs Our NSDUH 2023
+
+GENDER:
+  Male: 50.2% (Lu: 47.3%) [N=6359 vs Lu: 98,388]
+  Female: 49.8% (Lu: 52.7%) [N=7228 vs Lu: 109,507]
+
+AGE:
+  18-21: 35.3% (Lu: 33.0%) [N=4728 vs Lu: 68,673]
+  22-25: 64.7% (Lu: 67.0%) [N=8859 vs Lu: 139,222]
+
+RACE/ETHNICITY:
+                          Group    Our_Pct Lu_Pct Our_N   Lu_N
+1      Asian/NHPI, non-Hispanic  6.7789363    5.5   694  11386
+2           Black, non-Hispanic 13.3991162   13.4  1795  28033
+3               Hispanic/Latino 24.2653995   19.5  3471  40466
+4 Native American, non-Hispanic  0.4261786    3.8   261   7863
+5     Two or more, non-Hispanic  3.2795681    1.6   826   3270
+6           White, non-Hispanic 51.8508014   56.2  6540 116877
+
+HOUSEHOLD INCOME:
+             Category Our_Pct Lu_Pct
+1     $20,000-$49,999   29.2%  27.2%
+2     $50,000-$74,999   15.1%  34.4%
+3            <$20,000   20.7%  14.9%
+4 \342\211\245$75,000   35.0%  23.5%
+
+=== STEP 4: SUD Prevalence Comparison ===
+
+CRITICAL NOTE:
+  - Lu et al. 2011-2019: Used DSM-IV criteria
+  - Our 2023 data: Uses DSM-5 criteria
+  - NOT directly comparable but methods are same!
+
+CANNABIS USE DISORDER:
+  Our 2023: 83.70% (SE: 0.399%)
+   Our 2023: 16.30% (SE: 0.399%)
+  Lu 2019: 4.21%
+  Difference: 79.49 pp 12.09 pp 
+  Assessment: Higher (continuing upward trend or DSM-5 broader?)
+
+ANY SUD (Drug only - matching their definition):
+  Our 2023: 82.50% (SE: 0.383%)
+   Our 2023: 17.50% (SE: 0.383%)
+  Lu 2019: 6.2%
+  Difference: 76.30 pp 11.30 pp 
+
+SUD PREVALENCE BY GENDER:
+  Male: 80.70% (Lu: 17.57%)
+  Female: 84.32% (Lu: 10.89%)
+
+=== STEP 5: Side-by-Side Comparison ===
+
+Error in data.frame(Metric = c("Total Sample Size", "Male %", "Female %",  : 
+  arguments imply differing number of rows: 12, 14
+Execution halted

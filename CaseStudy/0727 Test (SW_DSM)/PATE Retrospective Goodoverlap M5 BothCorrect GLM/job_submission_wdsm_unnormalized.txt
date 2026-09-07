@@ -1,0 +1,24 @@
+Job Submission: WDSM Without Weight Normalization Test
+========================================================
+Date: 2025-02-10
+Time: 02:43
+Job ID: 57225741
+Remote Directory: /gpfs/gibbs/project/tong/yz2324/pate_wdsm_unnorm_20250810_0243
+
+Configuration:
+- 1000 replicates
+- 20 cores (FORK cluster)
+- PS Full: WITH weight normalization (w × length(w)/sum(w))
+- WDSM: WITHOUT weight normalization (original weights)
+- 5000 sample size (retrospective)
+- 200 bootstrap iterations
+- 5 methods: DSM, PG, PS (unweighted), PS Full (weighted), WDSM
+
+Purpose:
+Testing whether WDSM requires weight normalization. 
+- PS Full uses normalized weights: w_normalized = w × length(w)/sum(w)
+- WDSM uses original unnormalized weights: w = 1/prob
+
+Expected runtime: 1.5-2 hours
+
+Status: Pending (PD) - waiting for resources

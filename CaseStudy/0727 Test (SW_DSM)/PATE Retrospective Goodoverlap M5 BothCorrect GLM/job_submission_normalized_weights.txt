@@ -1,0 +1,26 @@
+Job Submission with Weight Normalization
+=========================================
+Date: 2025-02-07
+Time: 11:10
+Job ID: 57161706
+Remote Directory: /gpfs/gibbs/project/tong/yz2324/pate_retro_norm_20250807_1110
+
+Configuration:
+- 1000 replicates
+- 20 cores (FORK cluster)
+- Weight normalization: w × length(w)/sum(w)
+- 5000 sample size (retrospective)
+- 200 bootstrap iterations
+- 5 methods: DSM, PG, PS (unweighted), PS Full (weighted), WDSM
+
+Key Change:
+Survey weights are now normalized using w × length(w)/sum(w) to ensure:
+1. Weights sum to sample size
+2. Proper variance estimation
+3. Correct standard error computation
+
+This affects:
+- Method 4: PS Full (Survey-Weighted) using MatchIt
+- Method 5: WDSM (Weighted Double Score Matching)
+
+Expected runtime: 1.5-2 hours

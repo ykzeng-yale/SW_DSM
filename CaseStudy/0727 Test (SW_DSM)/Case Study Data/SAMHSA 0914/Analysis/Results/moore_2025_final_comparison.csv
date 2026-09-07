@@ -1,0 +1,7 @@
+"Outcome","Method","Type","Estimate","CI_Lower","CI_Upper","Significant"
+"STI","Moore Original","aOR",2.03,1.27,3.24,"Yes"
+"STI","WDSM","RD",0.0322,0.0076,0.0567,"Yes"
+"STI","PS Full","RD",0.0296,0.008,0.0511,"Yes"
+"SPD","Moore Original","aOR",2.16,1.78,2.62,"Yes"
+"SPD","WDSM","RD",0.1285,0.0836,0.1733,"Yes"
+"SPD","PS Full","RD",0.1679,0.1233,0.2124,"Yes"

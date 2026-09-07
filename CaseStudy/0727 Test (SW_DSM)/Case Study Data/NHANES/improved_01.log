@@ -1,0 +1,117 @@
+Warning message:
+'memory.limit()' is Windows-specific 
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Warning message:
+package ‘MatchIt’ was built under R version 4.4.1 
+Warning message:
+package ‘marginaleffects’ was built under R version 4.4.1 
+Loading required package: grid
+Loading required package: Matrix
+Loading required package: survival
+
+Attaching package: ‘survey’
+
+The following object is masked from ‘package:graphics’:
+
+    dotchart
+
+Warning messages:
+1: package ‘Matrix’ was built under R version 4.4.1 
+2: package ‘survival’ was built under R version 4.4.1 
+Loading required package: dsmatch
+Adaptive WDSM functions loaded successfully.
+Main functions:
+  - wdsm_adaptive(): Main estimation function
+  - bootstrap_adaptive_wdsm(): Bootstrap inference
+
+==============================================================================
+   PAPER 1: Lin et al. 2024 - BMI → HbA1c
+   STEP 2: ALL 5 MATCHING METHODS
+==============================================================================
+
+Sample: N = 4987 
+Mean BMI: 28.37 kg/m²
+Mean HbA1c: 5.5 %
+
+Treatment (high BMI): 2509 
+Control (low BMI): 2478 
+
+PS variables: ridageyr, riagendr, ridreth1, dmdeduc2, indfmpir, smq020 
+PG variables: ridageyr, riagendr, ridreth1, dmdeduc2, indfmpir, smq020 
+
+=== Professional improvements applied ===
+- Excluded pregnant women
+- Complete case analysis for all covariates
+
+
+Complete cases with covariates: N = 3442 
+
+--- METHOD 1: Unweighted DSM (1:1 matching) ---
+  Estimate: 0.1773 % HbA1c
+  95% CI: [0.136, 0.2185]
+
+--- METHOD 2: Unweighted PGM (1:1 matching) ---
+  Estimate: 0.1926 % HbA1c
+  95% CI: [0.1527, 0.2326]
+
+--- METHOD 3: Unweighted PSM (1:1 matching) ---
+  Estimate: 0.1892 % HbA1c
+  95% CI: [0.1475, 0.2308]
+
+--- METHOD 4: Survey-Weighted PS Full Matching ---
+  Estimate: 0.1661 % HbA1c
+  95% CI: [0.0758, 0.2564]
+
+--- METHOD 5: WDSM (Weighted Double Score Matching) ---
+  Computing point estimate... Done!
+  Bootstrap (200 reps): 20 40 60 80 100 120 140 160 180 200 Warning messages:
+1: In predict.lm(bc0_fit, newdata = data.frame(sieve_vars_0)) :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
+2: In predict.lm(bc1_fit, newdata = data.frame(sieve_vars_1)) :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
+ Done (200 valid)
+  Estimate: 0.1669 % HbA1c
+  95% CI: [0.1133, 0.2158]
+
+==============================================================================
+   FINAL RESULTS: Lin 2024 (BMI → HbA1c)
+==============================================================================
+
+LIN 2024 (Target):
+  β = 0.015 [0.010, 0.020] per 1 kg/m² BMI
+
+OUR REPLICATION:
+  β = 0.0159 [0.0138, 0.0181] ✅ 106% MATCH
+
+ALL 5 MATCHING METHODS:
+Method            Estimate                 95% CI     Estimand
+---------------------------------------------------------------------- 
+Unwt DSM            0.1773 [0.1360, 0.2185]       Sample
+Unwt PGM            0.1926 [0.1527, 0.2326]       Sample
+Unwt PSM            0.1892 [0.1475, 0.2308]       Sample
+Wt PS Full          0.1661 [0.0758, 0.2564]   Population
+WDSM                0.1669 [0.1133, 0.2158]   Population
+
+Interpretation: HbA1c difference between high vs low BMI groups
+
+SAMPLE VS POPULATION BIAS:
+  Sample average: 0.1864 % HbA1c
+  Population average: 0.1665 % HbA1c
+  Bias: 11.9 %
+  ⚠️ SUBSTANTIAL BIAS detected!
+
+✅ Results saved: PAPER1_LIN_2024_COMPLETE_RESULTS.rda
+
+==============================================================================
+   ANALYSIS COMPLETE - PAPER 1/12
+==============================================================================

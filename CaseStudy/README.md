@@ -60,3 +60,7 @@ CaseStudy/
     ├── CaseStudy_Combined_WDSM.pdf
     └── visualize_casestudy.R         Figure generation script
 ```
+
+## Original full folder snapshot
+
+The unchanged `0727 Test (SW_DSM)` folder is preserved in the [2026-09-07 snapshot](0727-snapshot/README.md), with browsable code and a complete downloadable archive including all data and saved results. This is a preservation upload; no new numerical analysis has been run.

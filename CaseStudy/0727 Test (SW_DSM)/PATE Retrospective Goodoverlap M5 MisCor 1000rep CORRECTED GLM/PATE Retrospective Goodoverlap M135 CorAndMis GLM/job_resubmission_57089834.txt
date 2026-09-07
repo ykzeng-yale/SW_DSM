@@ -1,0 +1,26 @@
+JOB RESUBMISSION - AFTER FUNCTION CALL FIX
+========================================
+Date: 2025-02-04 22:09
+Job ID: 57089834
+Remote Directory: /gpfs/gibbs/project/tong/yz2324/pate_retro_20250804_2205
+
+Fix Applied:
+- Changed method2_multinomial_bootstrap_ci to compute_wdsm_method2_ci
+- Removed redundant point_estimate calculation
+- Fixed argument mismatch (Y, X, A, weights vs data, indices, point_estimate)
+
+Previous Job: 57089294 (failed with 0/100 replicates completed)
+Error: "unused arguments (Y = Y, X = X, A = A, weights = w, B = B, show_progress = FALSE)"
+
+Configuration:
+- 100 replicates (TEST RUN)
+- 22 CPUs (20 for R + overhead)
+- 8GB per CPU (~176GB total)
+- FORK cluster type
+- Expected runtime: 30-60 minutes
+
+Check status:
+ssh yz2324@login2.mccleary.ycrc.yale.edu 'squeue -j 57089834'
+
+Monitor output:
+ssh yz2324@login2.mccleary.ycrc.yale.edu 'tail -f /gpfs/gibbs/project/tong/yz2324/pate_retro_20250804_2205/pate_retro_*.out'

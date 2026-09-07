@@ -1,0 +1,71 @@
+COMPREHENSIVE SEARCH FOR CAUSAL NSDUH PUBLICATIONS
+Date: October 22, 2025
+
+SEARCH FOCUS: Publications using NSDUH 2018-2023 data with causal questions
+
+WHAT WE'VE FOUND SO FAR:
+========================
+
+CONFIRMED NSDUH PAPERS:
+-----------------------
+
+1. Lu et al. (2023) - NSDUH 2011-2019
+   - Young adults 18-25, SUD and treatment
+   - PMC10430156
+   - ✅ SUCCESSFULLY REPLICATED demographics
+
+2. Pacek et al. (2017) - NSDUH 2008-2013  
+   - Age of first cannabis use → psychiatric disorders
+   - PMC5411709
+   - ✅ SUCCESSFULLY REPLICATED (gradient pattern matched)
+
+3. Ali et al. (2022) - NSDUH 2019
+   - Cannabis UD + comorbid psych → treatment seeking
+   - PMC8963574
+   - ⏳ Ready to replicate
+
+SEARCHES COMPLETED:
+-------------------
+
+Search 1: "NSDUH 2019/2020/2021" + cannabis + mental health + regression
+- Found general SAMHSA reports
+- Did NOT find specific causal papers with full tables
+
+Search 2: "NSDUH 2021-2023" + substance use + treatment
+- Found PMC12536098 (alcohol/cannabis in treatment facilities)
+- NOT using NSDUH as primary data source
+
+Search 3: "NSDUH 2018/2019" + early initiation + suicide
+- Found references but not full papers with tables
+
+NEED FROM USER:
+===============
+
+Since automated searches aren't finding recent (2018-2023) NSDUH causal papers
+with full published tables, can you help by:
+
+1. Accessing PubMed directly and searching:
+   - "NSDUH" AND ("2018"[dp] OR "2019"[dp] OR "2020"[dp] OR "2021"[dp] OR "2022"[dp] OR "2023"[dp])
+   - Filters: Full text available, Has abstract
+
+2. Or checking SAMHSA's list of publications using NSDUH:
+   - They often list researchers who published using each year's data
+
+3. Or providing any papers YOU know of that used NSDUH 2018+ for causal questions
+
+ALTERNATIVE APPROACH:
+=====================
+
+If we can't find more published papers, we can:
+- Use the 2 confirmed NSDUH papers we have (Lu, Pacek)
+- Apply our 5 matching methods to those validated questions
+- Plus apply to our own well-defined causal questions
+- This is still valuable for methods comparison!
+
+Current status: Have 2 solid NSDUH replications, ready to proceed with matching
+or continue searching for more papers if you can help find them.
+
+
+
+
+

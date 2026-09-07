@@ -1,0 +1,6 @@
+"Method","Mean_Estimate","Bias","Relative_Bias_Pct","Empirical_SD","Mean_SE","Coverage_Pct","Relative_Efficiency","Mean_CI_Width","N_Valid"
+"DSM (Unweighted)",0.9123,0.0459,5.297,0.1186,0.1132,93,6.96,0.4436,1000
+"PG (Unweighted)",0.9141,0.0477,5.504,0.0672,0.0677,89.3,21.708,0.2655,1000
+"PS (Unweighted)",0.9552,0.0888,10.253,0.313,0.3265,95.4,1,1.28,1000
+"PS Full (Survey-Weighted) [NORMALIZED]",0.8511,-0.0153,-1.765,0.189,0.1209,79.8,2.742,0.4741,1000
+"WDSM (Multinomial Bootstrap) [RAW]",0.8651,-0.0013,-0.145,0.0965,0.0914,93.1,10.511,0.3497,1000

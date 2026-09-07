@@ -1,0 +1,145 @@
+============================================================
+PATE RETROSPECTIVE POOR OVERLAP COMPARISON - MCCLEARY HPC
+============================================================
+Job started at: Sun Aug 10 02:56:29 EDT 2025
+Running on node: r813u03n08.mccleary.ycrc.yale.edu
+Job ID: 57225805
+CPUs allocated: 22
+Memory per CPU: 8GB
+Total memory: ~176GB
+============================================================
+Setting up environment...
+R version:
+R version 4.3.0 (2023-04-21) -- "Already Tomorrow"
+Copyright (C) 2023 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under the terms of the
+GNU General Public License versions 2 or 3.
+For more information about these matters see
+https://www.gnu.org/licenses/.
+
+
+============================================================
+Starting PATE Retrospective Comparison
+============================================================
+Configuration:
+  - 20 cores (FORK cluster)
+  - 1000 replicates
+  - 5000 sample size (retrospective)
+  - 200 bootstrap iterations
+  - 5 methods: DSM, PG, PS (unweighted), PS Full (weighted), WDSM
+============================================================
+
+Starting R script at: Sun Aug 10 02:56:51 EDT 2025
+
+============================================================
+Loading required packages...
+============================================================
+Sourcing custom functions...
+Sourcing dsmatch functions...
+WDSM Method 2 with Polynomial Sieve: Module loaded successfully.
+Main function: method2_multinomial_bootstrap_ci()
+Wrapper function: compute_wdsm_method2_ci()
+
+============================================================
+Loading population data...
+============================================================
+
+True Population PATE: 0.8664 
+
+============================================================
+Running PATE Retrospective Sampling Comparison
+============================================================
+
+Sample size: 5000 
+Number of replicates: 1000 
+Number of matches (M): 5 
+Bootstrap iterations: 200 
+Significance level: 0.05 
+
+============================================================
+Setting up parallel backend with 20 cores (FORK cluster)...
+============================================================
+
+Running simulation in batches of 100 replicates each...
+============================================================
+
+Total runtime: 89.45 minutes
+
+
+============================================================
+FINAL RESULTS SUMMARY - PATE RETROSPECTIVE SAMPLING
+============================================================
+
+Using 1000 complete replicates out of 1000 total
+
+                                       Method Mean_Estimate      Bias Mean_SE
+dsm_unweighted               DSM (Unweighted)        0.9123  0.045905 0.11315
+pg_unweighted                 PG (Unweighted)        0.9141  0.047699 0.06772
+ps_unweighted                 PS (Unweighted)        0.9552  0.088842 0.32654
+ps_weighted         PS Full (Survey-Weighted)        0.8511 -0.015286 0.12094
+wdsm_multinomial WDSM (Multinomial Bootstrap)        0.8651 -0.001245 0.09142
+                 Empirical_SD Relative_Bias Relative_Efficiency Coverage
+dsm_unweighted        0.11863      0.052984               6.960    0.930
+pg_unweighted         0.06717      0.055054              21.708    0.893
+ps_unweighted         0.31296      0.102542               1.000    0.954
+ps_weighted           0.18899     -0.017643               2.742    0.798
+wdsm_multinomial      0.09653     -0.001437              10.511    0.931
+                 CI_Width
+dsm_unweighted     0.4436
+pg_unweighted      0.2655
+ps_unweighted      1.2800
+ps_weighted        0.4741
+wdsm_multinomial   0.3497
+
+
+Results saved to 'pate_retrospective_comparison_results_mccleary.RData'
+
+Plot saved to 'pate_retrospective_comparison_plot_mccleary.pdf'
+
+
+Detailed Results Table:
+(Variance-Based Relative Efficiency: >1 means more efficient than PS Unweighted)
+                       Method Estimate    Bias     SE Emp_SD Bias_Percent
+             DSM (Unweighted)   0.9123  0.0459 0.1132 0.1186         5.3%
+              PG (Unweighted)   0.9141  0.0477 0.0677 0.0672         5.5%
+              PS (Unweighted)   0.9552  0.0888 0.3265 0.3130        10.3%
+    PS Full (Survey-Weighted)   0.8511 -0.0153 0.1209 0.1890        -1.8%
+ WDSM (Multinomial Bootstrap)   0.8651 -0.0012 0.0914 0.0965        -0.1%
+ Var_Rel_Eff Coverage CI_Width
+        6.96    93.0%   0.4436
+       21.71    89.3%   0.2655
+        1.00    95.4%   1.2800
+        2.74    79.8%   0.4741
+       10.51    93.1%   0.3497
+
+
+Detailed results table saved to 'pate_retrospective_comparison_table_mccleary.csv'
+
+
+Diagnostic Summary:
+================
+
+Complete replicates used for variance calculation: 1000 out of 1000 
+Total computation time: 89.45 minutes
+Average time per replicate: 5.37 seconds
+
+Bias-variance plot saved to 'pate_retrospective_bias_variance_plot_mccleary.pdf'
+
+============================================================
+Analysis Complete!
+============================================================
+
+============================================================
+Job completed at: Sun Aug 10 04:26:23 EDT 2025
+Exit code: 0
+============================================================
+
+Output files created:
+-rw-r--r-- 1 yz2324 li_fan 4.8K Aug 10 04:26 pate_retrospective_bias_variance_plot_mccleary.pdf
+-rw-r--r-- 1 yz2324 li_fan 5.6K Aug 10 04:26 pate_retrospective_comparison_plot_mccleary.pdf
+-rw-r--r-- 1 yz2324 li_fan 177K Aug 10 04:26 pate_retrospective_comparison_results_mccleary.RData
+-rw-r--r-- 1 yz2324 li_fan  548 Aug 10 04:26 pate_retrospective_comparison_table_mccleary.csv
+============================================================

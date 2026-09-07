@@ -1,0 +1,29 @@
+Package: wdsmatch
+Type: Package
+Title: Weighted Double Score Matching for Causal Inference in Survey Observational Data
+Version: 1.0.0
+Depends: R (>= 3.5)
+Imports:
+  boot,
+  Matching,
+  parallel
+Authors@R: c(
+    person("Your", "Name", email = "your.email@example.com", role = c("aut", "cre")),
+    person("Yunshu", "Zhang", email = "yzhan234@ncsu.edu", role = "ctb"),
+    person("Shu", "Yang", email = "syang24@ncsu.edu", role = "ctb"))
+Author: Your Name [aut, cre],
+  Yunshu Zhang [ctb],
+  Shu Yang [ctb]
+Maintainer: Your Name <your.email@example.com>
+Description: Extends double score matching methodology to complex survey data
+    for causal inference. Implements weighted double score matching (WDSM) 
+    estimators for population average treatment effects (PATE) and population
+    average treatment effects on the treated (PATT) under both prospective and
+    retrospective sampling designs. Provides bootstrap variance estimation and
+    maintains double robustness properties while properly incorporating survey
+    weights. Based on the theoretical framework of weighted double score matching
+    for survey observational data.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.0

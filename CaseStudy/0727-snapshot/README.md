@@ -10,6 +10,8 @@ The snapshot contains **7,106 regular files, 114 symbolic links, and 516 subdire
 
 GitHub rejects ordinary Git files above 100 MiB. The full archive is therefore attached to this repository's release in ordered parts below 1.8 GB each. Identical file contents are archived once using tar hard links; extraction restores every original filename with the same bytes. This snapshot does not preserve macOS extended attributes. Symbolic-link targets are preserved exactly, including any original absolute paths.
 
+The complete archive is 5,652,172,581 bytes across four parts. [Archive checksums](SHA256SUMS) and the [verification result](ARCHIVE_VERIFICATION.txt) are included here. Archive contents were read back and checked against every manifest entry before release.
+
 ## Restore the full folder
 
 Install the GitHub CLI and authenticate to the private repository. In an empty download directory:

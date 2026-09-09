@@ -79,13 +79,15 @@ method2_multinomial_bootstrap_ci <- function(data, indices, point_estimate,
   df <- data.frame(Y = Y, A = A, X); names(df)[3:8] <- paste0("X", 1:6)
   idx0 <- which(A == 0); idx1 <- which(A == 1)
   samples <- numeric(n_bootstrap)
+  ps_diagnostics <- vector("list", n_bootstrap)
   for (b in seq_len(n_bootstrap)) {
     samples[b] <- tryCatch({
       multiplicity <- as.vector(rmultinom(1, n, rep(1/n, n)))
       replicate_weights <- multiplicity * weights
       ps_weights <- if (sampling_design == "retrospective") replicate_weights else multiplicity
-      ps_fit <- glm(ps_formula, data = df, family = quasibinomial("logit"), weights = ps_weights)
-      if (!isTRUE(ps_fit$converged)) stop("Propensity-score fit did not converge")
+      ps_solution <- wdsm_fit_propensity(ps_formula, df, ps_weights)
+      ps_fit <- ps_solution$fit
+      ps_diagnostics[[b]] <- ps_solution$diagnostics
       ps <- predict(ps_fit, newdata = df, type = "response")
       pg0 <- lm(pg_formula, data = df[idx0, ], weights = multiplicity[idx0])
       pg1 <- lm(pg_formula, data = df[idx1, ], weights = multiplicity[idx1])
@@ -102,6 +104,14 @@ method2_multinomial_bootstrap_ci <- function(data, indices, point_estimate,
   }
   result <- wdsm_replication_summary(samples, point_estimate$tau, alpha)
   result$sampling_design <- sampling_design
+  result$point_ps_diagnostics <- point_estimate$ps_diagnostics
+  result$bootstrap_ps_diagnostics <- list(n_fits = n_bootstrap,
+    n_converged = sum(vapply(ps_diagnostics, function(x) isTRUE(x$converged), logical(1L))),
+    initialization = "zero_coefficients_raw_weights",
+    iterations_range = range(vapply(ps_diagnostics, function(x) x$iterations, integer(1L))),
+    normalized_score_max = max(vapply(ps_diagnostics, function(x) x$normalized_score_max, numeric(1L))),
+    normalized_score_tolerance = ps_diagnostics[[1L]]$normalized_score_tolerance,
+    probability_range = range(unlist(lapply(ps_diagnostics, function(x) x$probability_range))))
   if (return_samples) result$bootstrap_samples <- samples
   result
 }

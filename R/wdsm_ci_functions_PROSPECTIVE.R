@@ -116,6 +116,50 @@ calculate_weighted_reuse_counts <- function(matches, weights, treatment_vec) {
   return(K_w)
 }
 
+# Solve the same weighted logistic score equations from a neutral coefficient
+# start. The default binomial initialization depends on raw weight magnitude and
+# diverges on the historical survey samples. No penalty or weight rescaling is
+# introduced; convergence and the numerical score equations are both checked.
+wdsm_fit_propensity <- function(formula, data, weights, maxit = 100L,
+                                score_tolerance = 1e-7) {
+  frame <- model.frame(formula, data = data, na.action = na.fail)
+  response <- model.response(frame)
+  design <- model.matrix(formula, data = frame)
+  if (length(weights) != nrow(design) || any(!is.finite(c(weights, design))) ||
+      any(weights < 0) || sum(weights) <= 0 ||
+      !all(response %in% c(0, 1)) ||
+      length(unique(response[weights > 0])) != 2L)
+    stop("Propensity fit requires finite inputs, nonnegative weights, and both weighted treatment arms")
+  # do.call supplies evaluated weights even when the formula was constructed in
+  # a caller's environment. A coefficient for every design column is supplied.
+  fit <- do.call(glm, list(formula = formula, data = data,
+    family = quasibinomial(link = "logit"), weights = weights,
+    start = rep(0, ncol(design)), control = glm.control(maxit = maxit, epsilon = 1e-10)))
+  if (!isTRUE(fit$converged)) stop("Propensity-score fit did not converge from the zero coefficient start")
+  if (fit$rank != ncol(design) || any(!is.finite(coef(fit))))
+    stop("Propensity-score fit has unidentified or nonfinite coefficients")
+  probability <- as.numeric(predict(fit, newdata = data, type = "response"))
+  if (length(probability) != nrow(design) || any(!is.finite(probability)) ||
+      any(probability <= .Machine$double.eps | probability >= 1 - .Machine$double.eps))
+    stop("Propensity-score fit has nonfinite or numerically saturated probabilities")
+  # For each coordinate, divide the score residual by its total weighted
+  # absolute design value. This dimensionless check is invariant to common
+  # weight scaling and to nonzero coordinate rescaling; it checks optimality,
+  # not a statistical assumption or a separation theorem.
+  scale <- pmax(colSums(weights * abs(design)), .Machine$double.eps * sum(weights))
+  normalized_score <- drop(crossprod(design, weights * (response - probability))) / scale
+  maximum_score <- max(abs(normalized_score))
+  if (!is.finite(maximum_score) || maximum_score > score_tolerance)
+    stop(sprintf("Propensity-score equations remain unsolved: normalized score %.3g exceeds %.3g",
+                 maximum_score, score_tolerance))
+  list(fit = fit, diagnostics = list(converged = TRUE,
+    initialization = "zero_coefficients_raw_weights", iterations = fit$iter,
+    maxit = as.integer(maxit), normalized_score_max = maximum_score,
+    normalized_score_tolerance = score_tolerance, probability_range = range(probability),
+    coefficient_range = range(coef(fit)), rank = fit$rank,
+    positive_weight_count = sum(weights > 0), weight_range = range(weights)))
+}
+
 # Main WDSM point estimation function
 wdsm_point_estimate <- function(data, M = 3, use_bias_correction = FALSE,
                                  use_interaction_ps = TRUE, use_interaction_pg = TRUE,
@@ -136,12 +180,10 @@ wdsm_point_estimate <- function(data, M = 3, use_bias_correction = FALSE,
     pg_formula <- Y ~ X1 + X2 + X3 + X4 + X5 + X6
   }
   
-  # Design-specific propensity score fit; all remaining point-estimator steps unchanged.
+  # Design-specific score equations with checked, stable numerical solution.
   ps_weights <- if (sampling_design == "retrospective") w else rep(1, n)
-  ps_model <- glm(ps_formula, 
-                  data = data,
-                  family = quasibinomial(link = "logit"),
-                  weights = ps_weights)
+  ps_solution <- wdsm_fit_propensity(ps_formula, data, ps_weights)
+  ps_model <- ps_solution$fit
   e_score <- ps_model$fitted.values
   
   # Step 2: Estimate prognostic scores (UNWEIGHTED per paper Eq. 4)
@@ -261,6 +303,7 @@ wdsm_point_estimate <- function(data, M = 3, use_bias_correction = FALSE,
     Y_hat_0 = Y_hat_0,
     Y_hat_1 = Y_hat_1,
     e_score = e_score,
+    ps_diagnostics = ps_solution$diagnostics,
     psi0 = psi0,
     psi1 = psi1,
     mu0_bc = mu0_bc,
@@ -513,4 +556,4 @@ method2_bootstrap_ci <- function(data, point_estimate, M = 3, B = 200, alpha = 0
     ci_upper = ci_upper,
     tau_star = tau_star
   ))
-} 
+}

@@ -130,6 +130,8 @@ main <- function() {
                  scenario = scenario, n_reps = n_reps, pilot = pilot, B = B, alpha = 0.05,
                  n_sample = 5000L, M_values = c(1L, 3L, 5L), sample_seed_base = 2025L,
                  bootstrap_seed_rule = "1000000 + 10 * replicate + M",
+                 ps_fit_method = "weighted_logistic_zero_start_convergence_checked",
+                 point_estimator_revision = "stable_ps_20260909",
                  population_object = population_object, RNG = RNGkind(),
                  estimator = "bias-corrected PATE; fixed original reuse; B-divisor replication Wald")
   identity <- list(code_sha256 = source_hashes, config_sha256 = hash_object(config),
@@ -160,6 +162,8 @@ main <- function() {
                      session_info = sessionInfo(),
                      provenance = c("The sampling seed rule follows the historical drivers.",
                        "Bootstrap streams are new, deterministic, and separate from sampling.",
+                       "Propensity fits solve the original weighted logistic model from zero coefficients with convergence checks.",
+                       "Historical point estimates can differ where the original default initialization failed or stopped imprecisely.",
                        "Historical comparator methods are not rerun or silently merged into these results.",
                        "Comparison with historical results requires separate lineage verification."))
     atomic_save(manifest, manifest_file)
@@ -255,6 +259,20 @@ main <- function() {
           if (!isTRUE(all.equal(unname(answer$se), unname(checked_se), tolerance = 1e-12)) ||
               !isTRUE(all.equal(unname(c(answer$ci_lower, answer$ci_upper)), unname(checked_ci), tolerance = 1e-12)))
             stop("Returned inference does not equal B-divisor replication-SE Wald inference")
+          point_ps <- answer$point_ps_diagnostics
+          bootstrap_ps <- answer$bootstrap_ps_diagnostics
+          checked_score <- function(diagnostic) {
+            score <- diagnostic$normalized_score_max
+            tolerance <- diagnostic$normalized_score_tolerance
+            identical(diagnostic$initialization, "zero_coefficients_raw_weights") &&
+              is.numeric(score) && length(score) == 1L && is.finite(score) && score >= 0 &&
+              is.numeric(tolerance) && length(tolerance) == 1L && is.finite(tolerance) &&
+              tolerance > 0 && tolerance <= 1e-7 && score <= tolerance
+          }
+          if (!isTRUE(point_ps$converged) || !checked_score(point_ps) ||
+              !identical(as.integer(bootstrap_ps$n_fits), B) ||
+              !identical(as.integer(bootstrap_ps$n_converged), B) || !checked_score(bootstrap_ps))
+            stop("Point and all bootstrap propensity fits must have verified convergence and solved score equations")
           list(status = "success", result = answer)
         }, warning = function(w) {
           warnings <<- c(warnings, conditionMessage(w)); invokeRestart("muffleWarning")

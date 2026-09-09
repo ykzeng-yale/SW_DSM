@@ -106,10 +106,59 @@ sample_Y <- 2*sample_A + X[, 1] + 0.3*X[, 2] - 0.2*X[, 3] +
   0.7*X[, 1]*X[, 2] + 0.4*sample_A*X[, 4] + rnorm(n)
 sample_w <- 0.8 + exp(0.45*X[, 1] + 0.25*sample_A)
 sample_data <- data.frame(Y = sample_Y, A = sample_A, X, survey_weight = sample_w)
+
+# A reproducible large-weight numerical case fails with glm's weight-dependent
+# default start. Solve the same likelihood from zero coefficients, and compare
+# with independently normalized-weight fits: no penalty or new model is used.
+set.seed(63841)
+hard_n <- 600L
+hard_X <- matrix(rnorm(hard_n * 6L), hard_n, 6L)
+colnames(hard_X) <- paste0("X", 1:6)
+hard_A <- rbinom(hard_n, 1, plogis(-0.85 + 0.3*hard_X[, 1] + 0.4*hard_X[, 2] +
+                                   0.2*hard_X[, 1]*hard_X[, 2]))
+hard_data <- data.frame(A = hard_A, hard_X)
+hard_weights <- 200 * exp(0.25*hard_X[, 1])
+hard_formula <- A ~ X1 + X2 + X3 + X4 + X5 + X6 + X1:X2
+failed_legacy <- suppressWarnings(glm(hard_formula, data = hard_data,
+  family = quasibinomial("logit"), weights = hard_weights))
+expect_true(!isTRUE(failed_legacy$converged), "Large-weight fixture exposes legacy initialization failure")
+stable <- production$wdsm_fit_propensity(hard_formula, hard_data, hard_weights)
+independent <- glm(hard_formula, data = hard_data, family = quasibinomial("logit"),
+  weights = hard_weights/mean(hard_weights), control = glm.control(epsilon = 1e-10, maxit = 100))
+expect_true(independent$converged && stable$diagnostics$converged,
+  "Stable raw-weight and normalized-weight equations both converge")
+expect_equal(coef(stable$fit), coef(independent), "Stable raw-weight solution agrees with normalized likelihood")
+expect_true(stable$diagnostics$normalized_score_max < 1e-7 &&
+  stable$diagnostics$initialization == "zero_coefficients_raw_weights",
+  "Stable PS solution reports its numerical optimality and initialization")
+set.seed(41447)
+hard_counts <- as.vector(rmultinom(1, hard_n, rep(1/hard_n, hard_n)))
+bootstrap_weights <- hard_counts * hard_weights
+stable_bootstrap <- production$wdsm_fit_propensity(hard_formula, hard_data, bootstrap_weights)
+independent_bootstrap <- glm(hard_formula, data = hard_data, family = quasibinomial("logit"),
+  weights = bootstrap_weights/mean(bootstrap_weights), control = glm.control(epsilon = 1e-10, maxit = 100))
+expect_true(any(bootstrap_weights == 0), "Bootstrap numerical case contains zero-weight rows")
+expect_equal(coef(stable_bootstrap$fit), coef(independent_bootstrap),
+  "Zero-weight bootstrap rows preserve the intended weighted logistic solution")
+expect_equal(predict(stable_bootstrap$fit, newdata = hard_data, type = "response"),
+  predict(independent_bootstrap, newdata = hard_data, type = "response"),
+  "Stable predictions also agree for rows absent from the bootstrap draw")
+expect_error(suppressWarnings(production$wdsm_fit_propensity(hard_formula, hard_data,
+  hard_weights, maxit = 1L)), "did not converge", "Iteration exhaustion remains a hard error")
+expect_error(suppressWarnings(production$wdsm_fit_propensity(A ~ X1,
+  data.frame(A = c(0, 0, 0, 1, 1, 1), X1 = c(-3, -2, -1, 1, 2, 3)), rep(1, 6))),
+  "saturated|did not converge", "Numerically separated PS fits are not silently accepted")
+
 points <- list()
 for (design in c("retrospective", "prospective")) {
   baseline <- if (design == "retrospective") baseline_retro else baseline_prospective
   for (ps_flag in c(FALSE, TRUE)) for (pg_flag in c(FALSE, TRUE)) {
+    legacy_formula <- if (ps_flag) A ~ X1+X2+X3+X4+X5+X6+X1:X2 else A ~ X1+X2+X3+X4+X5+X6
+    legacy_weights <- if (design == "retrospective") sample_w else rep(1, n)
+    legacy_ps_fit <- glm(legacy_formula, data = sample_data, family = quasibinomial("logit"),
+                         weights = legacy_weights)
+    expect_true(legacy_ps_fit$converged,
+      paste(design, ps_flag, pg_flag, "point-preservation comparison has a convergent baseline"))
     legacy <- baseline$wdsm_point_estimate(sample_data, M = 3, use_bias_correction = TRUE,
       use_interaction_ps = ps_flag, use_interaction_pg = pg_flag)
     current <- production$wdsm_point_estimate(sample_data, M = 3, use_bias_correction = TRUE,
@@ -179,6 +228,10 @@ for (design in c("retrospective", "prospective")) {
     paste(design, "actual bootstrap interval uses normal critical value"))
   expect_true(first$sampling_design == design && first$variance_divisor == "B" &&
     first$interval_type == "Wald", paste(design, "actual bootstrap inference metadata"))
+  expect_true(first$point_ps_diagnostics$converged && first$bootstrap_ps_diagnostics$n_converged == 8L &&
+    first$bootstrap_ps_diagnostics$normalized_score_max < 1e-7 &&
+    first$bootstrap_ps_diagnostics$initialization == "zero_coefficients_raw_weights",
+    paste(design, "point and bootstrap PS solve diagnostics are retained"))
 }
 
 # Check flag forwarding for every point and replicate fit. Spying on calls to
@@ -257,4 +310,4 @@ expect_error(production$compute_wdsm_method2_ci(sample_Y, sample_A, X, sample_w,
   n_bootstrap = 2, use_bias_correction = FALSE), "bias-corrected",
   "A non-BC request is rejected rather than silently changed")
 
-cat(sprintf("PASS: %d independent checks; historical point estimates preserved in both designs; finite reproducible bootstrap and explicit failure behavior verified.\n", checks))
+cat(sprintf("PASS: %d independent checks; convergent historical point estimates preserved in both designs; large-weight PS equations solved and checked; finite reproducible bootstrap and explicit failure behavior verified.\n", checks))

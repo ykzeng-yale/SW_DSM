@@ -1,4 +1,17 @@
 # Rendering functions retained from the original figures; no data loading or result filtering.
+# ggplot2 3.5+ exposes one guide box per position. Older cowplot selects the
+# first (often empty) box, so select the requested bottom legend explicitly.
+wdsm_bottom_legend <- function(plot) {
+  g <- ggplot2::ggplotGrob(plot)
+  name <- if ("guide-box-bottom" %in% g$layout$name) "guide-box-bottom" else "guide-box"
+  index <- which(g$layout$name == name)
+  if (length(index) != 1L) stop("Expected exactly one bottom method legend")
+  legend <- g$grobs[[index]]
+  if (!inherits(legend, "gtable") || !any(legend$layout$name == "guides"))
+    stop("Bottom method legend is empty; refusing to save an unlabeled figure")
+  legend
+}
+
 method_colors <- c("PSM"="#4E79A7","PGM"="#F28E2B","DSM"="#7B2D8E","SW-PSM"="#E15759","WDSM"="#59A14F")
 method_shapes <- c(PSM=16, PGM=15, DSM=17, "SW-PSM"=18, WDSM=8)
 method_sizes  <- c(PSM=4.2, PGM=3.5, DSM=3.5, "SW-PSM"=4.5, WDSM=5)
@@ -90,7 +103,7 @@ make_figure_T <- function(df, title_text, outname, outdir) {
     theme_void() + theme(legend.position="bottom",legend.text=element_text(size=14,face="bold"),
       legend.title=element_blank(),legend.key.width=unit(2.2,"cm"),
       legend.spacing.x=unit(0.6,"cm"),legend.key.height=unit(1.2,"cm"))
-  leg_grob <- cowplot::get_legend(leg_p)
+  leg_grob <- wdsm_bottom_legend(leg_p)
 
   title_grob <- ggplotGrob(ggplot() +
     annotate("text", x=0.5, y=0.5, label=title_text, fontface="bold", size=6.5) + theme_void())
@@ -168,7 +181,7 @@ make_figure_dots_solid_T <- function(df, title_text, outname, outdir) {
       override.aes=list(shape=filled_shapes,size=c(4,4,4,4.5,6),stroke=c(0.6,0.6,0.6,0.6,1.5))),shape="none") +
     theme_void() + theme(legend.position="bottom",legend.text=element_text(size=14,face="bold"),
       legend.title=element_blank(),legend.key.width=unit(1.5,"cm"),legend.spacing.x=unit(0.3,"cm"))
-  leg_grob <- cowplot::get_legend(leg_p)
+  leg_grob <- wdsm_bottom_legend(leg_p)
   title_grob <- ggplotGrob(ggplot() +
     annotate("text", x=0.5, y=0.5, label=title_text, fontface="bold", size=6.5) + theme_void())
   layout_mat <- rbind(c(NA,22,22,22,22), c(NA,1,2,3,4), c(5,6,7,8,9), c(10,11,12,13,14), c(15,16,17,18,19), c(NA,20,20,20,20), c(21,21,21,21,21))
@@ -240,7 +253,7 @@ make_figure_dots_hollow_T <- function(df, title_text, outname, outdir) {
       override.aes=list(shape=filled_shapes,size=c(4,4,4,4.5,6),stroke=c(0.6,0.6,0.6,0.6,1.5))),shape="none") +
     theme_void() + theme(legend.position="bottom",legend.text=element_text(size=14,face="bold"),
       legend.title=element_blank(),legend.key.width=unit(1.5,"cm"),legend.spacing.x=unit(0.3,"cm"))
-  leg_grob <- cowplot::get_legend(leg_p)
+  leg_grob <- wdsm_bottom_legend(leg_p)
   note_grob <- ggplotGrob(ggplot() +
     annotate("text",x=0.5,y=0.5,label="Faded = method unaffected by that misspecification (uses only one score)",
       size=3.5,fontface="italic",color="grey35") + theme_void())

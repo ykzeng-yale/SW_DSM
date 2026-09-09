@@ -4,7 +4,9 @@
 
 The paper’s original simulation tables have been traced to the saved 0727 publication results and Tong’s Bouchet production runs. The original PATE bootstrap omitted residual reuse contributions and used percentile intervals. Retrospective propensity fits also failed numerically in both PATE and PATT. The full audit additionally identified a discrepancy between the old simulation score/bias-correction implementation and the probability-score, own-arm construction used by the manuscript and corrected case studies.
 
-**Status: the full corrected pilot passed and the 1,000-replication production run is submitted to Bouchet (job 25694783). Final simulation results are not yet available. The dependent strict-audit/table/figure job is 25694919.** Historical numbers in `Results/`, `Tables/All_12_Simulation_Tables.txt`, and existing simulation images remain the original baseline. Do not use them as corrected results. See [run status](audit/full_rerun_execution.json), [result lineage](audit/paper_result_lineage.md), and [case-study comparison](audit/case_study_fix_comparison_20260909.md).
+**Status: both full studies are complete and verified.** The [final results index](Results/Final_20260909/README.md) contains corrected main tables/figures, the complete stabilized point-estimator comparison, verification records, and [raw archives/input files](https://github.com/ykzeng-yale/SW_DSM/releases/tag/final-simulations-20260909). Main validation passed all 224,000 method results and 38.4 million bootstrap draws. Stabilized validation paired all 96,000 estimates; 72 positivity rejections remain explicit. The tested quadratic stabilizer improves absolute bias in 28 of 81 fully defined settings and does not generally resolve poor-overlap bias.
+
+Historical numbers outside `Results/Final_20260909/`, including `Tables/All_12_Simulation_Tables.txt` and the original simulation images, remain the preserved baseline. Use the linked final outputs for corrected results. See [run status](audit/full_rerun_execution.json), [result lineage](audit/paper_result_lineage.md), and [case-study comparison](audit/case_study_fix_comparison_20260909.md).
 
 A separate [conditionally stabilized point-estimator experiment](StabilizedWDSM/README.md) tests whether the Section 3.3 extension reduces relative bias. It uses the same 32 settings, 1,000 replications per setting, and M=1/3/5, with identical original samples, fits, and matches. Its [protocol](StabilizedWDSM/simulation_protocol.md) and [execution record](StabilizedWDSM/audit/execution.json) distinguish pilot checks from production results. No stabilized causal-effect SEs, confidence intervals, or coverage are being developed in this experiment.
 
@@ -38,7 +40,7 @@ The final-core suite has 318 independent numerical checks, including unequal sur
 
 The actual pilot passed all 32 settings, 160 sampled data sets, 1,120 method results and 192,000 bootstrap draws without warnings or failures.
 
-A complete production run contains 32,000 sampled data sets, 224,000 method results, and 38.4 million WDSM/vendor bootstrap draws. Publication tables and figures must come from the strict complete-run summary; failed or missing records cannot be dropped independently from estimates and intervals. Every replacement artifact must link to that run’s manifest. Participant-level case-study data are not published to GitHub.
+The complete production run contains 32,000 sample-analysis records (4,000 distinct sampled data sets reused across estimands/specifications), 224,000 method results, and 38.4 million WDSM/vendor bootstrap draws. Publication tables and figures must come from the strict complete-run summary; failed or missing records cannot be dropped independently from estimates and intervals. Every replacement artifact must link to that run’s manifest. Participant-level case-study data are not published to GitHub.
 
 ## Full 0727 experiment folder
 

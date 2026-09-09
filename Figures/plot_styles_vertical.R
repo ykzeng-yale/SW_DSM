@@ -1,4 +1,17 @@
 # Rendering functions retained from the original figures; no data loading or result filtering.
+# ggplot2 3.5+ exposes one guide box per position. Older cowplot selects the
+# first (often empty) box, so select the requested bottom legend explicitly.
+wdsm_bottom_legend <- function(plot) {
+  g <- ggplot2::ggplotGrob(plot)
+  name <- if ("guide-box-bottom" %in% g$layout$name) "guide-box-bottom" else "guide-box"
+  index <- which(g$layout$name == name)
+  if (length(index) != 1L) stop("Expected exactly one bottom method legend")
+  legend <- g$grobs[[index]]
+  if (!inherits(legend, "gtable") || !any(legend$layout$name == "guides"))
+    stop("Bottom method legend is empty; refusing to save an unlabeled figure")
+  legend
+}
+
 method_colors <- c("PSM"="#4E79A7","PGM"="#F28E2B","DSM"="#7B2D8E","SW-PSM"="#E15759","WDSM"="#59A14F")
 method_shapes <- c(PSM=16, PGM=15, DSM=17, "SW-PSM"=18, WDSM=8)
 method_sizes  <- c(PSM=4.2, PGM=3.5, DSM=3.5, "SW-PSM"=4.5, WDSM=5)
@@ -85,7 +98,7 @@ make_figure <- function(df, title_text, outname, outdir="Figures") {
     theme_void() + theme(legend.position="bottom", legend.text=element_text(size=14, face="bold"),
       legend.title=element_blank(), legend.key.width=unit(2.2,"cm"),
       legend.spacing.x=unit(0.6,"cm"), legend.key.height=unit(1.2,"cm"))
-  leg_grob <- cowplot::get_legend(leg_p)
+  leg_grob <- wdsm_bottom_legend(leg_p)
 
   layout_mat <- rbind(
     c(NA, 1, 2, 3),
@@ -108,7 +121,7 @@ make_figure <- function(df, title_text, outname, outdir="Figures") {
   )
 
   g <- arrangeGrob(grobs=grob_list, layout_matrix=layout_mat,
-                   widths=unit(c(1.3, 3.5, 3.5, 3.5), "null"),
+                   widths=unit.c(unit(1.8, "in"), unit(c(1, 1, 1), "null")),
                    heights=unit(c(0.4, 3, 3, 3, 3, 0.3, 0.6), "null"),
                    top=textGrob(title_text, gp=gpar(fontsize=18, fontface="bold")))
 
@@ -203,7 +216,7 @@ make_figure_dots <- function(df, title_text, outname, outdir="Figures") {
     theme_void() + theme(legend.position="bottom", legend.text=element_text(size=14, face="bold"),
       legend.title=element_blank(), legend.key.width=unit(1.5,"cm"),
       legend.spacing.x=unit(0.3,"cm"), legend.key.height=unit(1.0,"cm"))
-  leg_grob <- cowplot::get_legend(leg_p)
+  leg_grob <- wdsm_bottom_legend(leg_p)
 
   note_grob <- ggplotGrob(ggplot() +
     annotate("text", x=0.5, y=0.5,
@@ -234,7 +247,7 @@ make_figure_dots <- function(df, title_text, outname, outdir="Figures") {
   )
 
   g <- arrangeGrob(grobs=grob_list, layout_matrix=layout_mat,
-                   widths=unit(c(1.3, 3.5, 3.5, 3.5), "null"),
+                   widths=unit.c(unit(1.8, "in"), unit(c(1, 1, 1), "null")),
                    heights=unit(c(0.4, 3, 3, 3, 3, 0.3, 0.6, 0.25), "null"),
                    top=textGrob(title_text, gp=gpar(fontsize=18, fontface="bold")))
 
@@ -307,7 +320,7 @@ make_figure_dots_solid <- function(df, title_text, outname, outdir="Figures") {
     theme_void() + theme(legend.position="bottom", legend.text=element_text(size=14, face="bold"),
       legend.title=element_blank(), legend.key.width=unit(1.5,"cm"),
       legend.spacing.x=unit(0.3,"cm"), legend.key.height=unit(1.0,"cm"))
-  leg_grob <- cowplot::get_legend(leg_p)
+  leg_grob <- wdsm_bottom_legend(leg_p)
 
   layout_mat <- rbind(c(NA,1,2,3), c(4,5,6,7), c(8,9,10,11), c(12,13,14,15), c(16,17,18,19), c(NA,20,20,20), c(21,21,21,21))
   grob_list <- c(col_header_grobs, list(row_label_grobs[[1]]), panel_grobs[1:3],
@@ -315,7 +328,7 @@ make_figure_dots_solid <- function(df, title_text, outname, outdir="Figures") {
     list(row_label_grobs[[4]]), panel_grobs[10:12], list(xlab_grob), list(leg_grob))
 
   g <- arrangeGrob(grobs=grob_list, layout_matrix=layout_mat,
-    widths=unit(c(1.3,3.5,3.5,3.5),"null"), heights=unit(c(0.4,3,3,3,3,0.3,0.6),"null"),
+    widths=unit.c(unit(1.8, "in"), unit(c(1, 1, 1), "null")), heights=unit(c(0.4,3,3,3,3,0.3,0.6),"null"),
     top=textGrob(title_text, gp=gpar(fontsize=18, fontface="bold")))
   ggsave(paste0(outdir,"/png/",outname,".png"), g, width=13, height=14.5, dpi=300, bg="white")
   ggsave(paste0(outdir,"/pdf/",outname,".pdf"), g, width=13, height=14.5)

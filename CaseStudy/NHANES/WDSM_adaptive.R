@@ -10,6 +10,50 @@
 
 # Componentwise standardization; weights here are empirical multiplicities,
 # not survey weights. At the point estimate they are all one.
+# Standalone case-study entry points share this checked zero-start solver.
+# It solves the same logistic score equations; existing common weight scaling
+# is retained in the NHANES caller. This adds numerical diagnostics, not a model.
+wdsm_case_fit_propensity <- function(formula, data, weights, maxit = 100L,
+                              score_tolerance = 1e-7) {
+  frame <- stats::model.frame(formula, data = data, na.action = stats::na.fail)
+  response <- stats::model.response(frame)
+  design <- stats::model.matrix(formula, data = frame)
+  if (nrow(design) != nrow(data) || length(weights) != nrow(design) ||
+      any(!is.finite(c(weights, design))) || any(weights < 0) ||
+      !is.finite(sum(weights)) || sum(weights) <= 0 ||
+      !all(response %in% c(0, 1)) ||
+      length(unique(response[weights > 0])) != 2L)
+    stop("Propensity fit requires finite inputs and both positive-weight treatment arms")
+  fit <- do.call(stats::glm, list(formula = formula, data = data,
+    family = stats::quasibinomial(link = "logit"), weights = weights,
+    start = rep(0, ncol(design)), na.action = stats::na.fail,
+    control = stats::glm.control(maxit = maxit, epsilon = 1e-10)))
+  if (!isTRUE(fit$converged)) stop("Propensity-score fit did not converge from zero coefficients")
+  if (fit$rank != ncol(design) || any(!is.finite(stats::coef(fit))))
+    stop("Propensity-score fit has unidentified or nonfinite coefficients")
+  probability <- as.numeric(stats::predict(fit, newdata = data, type = "response"))
+  if (length(probability) != nrow(design) || any(!is.finite(probability)) ||
+      any(probability <= .Machine$double.eps | probability >= 1 - .Machine$double.eps))
+    stop("Propensity-score fit has nonfinite or numerically saturated probabilities")
+  # Dimensionless numerical score residual, invariant to common weight scaling
+  # and nonzero scaling of a design coordinate. This is an optimality check,
+  # not a statistical assumption or a general separation diagnostic.
+  scale <- pmax(colSums(weights * abs(design)), .Machine$double.eps * sum(weights))
+  normalized_score <- drop(crossprod(design, weights * (response - probability))) / scale
+  maximum_score <- max(abs(normalized_score))
+  if (!is.finite(maximum_score) || maximum_score > score_tolerance)
+    stop(sprintf("Propensity score residual %.3g exceeds numerical tolerance %.3g",
+                 maximum_score, score_tolerance))
+  attr(fit, "wdsm_ps_diagnostics") <- list(converged = TRUE,
+    initialization = "zero_coefficients_input_weights", iterations = fit$iter,
+    maxit = as.integer(maxit), normalized_score_max = maximum_score,
+    normalized_score_tolerance = score_tolerance,
+    probability_range = range(probability), coefficient_range = range(stats::coef(fit)),
+    rank = fit$rank, positive_weight_count = sum(weights > 0), weight_range = range(weights))
+  fit
+}
+
+
 standardize_with_weights <- function(S, weights) {
   n <- nrow(S)
   p <- ncol(S)
@@ -74,19 +118,15 @@ wdsm_adaptive <- function(data,
   data$wdsm_weight_temp <- replicate_counts *
     if (sampling_design == "retrospective") w / mean(w) else 1
   
-  ps_model <- {
-    glm(ps_formula,
-        data = data,
-        family = quasibinomial(link = "logit"),
-        weights = wdsm_weight_temp)
-  }
-  if (!isTRUE(ps_model$converged) || any(!is.finite(coef(ps_model))))
-    stop("Propensity-score fit failed")
+  ps_model <- wdsm_case_fit_propensity(ps_formula, data, data$wdsm_weight_temp)
+  ps_diagnostics <- attr(ps_model, "wdsm_ps_diagnostics")
+  ps_diagnostics$weight_convention <- if (sampling_design == "retrospective")
+    "m*w/mean(original w)" else "m"
   
   # Remove temporary weight column
   data$wdsm_weight_temp <- NULL
   
-  e_score <- ps_model$fitted.values
+  e_score <- as.numeric(predict(ps_model, newdata = data, type = "response"))
   
   if (verbose) {
     cat("  PS range: [", round(min(e_score), 4), ", ", 
@@ -113,7 +153,7 @@ wdsm_adaptive <- function(data,
   
   prog0_model <- lm(pg_formula_full,
                     data = data_0,
-                    weights = wdsm_weight_temp)
+                    weights = wdsm_weight_temp, na.action = na.fail)
   
   psi0 <- predict(prog0_model, newdata = data)
   
@@ -124,7 +164,7 @@ wdsm_adaptive <- function(data,
   
   prog1_model <- lm(pg_formula_full,
                     data = data_1,
-                    weights = wdsm_weight_temp)
+                    weights = wdsm_weight_temp, na.action = na.fail)
   
   psi1 <- predict(prog1_model, newdata = data)
   if (any(!is.finite(c(coef(prog0_model), coef(prog1_model), psi0, psi1))))
@@ -159,7 +199,7 @@ wdsm_adaptive <- function(data,
     bc0_data$wdsm_weight_temp <- w_0
     bc0_fit <- lm(Y ~ mu0 + mu0_sq + ps + ps_sq + ps_mu0,
                   data = bc0_data,
-                  weights = wdsm_weight_temp)
+                  weights = wdsm_weight_temp, na.action = na.fail)
     
     mu0_bc <- predict(bc0_fit, newdata = data.frame(sieve_vars_0))
     
@@ -173,7 +213,7 @@ wdsm_adaptive <- function(data,
     bc1_data$wdsm_weight_temp <- w_1
     bc1_fit <- lm(Y ~ mu1 + mu1_sq + ps + ps_sq + ps_mu1,
                   data = bc1_data,
-                  weights = wdsm_weight_temp)
+                  weights = wdsm_weight_temp, na.action = na.fail)
     
     mu1_bc <- predict(bc1_fit, newdata = data.frame(sieve_vars_1))
     if (any(!is.finite(c(coef(bc0_fit), coef(bc1_fit), mu0_bc, mu1_bc))))
@@ -198,7 +238,7 @@ wdsm_adaptive <- function(data,
                             e_score = e_score, psi0 = psi0, psi1 = psi1,
                             double_score_0_std = double_score_0_std,
                             double_score_1_std = double_score_1_std,
-                            ps_model = ps_model))
+                            ps_model = ps_model, ps_diagnostics = ps_diagnostics))
   
   # ===========================================================================
   # Step 5: Nearest Neighbor Matching
@@ -342,6 +382,7 @@ wdsm_adaptive <- function(data,
     matches_0 = matches_0,
     matches_1 = matches_1,
     ps_model = ps_model,
+    ps_diagnostics = ps_diagnostics,
     prog0_model = prog0_model,
     prog1_model = prog1_model,
     n_matched = sum(valid_idx),
@@ -389,9 +430,11 @@ bootstrap_adaptive_wdsm <- function(data,
   
   # Bootstrap samples
   boot_estimates <- numeric(n_bootstrap)
+  bootstrap_ps_diagnostics <- vector("list", n_bootstrap)
   
   # Progress indicator
   pb <- txtProgressBar(min = 0, max = n_bootstrap, style = 3)
+  on.exit(close(pb), add = TRUE)
   
   for (b in 1:n_bootstrap) {
     # Multinomial multiplicities for the manuscript's replication procedure.
@@ -403,6 +446,7 @@ bootstrap_adaptive_wdsm <- function(data,
                                    M, use_bias_correction, verbose = FALSE,
                                    sampling_design = sampling_design,
                                    replicate_counts = m_star, fit_only = TRUE)
+    bootstrap_ps_diagnostics[[b]] <- boot_result$ps_diagnostics
     mu_own <- ifelse(A == 1, boot_result$mu1_bc, boot_result$mu0_bc)
     boot_estimates[b] <- sum(m_star * w * (boot_result$mu1_bc - boot_result$mu0_bc) +
       m_star * (2*A - 1) * (w + point_est$K) * (Y - mu_own)) / sum(m_star * w)
@@ -410,7 +454,6 @@ bootstrap_adaptive_wdsm <- function(data,
     
     setTxtProgressBar(pb, b)
   }
-  close(pb)
   
   # Failures stop the run instead of silently changing the replication sample.
   n_valid <- length(boot_estimates)
@@ -435,6 +478,8 @@ bootstrap_adaptive_wdsm <- function(data,
     bootstrap_estimates = boot_estimates,
     n_valid = n_valid,
     n_bootstrap = n_bootstrap,
+    point_ps_diagnostics = point_est$ps_diagnostics,
+    bootstrap_ps_diagnostics = bootstrap_ps_diagnostics,
     ci_method = "Wald; B-divisor fixed-original-reuse replication variance"
   ))
 }

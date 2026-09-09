@@ -1,5 +1,13 @@
 # Weighted Double Score Matching (WDSM) Simulation Study
 
+## Full 0727 experiment folder
+
+- [Browse `0727 Test (SW_DSM)`](0727%20Test%20%28SW_DSM%29/)
+- [Download the complete folder, including large data and saved results](https://github.com/ykzeng-yale/SW_DSM/releases/tag/0727-full-snapshot-20260907)
+- [Restore instructions, complete inventory, and checksums](0727-snapshot/README.md)
+
+The browsable copy contains code and files up to 10 MB. The release archive preserves every original file, symbolic link, and subdirectory.
+
 Reproducibility package for the simulation study comparing WDSM against standard matching methods under survey-weighted observational data.
 
 ## Directory Structure

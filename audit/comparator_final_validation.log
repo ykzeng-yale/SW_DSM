@@ -1,0 +1,61 @@
+Warning message:
+'memory.limit()' is Windows-specific 
+   estimand    PS    PG method estimate_diff variance_diff bootstrap_successful
+1      PATE  TRUE  TRUE    DSM             0             0                    5
+2      PATE  TRUE  TRUE    PGM             0             0                    5
+3      PATE  TRUE  TRUE    PSM             0             0                    5
+4      PATE  TRUE FALSE    DSM             0             0                    5
+5      PATE  TRUE FALSE    PGM             0             0                    5
+6      PATE  TRUE FALSE    PSM             0             0                    5
+7      PATE FALSE  TRUE    DSM             0             0                    5
+8      PATE FALSE  TRUE    PGM             0             0                    5
+9      PATE FALSE  TRUE    PSM             0             0                    5
+10     PATE FALSE FALSE    DSM             0             0                    5
+11     PATE FALSE FALSE    PGM             0             0                    5
+12     PATE FALSE FALSE    PSM             0             0                    5
+13     PATT  TRUE  TRUE    DSM             0             0                    5
+14     PATT  TRUE  TRUE    PGM             0             0                    5
+15     PATT  TRUE  TRUE    PSM             0             0                    5
+16     PATT  TRUE FALSE    DSM             0             0                    5
+17     PATT  TRUE FALSE    PGM             0             0                    5
+18     PATT  TRUE FALSE    PSM             0             0                    5
+19     PATT FALSE  TRUE    DSM             0             0                    5
+20     PATT FALSE  TRUE    PGM             0             0                    5
+21     PATT FALSE  TRUE    PSM             0             0                    5
+22     PATT FALSE FALSE    DSM             0             0                    5
+23     PATT FALSE FALSE    PGM             0             0                    5
+24     PATT FALSE FALSE    PSM             0             0                    5
+25     PATE  TRUE    NA  SWPSM             0             0                    0
+26     PATE FALSE    NA  SWPSM             0             0                    0
+27     PATT  TRUE    NA  SWPSM             0             0                    0
+28     PATT FALSE    NA  SWPSM             0             0                    0
+   warnings
+1          
+2          
+3          
+4          
+5          
+6          
+7          
+8          
+9          
+10         
+11         
+12         
+13         
+14         
+15         
+16         
+17         
+18         
+19         
+20         
+21         
+22         
+23         
+24         
+25         
+26         
+27         
+28         
+PASS: 24 exact vendor estimate/variance comparisons, 4 historical SWPSM comparisons, 5 invalid-input/draw checks.

@@ -10,7 +10,7 @@
   ],
   "account": "pi_gt353",
   "partition": "day",
-  "status": "production_submitted",
+  "status": "production_and_summary_queued",
   "initial_correction_commit": "e666e9937586dbb0391558710082ec01c9531793",
   "correction_commit": "f1e4d831c71106b9e5d1b3a49f8fd500329ad819",
   "pilot_runs": [
@@ -45,6 +45,16 @@
     "cpus_per_cell": 32,
     "memory_per_cell": "64G",
     "time_limit": "12:00:00",
-    "status": "submitted"
-  }
+    "status": "queued_priority"
+  },
+  "summary_job": {
+    "job": "25690059",
+    "dependency": "afterany:25689737",
+    "code_directory": "analysis_5f2134c",
+    "output": "production_summary",
+    "status": "queued_dependency",
+    "strict_complete": true
+  },
+  "github_pr": "https://github.com/ykzeng-yale/SW_DSM/pull/1",
+  "follow_up_automation": "finish-bouchet-pate-rerun-audit"
 }

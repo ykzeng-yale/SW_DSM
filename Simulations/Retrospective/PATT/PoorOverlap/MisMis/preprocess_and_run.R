@@ -1,19 +1,12 @@
-# Load and preprocess population data BEFORE loading packages
-load("SuperPopGen_PoorOverlap_AllinOne_0118_2025.RData")
-raw_pop <- SuperPopGen_PoorOverlap_AllinOne_0118_2025[[1]]
-population <- data.frame(
-  X1 = raw_pop$x1, X2 = raw_pop$x2, X3 = raw_pop$x3,
-  X4 = raw_pop$x4, X5 = raw_pop$x5, X6 = raw_pop$x6,
-  A = raw_pop$z, Y_0 = raw_pop$y0, Y_1 = raw_pop$y1, Y_obs = raw_pop$y,
-  Cluster = raw_pop$Cluster, Strata = raw_pop$Strata,
-  S = rep(1L, nrow(raw_pop))
-)
-rm(raw_pop, SuperPopGen_PoorOverlap_AllinOne_0118_2025)
-gc()
-true_patt <- mean(population$Y_1[population$A == 1]) - mean(population$Y_0[population$A == 1])
-cat("True PATT:", round(true_patt, 4), "\n")
-cat("Population preprocessed: n =", nrow(population), "True PATE =", 
-    round(mean(population$Y_1) - mean(population$Y_0), 4), "\n")
-
-# Now source the comparison script which expects population object
-source("compare_methods_patt_retrospective.R")
+# Compatibility entry point. Historical code is preserved in Git and the 0727 archive.
+# All calculations now use the final shared driver; a pilot is the default.
+.entry_file <- if (sys.nframe() > 0L && !is.null(sys.frame(1L)$ofile)) sys.frame(1L)$ofile else {
+  .arg <- grep("^--file=", commandArgs(), value = TRUE)
+  if (!length(.arg)) stop("Set WDSM_REPO and run this entry point with Rscript or source()")
+  sub("^--file=", "", .arg[[1L]])
+}
+.entry_repo <- normalizePath(Sys.getenv("WDSM_REPO",
+  file.path(dirname(normalizePath(.entry_file, mustWork = TRUE)), "../../../../..")), mustWork = TRUE)
+source(file.path(.entry_repo, "Simulations", "legacy_entrypoint_adapter.R"), local = TRUE)
+wdsm_legacy_entrypoint(.entry_repo, estimand = "PATT", design = "retrospective",
+                       overlap = "PoorOverlap", scenario = "MisMis")

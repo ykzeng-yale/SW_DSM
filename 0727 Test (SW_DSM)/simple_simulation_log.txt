@@ -1,0 +1,100 @@
+Warning message:
+'memory.limit()' is Windows-specific 
+=====================================
+SIMPLIFIED SMALL SCALE WDSM SIMULATION
+=====================================
+
+Simulation parameters:
+- Replications: 10 
+- Sample size: 5000 
+- Start time: 2025-07-26 22:32:37 
+
+Loading required libraries...
+Warning messages:
+1: package ‘Matrix’ was built under R version 4.4.1 
+2: package ‘survival’ was built under R version 4.4.1 
+3: package ‘sampling’ was built under R version 4.4.1 
+4: package ‘MatchIt’ was built under R version 4.4.1 
+5: package ‘MASS’ was built under R version 4.4.1 
+
+Generating super population...
+Loading required package: foreach
+Loading required package: iterators
+Loading required package: parallel
+
+Attaching package: ‘Hmisc’
+
+The following objects are masked from ‘package:xtable’:
+
+    label, label<-
+
+The following object is masked from ‘package:survey’:
+
+    deff
+
+The following objects are masked from ‘package:base’:
+
+    format.pval, units
+
+
+Attaching package: ‘patchwork’
+
+The following object is masked from ‘package:MASS’:
+
+    area
+
+
+Attaching package: ‘boot’
+
+The following object is masked from ‘package:survival’:
+
+    aml
+
+Warning messages:
+1: package ‘xtable’ was built under R version 4.4.1 
+2: package ‘data.table’ was built under R version 4.4.1 
+3: package ‘Hmisc’ was built under R version 4.4.1 
+4: package ‘nloptr’ was built under R version 4.4.1 
+5: package ‘numDeriv’ was built under R version 4.4.1 
+6: package ‘patchwork’ was built under R version 4.4.1 
+7: package ‘boot’ was built under R version 4.4.1 
+8: package ‘magrittr’ was built under R version 4.4.1 
+9: package ‘ggplot2’ was built under R version 4.4.1 
+True Population Parameters:
+ATE = 0.8664 
+ATT = 1.0351 
+
+Running prospective sampling simulations...
+Error in prospective simulation 1 : 'x' must be numeric 
+Error in prospective simulation 2 : 'x' must be numeric 
+Error in prospective simulation 3 : 'x' must be numeric 
+Error in prospective simulation 4 : 'x' must be numeric 
+Error in prospective simulation 5 : 'x' must be numeric 
+Error in prospective simulation 6 : 'x' must be numeric 
+Error in prospective simulation 7 : 'x' must be numeric 
+Error in prospective simulation 8 : 'x' must be numeric 
+Error in prospective simulation 9 : 'x' must be numeric 
+Error in prospective simulation 10 : 'x' must be numeric 
+Running retrospective sampling simulations...
+Error in retrospective simulation 1 : argument 4 matches multiple formal arguments 
+Error in retrospective simulation 2 : argument 4 matches multiple formal arguments 
+Error in retrospective simulation 3 : argument 4 matches multiple formal arguments 
+Error in retrospective simulation 4 : argument 4 matches multiple formal arguments 
+Error in retrospective simulation 5 : argument 4 matches multiple formal arguments 
+Error in retrospective simulation 6 : argument 4 matches multiple formal arguments 
+Error in retrospective simulation 7 : argument 4 matches multiple formal arguments 
+Error in retrospective simulation 8 : argument 4 matches multiple formal arguments 
+Error in retrospective simulation 9 : argument 4 matches multiple formal arguments 
+Error in retrospective simulation 10 : argument 4 matches multiple formal arguments 
+
+
+=====================================
+SIMULATION RESULTS
+=====================================
+
+
+=====================================
+SIMULATION COMPLETED
+=====================================
+Duration: 0.98 minutes
+Results saved to: simple_simulation_results_2025-07-26.RData 

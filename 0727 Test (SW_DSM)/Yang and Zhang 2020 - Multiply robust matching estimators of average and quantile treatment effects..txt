@@ -1,0 +1,922 @@
+# Multiply robust matching estimators of average and quantile treatment effects 
+
+Shu Yang,<br>Yunshu Zhang<br>Department of Statistics, North Carolina State University
+
+
+#### Abstract
+
+Propensity score matching has been a long-standing tradition for handling confounding in causal inference, however requiring stringent model assumptions. In this article, we propose novel double score matching (DSM) utilizing both the propensity score and prognostic score. To gain the protection of possible model misspecification, we posit multiple candidate models for each score. We show that the de-biasing DSM estimator achieves the multiple robustness property in that it is consistent if any one of the score models is correctly specified. We characterize the asymptotic distribution for the DSM estimator requiring only one correct model specification based on the martingale representations of the matching estimators and theory for local Normal experiments. We also provide a two-stage replication method for variance estimation and extend DSM for quantile estimation. Simulation demonstrates DSM outperforms single score matching and prevailing multiply robust weighting estimators in the presence of extreme propensity scores.
+
+
+## Keywords
+
+Bahadur representation; causal effect on the treated; double robustness; quantile estimation; weighted bootstrap
+
+## 1 Introduction
+
+Causal inference plays an important role in science, education, medicine, policy, and economics. If all confounders of the treatment-outcome relationship are observed, one can use standard techniques, such as regression adjustment, inverse probability of treatment weighting (IPW), augmented IPW (AIPW), and matching to adjust for confounding (Imbens and Rubin; 2015). Among them, the AIPW estimator is most popular because it achieves the so-called double robustness property by combining the use of models for the probability of treatment assignment, also known as the propensity score (Rosenbaum and Rubin; 1983b), and the outcome mean function. More specifically, it consistently estimates the treatment effect if either one of these functions is modeled correctly (e.g., Lunceford and Davidian; 2004; Bang and Robins; 2005). However, inevitably, weighting estimators can have a high variability by inverting the estimated propensity scores (e.g., Kang and Schafer; 2007; Guo and Fraser; 2014), especially if these probabilities are close to zero or one. Matching has multiple features that are desirable:
+a. Matching does not involve weighting by the inverse of the propensity score and therefore avoids the possibly large variability due to weighting (Frölich; 2004);
+b. Matching is transparent and intuitively appealing with the goal of replicating a randomized experiment from an observational study (Rosenbaum; 1989; Heckman et al.; 1997a; Dehejia and Wahba; 2002, 1999; Rubin; 2006; Stuart; 2010);
+c. Matching can be viewed as a hot deck imputation method that can provide valid estimators of general parameters depending on the entire distribution, such as quantiles (Ford; 1983).
+
+Although matching has a substantial promise, it suffers from the issue of the curse of dimensionality. In the presence of many covariates, matching directly on high-dimensional covariates is incapable of removing all confounding biases. To overcome this challenge, researchers have proposed different dimension reduction techniques to facilitate matching. On the one hand, Rosenbaum and Rubin (1983b) demonstrated the central role of the propensity score as being a balancing score in the sense that the same propensity score distributions in different treatment groups lead to the same covariate distributions. Therefore, propensity score matching (PSM) can remove all confounding biases (e.g., Abadie and Imbens; 2016). However, PSM has recently received major backlash for emulating an unconditional randomized experiment, contrary to matching on covariates that mimics a block randomized experiment (King and Nielsen; 2019). On the other hand, Hansen (2008) proposed an alternative balancing score: the prognostic score, also called the disease risk score (i.e., a sufficient statistic for the potential outcomes given which the potential outcomes and covariates are independent). This score provides a balance of disease risks between the treatment groups, as distinct from the balance of treatment propensities provided by the propensity score. In economics, prognostic score matching (PGM) has been previously proposed in Imbens (2004) and Zhao (2004), where the prognostic score is a vector of linear predictors in treatment-specific outcome regressions. PGM is also similar to predictive mean matching (Yang and Kim; 2018, 2019) in the missing data literature to compensate for nonresponse. As analogous to AIPW, it is advantageous to combine the use of the propensity and prognostic score in matching (Hansen; 2008). Leacy and Stuart (2014) showed empirically that the joint use of two scores in matching (which we refer to as double score matching, DSM) improves the treatment effect estimation. Antonelli et al. (2018) later established the double robustness of matching jointly on propensity and prognostic scores in the sense that the matching estimator is consistent for the ATE if either one of the score models is correctly specified. However, they only provided the rate of convergence but not the asymptotic distribution of the doubly robust matching estimator.
+
+In this article, we propose new DSM estimators based on the propensity score and the prognostic score. Because each score creates a balance between the treated and control groups, the augmented score serves as a "double balancing score". To estimate the ATEs, existing DSM would require adjusting for the vector of the propensity score and possibly multiple treatment-specific prognostic scores (i.e., one for each treatment group). Instead of estimating the ATEs directly, we focus on estimating the average of the potential outcomes separately for each treatment level, which requires adjusting only for the propensity score
+and the prognostic score for that particular level of the treatment. This insight allows us to reduce the dimension of the double score further without giving up the double balancing property. This strategy also plays an important role in dimension reduction for constructing improved DSM estimators.
+
+In practice, the double score is unknown and therefore requires modeling and estimation. The new DSM estimator is doubly robust, which includes one propensity score model and one prognostic score model. With an unknown data generating process, there is no guarantee that either of the two models is correctly specified. To gain additional protection against model misspecification, we posit multiple models for the propensity score and prognostic score. Doing so, however, may introduce bias due to matching discrepancy based on a moderately high-dimensional matching variable (Abadie and Imbens; 2011), although our strategy of estimating the average of potential outcomes separately helps dimension reduction. In this case, we propose the de-biasing DSM estimator that corrects for the bias due to matching discrepancy. The current matching literature has focused primarily on estimating the ATEs; however, other aspects of the distribution such as quantiles may be more appropriate in certain applications. For example, a treatment strategy may not decrease average health cost but instead lowers the upper tail of the cost distribution, so focusing only on ATEs would not reveal the beneficial effect of the treatment strategy. In these cases, it is more informative to study quantile treatment effects (QTEs), which are defined as the differences in population quantiles of the potential outcome distributions. Taking the advantage of matching as a hot deck imputation method, we extend the multiply robust DSM
+framework to estimate QTEs.
+further connect to missing data handling framework (imputation, bayesian...M CM C...)
+We show that the DSM estimators have the multiple robustness property, which guarantees the estimation consistency if any one of the candidate models for the propensity score or prognostic score is correctly specified. This result is similar in essence to the multiply robust weighting (MRW) estimators in the missing data and survey literature (Han and Wang; 2013; Han; 2014; Han et al.; 2019; Li et al.; 2020; Chen and Haziza; 2017b,a)). Naik et al. (2016) and Wang (2019) proposed MRW estimators for estimating the ATEs in causal inference. The DSM estimator has an intrinsic connection with the doubly-robust AIPW estimator in that they exhibit similar asymptotic expansions; see (6) and (7). However, AIPW is extremely unstable when some estimated propensity scores are close to zero or one due to the weight construction, and it is sensitive to slight model misspecification (Kang and Schafer; 2007). Instead of inverting the estimated propensity score, the DSM estimator uses the matching weights and hence is more robust to extreme propensity score values. MRW also mitigates the instability of (A)IPW by estimating the weights directly under balance constraints. However, it requires exact covariate balance and thus can still have large variability in finite samples compared to DSM, especially when the overlap of the covariate distribution is limited.
+
+The rest of this paper proceeds as follows. Section 2 introduces notation, assumptions, and lemmas for various balancing scores. Section 3 provides the new perspective of using the double score as a dimension reduction tool and proposes the new DSM estimator of the ATE with multiple candidate models for the double score. Section 4 establishes the multiple robustness of the DSM estimator and its limiting distribution, which allows quantifying the
+
+Perhaps other than using survey weights as weights, we may also consider a new balancing dimension a "sampling score" which main tain balance in sampling propensity between two groups in retrospective settings . or furhter add this addtional sampling score into the matching vector to be an addtional dimention of the matching vector
+deeper in the concepte of potential outcome distribution and connect to bayesian framework
+can add hetergerous or bayesian method here throught the dist and quantiel concept
+impact of the nuisance parameter estimation. Section 5 extends the DSM framework to the estimation of the QTE. Section 6 provides the extensions to the average treatment effect on the treated (ATT) and quantile treatment effect on the treated (QTT). Section 7 uses simulation to evaluate the finite-sample properties of the DSM estimators. The simulation results demonstrate that matching estimators outperform weighting estimators. Section 8 applies the DSM estimators to an observational study from the job training program. Section 9 concludes, the appendix and supplementary material contains the proofs and additional empirical results, and an R package dsmatch is available at https://github.com/Yunshu7/ dsmatch.
+
+## 2 Notation, assumptions, and balancing scores
+
+Let $X_{i}$ be a vector of pre-treatment covariates, $A_{i}$ the binary treatment, and $Y_{i}$ the outcome for unit $i=1, \ldots, n$. We follow the potential outcomes framework. Let $Y_{i}(a)$ be the potential outcome had unit $i$ been given treatment $a(a=0,1)$. The observed outcome is $Y_{i}=Y_{i}\left(A_{i}\right)=A_{i} Y_{i}(1)+\left(1-A_{i}\right) Y_{i}(0)$. We assume that $\left\{X_{i}, A_{i}, Y_{i}(0), Y_{i}(1)\right\}, i=1, \ldots$, $n$, are independent and identically distributed. Thus, $\left(X_{i}, A_{i}, Y_{i}\right), i=1, \ldots, n$, are also independent and identically distributed. Various causal estimands are useful to provide a comprehensive assessment of treatment effects. The ATE is $\tau=\mathbb{E}\{Y(1)-Y(0)\}$. For $\xi \in(0$, 1 ), the overall $\xi$-QTE is $\Delta_{\xi}=q_{1, \xi}-q_{0, \xi}$, where $q_{a, \xi}=\inf _{q}[\mathbb{P}\{Y(a) \leq q\} \geq \xi], a=0,1$. When the outcome data follow a skewed distribution, QTEs may be more informative measures of treatment effect. Similarly, the ATT is $\tau_{\mathrm{ATT}}=\mathbb{E}\{Y(1)-Y(0) \mid A=1\}$, and the QTT is $\Delta_{\mathrm{QTT}, \xi}$ $=q_{1, \xi \mid A=1}-q_{0, \xi \mid A=1}$, where $q_{a, \xi \mid A=1}=\inf _{q}[\mathbb{P}\{Y(a) \leq q\} \geq \xi \mid A=1], a=0$, 1 . We illustrate the methodology development for estimating $\tau$ and $\Delta_{\xi}$ and provide extensions to the ATT and QTT in Section 6. For simplicity of exposition, for a generic variable $V$, denote
+
+$$
+\mu_{a}(V)=\mathbb{E}\{Y(a) \mid V\}, \sigma_{a}^{2}(V)=\mathbb{V}\{Y(a) \mid V\}, e(V)=\mathbb{P}(A=1 \mid V),
+$$
+
+where $\mu_{a}(V)$ is an outcome mean function, $\sigma_{a}^{2}(V)$ is a variance function, and $e(V)$ is the propensity score. Hansen (2008) introduced the notion of the prognostic score $\Psi_{a}(X)$ as a sufficient statistic for $Y(a)$ in the sense that $Y(a) \Perp X \mid \Psi_{a}(X)$ for $a=0$, 1 . For example, if $Y$ (a) follows a location-shift family $f_{a}\left\{y-\mu_{a}(X)\right\}$, then $\Psi_{a}(X)=\mu_{a}(X)$ for $a=0,1$.
+
+We focus on the setting where the standard positivity and treatment ignorability assumptions hold (Rosenbaum and Rubin; 1983b).
+
+Assumption 1 (i) There exist constants $c_{1}$ and $c_{2}$ such that $0<c_{1} \leq e(X) \leq c_{2}<1$ almost surely; and (ii) $\{Y(0), Y(1)\} \Perp A \mid X$, where $\Perp$ means "independent of".
+
+Assumption 1 (i) implies a sufficient overlap of the covariate distribution between the treatment groups. If this assumption is violated, a common approach is to trim the sample; see Yang and Ding (2018). Generally, Assumption 1 (ii) can be made plausible by collecting detailed information on characteristics of the units that are related to treatment assignment and outcome. As a result, the dimension of $X$ may be high. Balancing scores have been proposed for dimension reduction.
+
+Lemma 1 (Balancing score; Antonelli et al, 2018) Under Assumption 1, i) $\{Y(0), Y(1)\} \Perp$ $A \mid\{e(X), h(X)\}$, and ii) $\{Y(0), Y(1)\} \Perp A \mid\{h(X), \Psi(X)\}$ for any $h(X)$.
+
+In particular, if $h(X)$ is a null set, Lemma 1 i ) shows that the propensity score is a balancing score (Rosenbaum and Rubin; 1983b) and ii) shows that the prognostic score is a balancing score (Hansen; 2008). Antonelli et al. (2018) proposed matching based on the estimated double score $\{\widehat{e}(X), \widehat{\Psi}(X)\}$. If either $\widehat{e}(X)$ or $\widehat{\Psi}(X)$ is consistent for the corresponding score, the matching estimator is consistent for the ATE by either i) or ii) in Lemma 1.
+
+DSM is an attractive alternative to PSM; however, the dimension reduction property of Lemma 1 depends on the dimension of the prognostic score. The problem is that if the dimension of the matching variable is higher, the bias order of the matching estimator becomes larger, see Section 3.1, suggesting that the advantages of PSM do not carry over to DSM. To preserve the simplicity of matching (avoiding de-biasing), we show that further improvement of the dimension reduction property of the double score is possible without additional assumptions. Then, the advantage of PSM carries over to DSM, see Section 3.2. Moreover, because the double score is unknown in practice, one must posit models and estimate the double score from the observed data. To gain robustness to model misspecification, we posit multiple candidate models for the double score. We propose a multiply robust DSM procedure and show that the de-biasing matching estimator achieves multiple robustness, see Section 3.3.
+
+## 3 DSM estimators of the ATE
+
+### 3.1 General matching estimators
+
+To fix ideas, we consider matching with replacement with the number of matches fixed at $M$. Matching estimators hinge on imputing the missing potential outcome for each unit. In practice, the most common choice of $M$ is 1 , then the matching procedure becomes nearest neighbor imputation (Little and Rubin; 2002; Chen and Shao; 2000, 2001). To be precise, for unit $i$, the potential outcome under $A_{i}$ is the observed outcome $Y_{i}$; the (counterfactual) potential outcome under $1-A_{i}$ is not observed but can be imputed by the observed outcomes of the nearest $M$ units with $1-A_{i}$.
+
+To illustrate the properties of the matching estimator, we first consider a generic variable $V$ as the matching variable. Table 1 summarizes the choices of $V$. To stabilize the numerical performance, it is desirable to standardize $V$ such that each component has mean zero and variance one. Without loss of generality, we use the Euclidean distance to determine neighbors; the discussion applies to other distances (Abadie and Imbens; 2006). We denote $\mathscr{J}_{V, i}$ as the index set for these matched units for unit $i$ and $K_{V, i}=\sum_{l=1}^{n} \mathbf{1}\left(i \in \mathscr{J}_{V, l}\right)$ as the number of times that unit $i$ is used as a match, where the subscript " $V$ " in $\mathscr{g}_{V, i}$ and $K_{V, i}$ indicates the name of the matching variable. Table 1 (I) illustrates the above matching scheme to impute the missing potential outcomes. For unit $i$ with $A_{i}=1$, the imputed potential outcomes are $\hat{Y}_{i}(1)=Y_{i}$ and $\hat{Y}_{i}(0)=M^{-1} \sum_{j \in \mathcal{J} V, i} Y_{j}$. For unit $i^{\prime}$ with $A_{i^{\prime}}=0$,
+$\widehat{Y}_{i^{\prime}}(1)=M^{-1} \sum_{j \in \mathcal{J}_{V, i^{\prime}}} Y_{j}$ and $\widehat{Y}_{i^{\prime}}(0)=Y_{i^{\prime}}$. Once we approximate both potential outcomes for all units, a simple matching estimator of $\tau$ is
+
+$$
+\hat{\tau}_{\mathrm{mat}}=n^{-1} \sum_{i=1}^{n}\left\{\hat{Y}_{i}(1)-\hat{Y}_{i}(0)\right\}=n^{-1} \sum_{i=1}^{n}\left(2 A_{i}-1\right)\left(1+M^{-1} K_{V, i}\right) Y_{i}
+$$
+
+To establish the asymptotic properties of $\hat{\tau}_{\text {mat }}$, Abadie and Imbens (2006) derived the following decomposition
+
+$$
+n^{1 / 2}\left(\hat{\tau}_{\mathrm{mat}}-\tau\right)=B_{n}+C_{n}
+$$
+
+where
+
+$$
+\begin{align*}
+& B_{n}=n^{-1 / 2} \sum_{i=1}^{n}\left(2 A_{i}-1\right)\left[M^{-1} \sum_{j \in \mathcal{J}_{V, i}}\left\{\mu_{1}-A_{i}\left(V_{i}\right)-\mu_{1}-A_{i}\left(V_{j}\right)\right\}\right]  \tag{1}\\
+& C_{n}=n^{-1 / 2} \sum_{i=1}^{n}\left[\mu_{1}\left(V_{i}\right)-\mu_{0}\left(V_{i}\right)-\tau+\left(2 A_{i}-1\right)\left(1+M^{-1} K_{V, i}\right)\left\{Y_{i}-\mu_{A_{i}}\left(V_{i}\right)\right\}\right]
+\end{align*}
+$$
+
+By Assumption 1, for $V$ to be $X$, propensity score, prognostic score or double score, we have $\mathbb{E}\left\{\mu_{1}(V)-\mu_{0}(V)\right\}=\tau$, and therefore $\mathbb{E}\left(C_{n}\right)=0$. The difference $\mu_{A_{i}}\left(V_{i}\right)-\mu_{A_{i}}\left(V_{j}\right)$ in (1) accounts for the matching discrepancy, so $B_{n}$ contributes to the asymptotic bias of the matching estimator. In general, if the matching variable is $d_{V}$-dimensional, we have $\mathbb{E}\left(B_{n}\right)=O\left(n^{1 / 2-2 / d_{V}}\right)$ (Abadie and Imbens; 2006, Theorem 1). Table 2 demonstrates the relationship of the bias order and $d_{V}$. If $d_{V} \geq 4$, the bias is non-negligible. If $d_{V}=3$, the bias shrinks to zero as $n$ increases but the convergence rate $-1 / 6$ is slow. If $d_{V}=2$ and 1 , the bias shrinks to zero at much faster rates $-1 / 2$ and $-3 / 2$, respectively. Therefore, in finite samples, matching based on a 3-dimensional double score $\{e(X), \Psi(X)\}$ is likely to have a noticeable bias. Reducing $d_{V}$ to 2 or 1 is worthwhile to make the bias achieve faster rates of converging to zero.
+
+### 3.2 New simple DSM estimator
+
+Lemma 2 is the key result (Antonelli et al.; 2018).
+Lemma 2 Under Assumption 1, $Y(a) \Perp A\left|\left\{h(X), \Psi_{a}(X)\right\}, Y(a) \Perp A\right|\{e(X), h(X)\}$ for any $h(X)$ and $a=0,1$.
+
+Lemma 2 implies that $\mathbb{E}\{Y(a)\}=\mathbb{E}\left[\mathbb{E}\left\{Y \mid A=a, e(X), \Psi_{a}(X)\right\}\right],(a=0,1)$. For its interpretation, it is useful to compare it to the result in Lemma 1. By Lemma 1, we create subpopulations where we can simultaneously compare the treated units and the control units. These subpopulations were defined by common values for $\{e(X), \Psi(X)\}$. By Lemma 2 , we do not construct such populations. The key insight is that in order to estimate $\tau$, it is not necessary to do so. Instead, we construct subpopulations where we can estimate
+the average value of the potential outcomes for $a=0$ and 1 separately. For a given $a$, these subpopulations are defined by the value of $\left\{e(X), \Psi_{a}(X)\right\}$. This difference allows us to reduce the dimension of the double score from three to two, a small reduction of the dimension of the matching variable, a big reduction of the bias order of the matching estimator.
+
+As shown in this section that the matching variable dimension really matter to the convergence rate and will furhter impact the finite sample bias performace. their for when we want to incoporate the sampling or the survey weight in toht matchin estiamtor it should priorities the weighting path rather taddintthe sampling score or survey weight to be an addtional dimentsion of the matching variable.
+
+We focus on estimating $\mu_{a}=\mathbb{E}\{Y(a)\}$ separately for $a=0,1$. Let the matching variable be the double score $S_{a}(X)=\left\{e(X), \Psi_{a}(X)\right\}$ or $S_{a}$ for shorthand. Table 1 (II) illustrates the new matching scheme to impute the missing potential outcomes. For unit $i$ with $A_{i}=1$, $\hat{Y}_{i}(1)=Y_{i}$ and $\hat{Y}_{i}(0)=M^{-1} \sum_{l \in \mathcal{J}_{S_{0}, i}} Y_{l}$. For unit $i^{\prime}$ with $A_{i^{\prime}}=0, \hat{Y}_{i^{\prime}}(1)=M^{-1} \sum_{l \in \mathcal{J}_{S_{1}, i^{\prime}}} Y_{l}$ and $\widehat{Y}_{i^{\prime}}(0)=Y_{i^{\prime}}$. Importantly, the new matching scheme uses different matching variables, namely $S_{0}$ and $S_{1}$, to impute the missing values of $Y(0)$ and $Y(1)$. This is in contrast to matching scheme (I) that uses the same matching variable for imputing the missing values of $Y(0)$ and $Y(1)$. Once we approximate both potential outcomes for all units, a simple DSM estimator of $\boldsymbol{\tau}$ is
+
+$$
+\begin{equation*}
+\hat{\tau}_{\mathrm{dsm}}^{(0)}=\hat{\mu}_{1, \mathrm{dsm}}^{(0)}-\hat{\mu}_{0, \mathrm{dsm}}^{(0)} \tag{2}
+\end{equation*}
+$$
+
+where $\hat{\mu}_{a, \mathrm{dsm}}^{(0)}=n^{-1} \sum_{i=1}^{n} \hat{Y}_{i}(a)=n^{-1} \sum_{i=1}^{n} \mathbf{1}\left(A_{i}=a\right)\left(1+M^{-1} K_{S_{a}, i}\right) Y_{i}$, for $a=0,1$.
+Because $\operatorname{dim}\left(S_{a}\right)=2, \hat{\tau}_{\mathrm{dsm}}^{(0)}$ is asymptotically unbiased. may need to consider how survey wieghts (prospective and retrospective) will impact this factor from A ntonelis decomposition.
+
+### 3.3 Multiply robust DSM
+
+In practice, $S_{0}$ and $S_{1}$ are unknown, requiring modeling and estimation from the observed data. Following the empirical literature, one can posit a logistic regression model for the propensity score and a generalized linear model for the prognostic score. To provide additional protection against model misspecification, we can posit multiple candidate models for both scores. The intuition is that if at least one of the candidate models is correctly specified, whether it is a propensity score model or a prognostic score model, balancing at least one score suffices to remove confounding biases. Therefore, the DSM estimator achieves the so-called multiple robustness.
+
+Following Han and Wang (2013), we postulate multiple candidate models
+
+- $\mathscr{M}(\alpha)=\left\{e^{j}\left(X ; \alpha^{j}\right): j=1, \ldots, J\right\}$ for $e(X)$ with unknown parameters $a=\left(a^{1, \mathrm{~T}}, \ldots\right.$, $\left.a^{J, \mathrm{~T}}\right)^{\mathrm{T}}$;
+- $\mathscr{M}_{0}\left(\beta_{0}\right)=\left\{\Psi_{0}^{k}\left(X ; \beta_{0}^{k}\right): k=1, \ldots, K\right\}$ and $\mathscr{M}_{1}\left(\beta_{1}\right)=\left\{\Psi_{1}^{k}\left(X ; \beta_{1}^{k}\right): k=1, \ldots, K\right\}$ for $\Psi_{0}(X)$ and $\Psi_{1}(X)$, respectively, with unknown parameters $\beta_{0}=\left(\beta_{0}^{1, \mathrm{~T}}, \ldots, \beta_{0}^{K, \mathrm{~T}}\right)^{\mathrm{T}}$ and $\beta_{1}=\left(\beta_{1}^{1, \mathrm{~T}}, \ldots, \beta_{1}^{K, \mathrm{~T}}\right)^{\mathrm{T}}$.
+
+Let $\hat{\alpha}^{j}, \hat{\beta}_{0}^{k}$ and $\hat{\beta}_{1}^{k}$ be the maximum likelihood estimators or the method of moments estimators of $a^{j}, \beta_{0}^{k}$ and $\beta_{1}^{k}$ under the corresponding working model, respectively.
+
+For each treatment level $a \in\{0,1\}$, let $S_{a}\left(\theta_{a}\right)=\left\{\mathscr{M}(\alpha), \mathscr{M}_{a}\left(\beta_{a}\right)\right\}$, where $\theta_{a}^{\mathrm{T}}=\left(\alpha^{\mathrm{T}}, \beta_{a}^{\mathrm{T}}\right)$, be the set of candidate models for the propensity score and the prognostic score for treatment $a$, for $a=0,1$. Under matching scheme (II), we use $S_{a}\left(\hat{\theta}_{a}\right)$ to impute the missing values of $Y$ (a), separately for $a=0,1$. The corresponding dimension of the matching variable is $J+K$. Let $S(\theta)=\left\{\mathscr{M}(\alpha), \mathscr{M}_{0}\left(\beta_{0}\right), \mathscr{M}_{1}\left(\beta_{1}\right)\right\}$, where $\theta=\left(\alpha^{\mathrm{T}}, \beta_{0}^{\mathrm{T}}, \beta_{1}^{\mathrm{T}}\right)^{\mathrm{T}}$, be the set of candidate models for the propensity score and the prognostic score for both treatment groups. Under matching scheme (I), one would use $S(\hat{\theta})$ as the matching variable; the corresponding dimension is thus $J+2 K$. If the number of candidate models for the prognostic score is large, the dimension reduction of the double score under new matching scheme (II) can be much larger than under matching scheme (I).
+
+The initial DSM estimator of $\tau$ is given by $\hat{\tau}_{\mathrm{dsm}}^{(0)}$ in (2) with $S_{a}$ replaced by $S_{a}\left(\hat{\theta}_{a}\right)$ for $a=$ 0,1 . We denote the initial estimator as $\hat{\tau}_{\mathrm{dsm}}^{(0)}(\hat{\theta})$ to reflect its dependence on $\hat{\theta}$. As discussed in Section 3.2, if $J=K=1$, the dimension of $S_{a}\left(\hat{\theta}_{a}\right)$ is two for $a=0,1$. In this case, the asymptotic bias of the matching estimator due to the matching discrepancy is negligible. We do not require further steps to correct the asymptotic bias of $\hat{\tau}_{\mathrm{dsm}}^{(0)}$. This preserves the simplicity of matching in practice. However, if $J, K \geq 2$, the dimension of each matching variable is larger than or equal to four. Consequently, as shown in Table 2, the bias of the matching estimator due to matching discrepancy is not asymptotic negligible. In this case, we propose the de-biasing matching estimator that corrects the asymptotic bias due to matching discrepancy.
+
+Let $\hat{\mu}_{a}\left(S_{a}\right)$ be a nonparametric estimator of $\mu_{a}\left(S_{a}\right)$, for $a=0,1$, e.g., using the method of sieves (Chen; 2007). The de-biasing DSM estimator of $\boldsymbol{\tau}$ is
+
+$$
+\begin{equation*}
+\hat{\tau}_{\mathrm{dsm}}(\hat{\theta})=\hat{\tau}_{\mathrm{dsm}}^{(0)}(\hat{\theta})-n^{-1 / 2} \hat{B}_{n}, \tag{3}
+\end{equation*}
+$$
+
+where $\widehat{B}_{n}$ is an estimator of $B_{n}$ by replacing $\mu_{a}\left(S_{a}\right)$ with $\hat{\mu}_{a}\left(S_{a}\right)$ for $a=0,1$.
+Before delving into the discussion of the theoretical properties of $\hat{\tau}_{\mathrm{dsm}}(\hat{\theta})$, we summarize the DSM algorithm that contains nuts and bolts as follows.
+
+Step 1. Posit multiple candidate parametric models $\mathscr{M}(\alpha), \mathscr{M}_{0}\left(\beta_{0}\right)$, and $\mathscr{M}_{1}\left(\beta_{1}\right)$ for $e(X)$, $\Psi_{0}(X)$, and $\Psi_{1}(X)$, respectively. Obtain the parameter estimators $\hat{\alpha}, \hat{\beta}_{0}$, and $\hat{\beta}_{1}$. For each unit $i$, calculate $S_{a, i}\left(\hat{\theta}_{a}\right)=\left\{\mathscr{M}(\hat{\alpha}), \mathscr{M}_{a}\left(\hat{\beta}_{a}\right)\right\}$ for $a=0,1$. The propensity scores are probability estimates, ranging from zero to one. To stabilize the numerical performance, it is desirable to use a monotone mapping to transform each propensity score estimate $e^{j}\left(X_{i} ; \hat{\alpha}_{j}\right) \in(0,1)$ in $\mathscr{M}(\hat{\alpha})$, e.g., to $\operatorname{logit}\left\{e^{j}\left(X_{i} ; \hat{\alpha}_{j}\right)\right\} \in \mathscr{R}$. We also recommend standardize $S_{a, i}\left(\hat{\theta}_{a}\right)$ such that each component has mean zero and variance one for $a=0,1$.
+
+Step 2. For each unit $i$ with treatment $A_{i}=a$, find $M$ nearest neighbors from the treatment group $1-a$ based on the matching variable $S_{1-a, i}=S_{1-a, i}(\hat{\theta})$. Obtain $\mathcal{F}_{S_{1-a}}(\hat{\theta}), i$ that
+contains the indexes of the matched units for unit $i$ and calculate $K_{S_{a}(\hat{\theta}), i}$ that counts the number of time that unit $i$ is matched to other units. Obtain the initial matching estimator $\hat{\tau}_{\mathrm{dsm}}^{(0)}(\hat{\theta})$ in (2) with $S_{a}$ replaced by $S_{a}\left(\hat{\theta}_{a}\right)$.
+
+If $J=K=1$, let the DSM estimator be $\hat{\tau}_{\mathrm{dsm}}(\hat{\theta})=\hat{\tau}_{\mathrm{dsm}}^{(0)}(\hat{\theta})$. If $J, K \geq 2$, we proceed to Steps 3 and 4 below. Even with $J=K=1$, Steps 3 and 4 can help to reduce the matching discrepancy in finite samples.
+
+Step 3. Obtain a nonparametric estimator of $\mu_{a}\left(S_{a}\right)$, denoted by $\hat{\mu}_{a}\left(S_{a}\right)$, e.g. by the method of sieves based on $\left[\left\{Y_{i}, S_{a, i}\left(\hat{\theta}_{a}\right)\right\}: A_{i}=a\right]$, for $a=0,1$.
+
+Step 4. The DSM estimator of $\boldsymbol{\tau}$ is given by $\hat{\tau}_{\mathrm{dsm}}(\hat{\theta})$ in (3) with $S_{a, i}$ replaced by $S_{a, i}\left(\hat{\theta}_{a}\right)$.
+
+## 4 Main results
+
+In this section, we establish the asymptotic properties of $\hat{\tau}_{\mathrm{dsm}}(\hat{\theta})$, which depends on the estimators of all nuisance parameters in the propensity score and prognostic score models. Without loss of generality, we consider the prognostic score $\Psi_{d}(X)=\mu_{d}\left(X ; \beta_{a}\right)$ and multiple candidate models $\Psi_{a}^{k}\left(X ; \beta_{a}^{k}\right)=\mu_{a}^{k}\left(X ; \beta_{a}^{k}\right)$, for $k=1, \ldots, K$ and $a=0,1$. Consider $\hat{\alpha}^{j}, \hat{\beta}_{0}^{k}$ and $\hat{\beta}_{1}^{k}$ that solve the estimating equation
+
+$$
+n^{-1 / 2} \sum_{i=1}^{n}\left(\begin{array}{c}
+U_{1}^{j}\left(A_{i}, X_{i} ; \alpha^{j}\right)  \tag{4}\\
+U_{2}^{k}\left(A_{i}, X_{i}, Y_{i} ; \beta_{0}^{k}\right) \\
+U_{3}^{k}\left(A_{i}, X_{i}, Y_{i} ; \beta_{1}^{k}\right)
+\end{array}\right)=0,
+$$
+
+where
+
+$$
+\begin{gathered}
+U_{1}^{j}\left(A, X ; \alpha^{j}\right)=\frac{\partial e^{j}\left(X ; \alpha^{j}\right)}{\partial \alpha^{j}} \frac{A-e^{j}\left(X ; \alpha^{j}\right)}{e^{j}\left(X ; \alpha^{j}\right)\left\{1-e^{j}\left(X ; \alpha^{j}\right)\right\}}, \\
+U_{2}^{k}\left(A, X, Y ; \beta_{0}^{k}\right)=(1-A) \frac{\partial \mu_{0}^{k}\left(X ; \beta_{0}^{k}\right)}{\partial \beta_{0}^{q}}\left\{Y-\mu_{0}^{k}\left(X ; \beta_{0}^{k}\right)\right\}, \\
+U_{3}^{k}\left(A, X, Y ; \beta_{1}^{k}\right)=A \frac{\partial \mu_{1}^{k}\left(X ; \beta_{1}^{k}\right)}{\partial \beta_{1}^{k}}\left\{Y-\mu_{1}^{k}\left(X ; \beta_{1}^{k}\right)\right\},
+\end{gathered}
+$$
+
+for $j=1, \ldots, J$ and $k=1, \ldots, K$. Then, $\hat{\theta}$ solves the joint estimating equation
+$\mathcal{U}_{n}(\theta)=n^{-1 / 2} \sum_{i=1}^{n} U\left(A_{i}, X_{i}, Y_{i} ; \theta\right)=0$, where $U(\theta)$ stacks $U_{1}^{j}\left(A_{i}, X_{i}, \alpha^{j}\right)$ for $j=1, \ldots, J$, $U_{2}^{k}\left(A_{i}, X_{i}, Y_{i} ; \beta_{0}^{k}\right)$ and $U_{3}^{k}\left(A_{i}, X_{i}, Y_{i} ; \beta_{1}^{k}\right)$ for $k=1, \ldots, K$.
+
+Let $\theta^{*}$ be the probability limit of $\hat{\theta}$. We divide our theoretical investigation into two steps: first, we establish the asymptotic results for the DSM estimator when $\theta^{*}$ is known, and second, building on the step-one results, we quantify the impact of the estimation of $\theta^{*}$ on the asymptotic distribution.
+
+### 4.1 Asymptotic results with known $\boldsymbol{\theta}^{*}$
+
+We allow possible model misspecification, so $\theta^{*}$ may not be the true parameter values. If $e^{j}\left(X ; a^{j}\right)$ is a correctly specified model, we have $e^{j}\left(X ; \alpha^{j *}\right)=e(X)$; if $\mu_{a}^{k}\left(X ; \beta_{a}^{k}\right)$ is a correctly specified model, we have $\mu_{a}^{k}\left(X ; \beta_{a}^{k^{*}}\right)=\mu_{a}(X)$, for $a=0,1$. The key insight is that if any model of the propensity score or prognostic score is correctly specified, $S_{d}\left(\theta^{*}\right)$ remains as a balancing score in the sense that $Y(a) \Perp A \mid S_{a}\left(\theta^{*}\right)$ holds for $a=0,1$ (Lemma 2). In the following theorem, we establish the multiple robustness and asymptotic distribution of $\hat{\tau}_{\mathrm{dsm}}\left(\theta^{*}\right)$.
+
+Theorem 1 Under Assumption 1 and regularity conditions in Assumption A1, if any model of the propensity score or prognostic score is correctly specified, we have $n^{1 / 2}\left\{\hat{\tau}_{\mathrm{dsm}}\left(\theta^{*}\right)-\tau\right\} \rightarrow \mathcal{N}\left(0, V_{\tau}\right)$, in distribution, as $n \rightarrow \infty$, where
+
+$$
+\begin{align*}
+& V_{\tau}=\mathbb{E}\left[\left\{\mu_{1}\left(S_{1}\right)-\mu_{0}\left(S_{0}\right)-\tau\right\}^{2}\right]+\mathbb{E}\left(\sigma_{1}^{2}\left(S_{1}\right)\left[\frac{1}{e\left(S_{1}\right)}+\frac{1}{2 M}\left\{\frac{1}{e\left(S_{1}\right)}-e\left(S_{1}\right)\right\}\right]\right) \\
+& +\mathbb{E}\left(\sigma_{0}^{2}\left(S_{0}\right)\left[\frac{1}{1-e\left(S_{0}\right)}+\frac{1}{2 M}\left\{\frac{1}{1-e\left(S_{0}\right)}-1+e\left(S_{0}\right)\right\}\right]\right) . \tag{5}
+\end{align*}
+$$
+
+Remark 1 (Connection with AIPW) The de-biased matching estimator has an intrinsic connection with the AIPW estimator. The AIPW estimator of $\tau$ is
+
+$$
+\begin{equation*}
+\hat{\tau}_{\text {aipw }}=n^{-1} \sum_{i=1}^{n}\left[\mu_{1}\left(X_{i}\right)-\mu_{0}\left(X_{i}\right)+\frac{2 A_{i}-1}{\widehat{\mathbb{P}}\left(A_{i} \mid X_{i}\right)}\left\{Y_{i}-\mu_{A}\left(X_{i}\right)\right\}\right]+o_{\mathrm{P}}\left(n^{-1 / 2}\right) . \tag{6}
+\end{equation*}
+$$
+
+It is well-known that $\hat{\tau}_{\text {aipw }}$ is doubly robust and semiparametrically efficient when the outcome model and the propensity score model are correctly specified. In the proof of Theorem 1, we show that the DSM estimator $\hat{\tau}_{\mathrm{dsm}}\left(\theta^{*}\right)$ exhibits a similar asymptotic expansion as the AIPW estimator
+
+$$
+\begin{align*}
+& \hat{\tau}_{\mathrm{dsm}}\left(\theta^{*}\right)=n^{-1} \sum_{i=1}^{n}\left[\mu_{1}\left(S_{1, i}\right)-\mu_{0}\left(S_{0, i}\right)+\left(2 A_{i}-1\right)\left(1+M^{-1} K_{S_{A}, i}\right)\right.  \tag{7}\\
+& \left.\left\{Y_{i}-\mu_{A}\left(S_{A, i}\right)\right\}\right]+o_{\mathrm{P}}\left(n^{-1 / 2}\right)
+\end{align*}
+$$
+
+When one of the prognostic score models is correctly specified, $\mu_{a}\left(S_{\mathrm{a}, \mathrm{i}}\right)=\mu_{a}\left(X_{i}\right)$ for a $=0,1$. From Theorem 1, the asymptotic variance of $\hat{\tau}_{\mathrm{dsm}}\left(\theta^{*}\right)(5)$ does not achieve the semiparametric efficiency bound(Hahn; 1998) for a fixed M, but it becomes closer when $M$ is larger. However, $\hat{\tau}_{\text {aipw }}$ is extremely unstable when the estimated propensity scores are close to zero or one due to the weight construction, and it is sensitive to slight model misspecification. Instead of inverting the estimated propensity score, the DSM estimator uses the matching weights, $1+M^{-1} K_{S_{A}}$, , for covariate balancing and hence is more robust in the scenarios with extreme propensity score values. This is confirmed in the simulation study.
+
+Remark 2 From Theorem 1, the consistency of the DSM estimator is guaranteed if any model for the propensity score or prognostic score is correctly specified. Both the number of the posited models and their functional forms can affect the efficiency of the DSM estimator in a very complex way. In addition, with a finite sample size, the matching performance can be unstable if there are a large number of working models. In particular, the discrepancy of the matched units may be large when some of the models are poorly constructed. To reduce the chance of running into these issues, we suggest positing a few well-constructed working models instead of a large number of poorly built ones. can go deeper on this part considering hwo to automate the minimunm set of possible necessary and sufficient exploration of working model for ps and pgs
+4.2 Asymptotic results with estimated $\theta^{*}$ considering the relative postion from data to reality.
+To acknowledge the fact that $\theta^{*}$ is estimated prior to matching, we will establish the approximate distribution of $\hat{\tau}_{\mathrm{dsm}}(\hat{\theta})$ and examine the impact of nuisance parameter estimation on the properties of the DSM estimator. As in Abadie and Imbens (2016), the typical Taylor expansion technique can not be used because of the non-smooth nature of matching. Our derivation is based on the technique developed by Andreou and Werker (2012), which offers a general approach for deriving the limiting distribution of statistics that involve estimated nuisance parameters. This technique has been successfully used by
+
+N eed to check this and understand how thye use in PSM proof. especially the difference with double score and single score mathcing Abadie and Imbens (2016) for the PSM estimators of the ATE and ATT based on a correctly specified propensity score model. We extend their results to the DSM estimator requiring only one of the double score models to be correctly specified.
+
+Theorem 2 Under Assumption 1 and regularity conditions in Assumptions A1-A4, if any model of the propensity score or prognostic score is correctly specified, the approximate distribution of $n^{1 / 2}\left\{\hat{\tau}_{\mathrm{dsm}}(\hat{\theta})-\tau\right\}$ is $\mathcal{N}\left(0, V_{\tau}\right.$, adj $)$, where
+
+$$
+\begin{equation*}
+V_{\tau, \text { adj }}=V_{\tau}-\gamma_{1}^{\mathrm{T}} \Sigma_{U}^{-1} \gamma_{1}+\gamma_{2}^{\mathrm{T}} \Sigma_{\theta^{*} \gamma_{2}}, \tag{8}
+\end{equation*}
+$$
+
+where $V_{\tau}$ is given in (5), $\Sigma_{U}=\mathbb{E}\left\{U\left(A, X, Y ; \theta^{*}\right) U\left(A, X, Y ; \theta^{*}\right)^{\mathrm{T}}\right\}, \Sigma_{\theta^{*}}=\Gamma_{\theta^{*}}^{-1} \Sigma_{U}\left(\Gamma_{\theta^{*}}^{-1}\right)^{\mathrm{T}}$, $\Gamma_{\theta^{*}}=\mathbb{E}\left\{\partial U\left(A, X, Y ; \theta^{*}\right) / \partial \theta^{\mathrm{T}}\right\}, \gamma_{1}$ and $\gamma_{2}$ are given in (A14) and (A10), respectively.
+
+We discuss the impact of estimating the nuisance parameters on the matching estimators. Abadie and Imbens (2016) showed that for $\boldsymbol{\tau}$, matching on the estimated propensity score always improves the estimation efficiency compared to matching on the true propensity score. This improvement is due to the correlation of the matching estimator and the score
+function for the parameters in the propensity score. In our context, comparing the asymptotic variances in Theorems 1 and 2, the difference between $V_{\boldsymbol{\tau}, \text { adj }}$ and $V_{\boldsymbol{\tau}},-\gamma_{1}^{\mathrm{T}} \Sigma_{U}^{-1} \gamma_{1}+\gamma_{2}^{\mathrm{T}} \Sigma_{\theta * \gamma_{2}}$, can be either positive, negative, or zero; i.e., matching on the estimated double score can either increase, decrease, or maintain the estimation efficiency compared to matching on the true double score. To explain the difference, we note that the variance reduction term $-\gamma_{1}^{\mathrm{T}} \Sigma_{U}^{-1} \gamma_{1}$ is still due to the correlation of the matching estimator and the score function for the parameters in the double score, while the variance inflation term $\gamma_{2}^{\mathrm{T}} \Sigma_{\theta^{*} \gamma_{2}}$ is because if either the prognostic score model or the propensity score model is misspecified,
+causal estimand itself depends on the unknown score parameters $\tau$ may depend on the nuisance parameters through $\tau=\mathbb{E}\left[\mu_{1}\left\{S_{1}\left(\theta^{*}\right)\right\}-\mu_{0}\left\{S_{0}\left(\theta^{*}\right)\right\}\right]$, which contributes to the variance inflation term. On the other hand, Abadie and Imbens (2016) focused on the setting when the propensity score model is the only nuisance model and is correctly specified. In this case, $\boldsymbol{\tau}$ does not depend on $a^{*}, \gamma_{2}$ is zero, and therefore the variance inflation term is zero.
+
+### 4.3 Variance estimation and inference
+
+Theorem 2 provides guidance for variance estimation of the DSM estimators that can take all sources of variability into account. However, such variance estimators are complicated to construct. We consider variance estimation based on replication methods (Efron; 1979; Wolter; 2007). Lack of smoothness makes the standard replication methods invalid for the matching estimator. When the number of matches remains fixed, Abadie and Imbens (2008) demonstrated the failure of the bootstrap for matching estimators. This is because the nonparametric bootstrap cannot preserve the distribution of the number of times that each unit is used as a match. In this case, Otsu and Rai (2017) proposed a wild bootstrap procedure for the matching estimator when matching is directly based on the covariates. Yang and Kim (2019) proposed a replication-based procedure for predictive mean matching in survey data. check these literacture for consideration of boostraping for double score use in survey data
+
+Given the two-stage estimation procedure for the DSM estimator, the variability of the matching estimator results from two sources: first, the estimation of the double score function, and second, matching. Following Yang and Kim (2019), we propose a two-stage replication variance estimation procedure, in parallel to the two-stage point estimation procedure. First, we construct replicates of the nuisance parameter estimators in the double score. Second, based on the asymptotic linear representations of the DSM estimator, we construct replicates of the DSM estimator directly based on the linear terms with the replicated nuisance parameters. In this way, the distribution of the number of times that each unit is used as a match can be retained.
+
+Specifically, the replication variance estimation algorithm proceeds as follows.
+VE-Step 1. Obtain a bootstrap sample, or equivalently the bootstrap replication weights $\omega_{i}^{*}=n^{-1} m_{i}^{*}$ with $\left(m_{1}^{*}, \ldots, m_{n}^{*}\right)$ is a multinomial random vector with $n$ draws on $n$ equal probability cells. Obtain a bootstrap replicate of $\hat{\theta}, \hat{\theta}^{*}$, by solving the estimating equation $n^{-1 / 2} \sum_{i=1}^{n}\left\{\omega_{i}^{*} U\left(A_{i}, X_{i}, Y_{i} ; \theta\right)\right\}=0$. For each unit $i$, calculate $S_{a, i}\left(\hat{\theta}^{*}\right)$ for $a=0,1$.
+
+VE-Step 2. Obtain a bootstrap replicate of $\hat{\tau}_{\mathrm{dsm}}(\hat{\theta})$ as
+
+$$
+\begin{aligned}
+& \hat{\tau}_{\mathrm{dsm}}^{*}\left(\hat{\theta}^{*}\right)=n^{-1} \sum_{i=1}^{n} \omega_{i}^{*}\left[\hat{\mu}_{1}\left\{S_{1, i}\left(\hat{\theta}^{*}\right)\right\}-\hat{\mu}_{0}\left\{S_{0, i}\left(\hat{\theta}^{*}\right)\right\}\right] \\
+& +n^{-1} \sum_{i=1}^{n} \omega_{i}^{*}\left(2 A_{i}-1\right)\left\{1+M^{-1} K_{S_{A_{i}}}(\hat{\theta}), i\right\}\left[Y_{i}-\hat{\mu}_{A_{i}}\left\{S_{A_{i}, i}\left(\hat{\theta}^{*}\right)\right\}\right] .
+\end{aligned}
+$$
+
+VE-Step 3. Repeat VE-Steps 1 and 2 a large number of times. Calculate the bootstrap variance estimator of $\hat{\tau}_{\mathrm{dsm}}(\hat{\theta})$ as the empirical variance of $\hat{\tau}_{\mathrm{dsm}}^{*}\left(\hat{\theta}^{*}\right)$ over a large number of bootstrap replicates.
+
+## 5 Multiply robust matching estimator of the QTE
+
+Matching is attractive for general causal estimation because it can be viewed as a hot deck imputation method (Ford; 1983), where for each unit the donors for the missing potential outcome are actually observed values from the opposite treatment group. An advantage of hot deck imputation is that it preserves the distribution of the potential outcomes so that valid estimators for parameters depending on the entire distribution of the potential outcomes such as the mean and quantiles can be obtained based on the imputed data set. In this section, we extend the DSM framework to estimate the QTE.
+
+We focus on estimating $q_{a, \xi}$ separately for $a=0,1$. By Lemma 1 , we have
+
+$$
+q_{a, \xi}=\inf _{q}\left(\mathbb{E}\left[\mathbb{P}\left\{Y \leq q \mid A=a, e(X), \Psi_{a}(X)\right\}\right] \geq \xi\right)
+$$
+
+Based on the above equation, we propose the DSM estimator of $q_{a, \xi}$ as
+
+$$
+\begin{equation*}
+\hat{q}_{a, \xi, \mathrm{dsm}}=\inf _{q}\left\{\widehat{F}_{a, \mathrm{dsm}}(q) \geq \xi\right\} \tag{9}
+\end{equation*}
+$$
+
+where
+
+$$
+\begin{gather*}
+\widehat{F}_{a, \mathrm{dsm}}(q)=\widehat{F}_{a, \mathrm{dsm}}^{(0)}(q)-n^{-1 / 2} \widehat{\boldsymbol{B}}_{a, n}(q) \\
+\widehat{F}_{a, \mathrm{dsm}}^{(0)}(q)=n^{-1} \sum_{i=1}^{n} \mathbf{1}\left(A_{i}=a\right)\left(1+M^{-1} K_{S_{a}, i}\right) \mathbf{1}\left(Y_{i} \leq q\right)  \tag{10}\\
+\widehat{\boldsymbol{B}}_{a, n}(q)=-n^{-1 / 2} \sum_{i=1}^{n} 1\left(A_{i}=1-a\right) M^{-1} \sum_{j \in \mathcal{J} S_{a}, i}\left\{\widehat{F}_{a}\left(q ; S_{a, i}\right)-\widehat{F}_{a}\left(q ; S_{a, j}\right)\right\}, \tag{11}
+\end{gather*}
+$$
+
+and $\widehat{F}_{a}\left(q ; S_{a}\right)$ is a semi/nonparametric estimator of $F_{a}\left(q ; S_{a}\right)=\mathbb{P}\left\{Y(a) \leq q \mid S_{a}\right\}$, for $a=0,1$. Note that $\widehat{F}_{a, \operatorname{dsm}}^{(0)}(q)$ is an initial matching estimator of $F_{a}(q)=\mathbb{P}\{Y(a) \leq q\}, \widehat{B}_{a, n}(q)$ is the bias correction term. Then the DSM estimator of $\Delta_{\xi}$ is $\hat{\Delta}_{\xi, \mathrm{dsm}}=\hat{q}_{1, \xi, \mathrm{dsm}}-\hat{q}_{0, \xi, \mathrm{dsm}}$.
+
+For estimating $\Delta_{\xi}$, Steps 1 and 2 of DSM in Section 3.3 remain the same; Steps $3^{\prime}$ and $4^{\prime}$ proceed as follows:
+
+Step 3′. Obtain a semiparametric estimator of $F_{a}\left(q, S_{a}\right)$ based on $\left[\left\{Y_{i}, S_{a, i}(\widehat{\theta})\right\}: A_{i}=a\right]$, for $a$ $=0,1$.
+
+Step 4'. The DSM estimator of $q_{a, \xi}$ is given by (9) with $S_{a}$ replaced by $S_{a}(\hat{\theta})$. We denote the final estimator of $q_{a, \xi}$ as $\hat{q}_{a, \xi \mathrm{dsm}}(\hat{\theta})$ to reflect its dependence on $\hat{\theta}$, for $a=0,1$. Then, the DSM estimator of $\Delta_{\xi}$ is $\hat{\Delta}_{\xi, \mathrm{dsm}}(\hat{\theta})=\hat{q}_{1, \xi, \mathrm{dsm}}(\hat{\theta})-\hat{q}_{0, \xi, \mathrm{dsm}}(\hat{\theta})$.
+
+Remark 3 In Step 3', many choices can be considered for estimating $F_{a}\left(q ; S_{a}\right)$ : e.g., the method of sieves for the normal linear model after a Box-Cox transformation of Zhang et al. (2012), the single-index conditional distribution model of Chiang and Huang (2012), or the distribution regression models of Foresi and Peracchi (1995) and Chernozhukov et al. (2013). The data at hand and subject matter knowledge can be used to guide the choice of the models. For example, if the transformed outcome is believed to follow a normal distribution, Zhang et al. (2012) 's method is preferable; otherwise, other semiparametric approaches are desirable.
+
+Under Assumption 1, regularity conditions in Assumptions A1 (i) and S1, if any model of the propensity score or prognostic score is correctly specified, similar to the proof in Section A1, we have $\mathrm{d} \widehat{F}_{a, \operatorname{dsm}}\left(q_{a, \xi}\right) / \mathrm{d} q=f_{a}\left(q_{a, \xi}\right)+o_{\mathrm{P}}\left(n^{-1 / 2}\right)$, and then we express $\hat{q}_{a, \xi}$, dsm as
+
+$$
+\begin{equation*}
+\hat{q}_{a, \xi, \mathrm{dsm}}-q_{a, \xi}=-\frac{\widehat{F}_{a, \mathrm{dsm}}\left(q_{a, \xi}\right)-F_{a}\left(q_{a, \xi}\right)}{f_{a}\left(q_{a, \xi}\right)}+o_{P}\left(n^{-1 / 2}\right), \tag{12}
+\end{equation*}
+$$
+
+$q_{a, \xi}$ lies in a closed interval $\mathscr{I}$. Expression (12) is called the Bahadur-type representation for $\hat{q}_{a, \xi, \mathrm{dsm}}$ (Francisco and Fuller; 1991). With the representation (12), we can then extend the multiple robustness and asymptotic distributions of the ATE estimation to $\hat{\Delta}_{\xi}, \operatorname{dsm}\left(\theta^{*}\right)$ and $\widehat{\Delta}_{\xi, \mathrm{dsm}}(\widehat{\theta})$.
+
+Theorem 3 Under Assumption 1, regularity conditions in Assumptions A1 (i) and S1, if any model of the propensity score or prognostic score is correctly specified, for all $\xi \in \widetilde{\mathscr{I}}=\left\{\xi: F_{a}(x)=\xi, x \in \mathscr{J}\right\}, n^{1 / 2}\left\{\hat{\Delta}_{\xi, \operatorname{dsm}}\left(\theta^{*}\right)-\Delta_{\xi}\right\} \rightarrow \mathcal{N}\left(0, V_{\xi}\right)$, in distribution, as $n \rightarrow \infty$, where $V_{\xi}$ is given in (S3).
+
+Theorem 4 Under Assumption 1, regularity conditions in Assumptions A1 (i) and S1, if any model of the propensity score or prognostic score is correctly specified, the approximate distribution of $n^{1 / 2}\left\{\hat{\Delta}_{\xi, \operatorname{dsm}}\left(\theta^{*}\right)-\Delta_{\xi}\right\}$ is $\mathcal{N}\left(0, V_{\xi}\right.$, adj $)$, where
+
+$$
+\begin{equation*}
+V_{\xi, \mathrm{adj}}=V_{\xi}-\gamma_{3}^{\mathrm{T}} \Sigma_{U}^{-1} \gamma_{3}+\gamma_{4}^{\mathrm{T}} \Sigma_{\theta^{*} \gamma_{4}}, \tag{13}
+\end{equation*}
+$$
+
+$V_{\xi}$ is given in (S3), $\Sigma_{U}$ and $\Sigma_{\theta^{*}}$ are given in Theorem 3, $\gamma_{3}$ and $\gamma_{4}$ are given in (S4) and (S5), respectively.
+
+For variance estimation of $\widehat{\Delta}_{\xi}, \mathrm{dsm}(\widehat{\theta})$, VE-Step 1 in Section 4.3 remains the same; VE-Steps 2 and 3 proceed as follows:
+
+VE-Step $2^{\prime}$. For $a=0,1$, obtain a bootstrap replicate of $\hat{q}_{a, \xi \mathrm{dsm}}(\hat{\theta}), \hat{q}_{a, \xi \mathrm{dsm}}^{*}\left(\hat{\theta}^{*}\right)$, by solving
+
+$$
+\begin{aligned}
+& \widehat{F}_{a, \operatorname{dsm}}^{*}(q)=n^{-1} \sum_{i=1}^{n} \omega_{i}^{*} \widehat{F}_{a}\left\{q ; S_{a, i}\left(\hat{\theta}^{*}\right)\right\} \\
+& +n^{-1} \sum_{i=1}^{n} \omega_{i}^{*} \mathbf{1}\left(A_{i}=a\right)\left\{1+M^{-1} K_{S_{a}}(\hat{\theta}), i\right\}\left[\mathbf{1}\left(Y_{i} \leq q\right)-\widehat{F}_{a}\left\{q ; S_{a, i}\left(\hat{\theta}^{*}\right)\right\}\right]=\xi,
+\end{aligned}
+$$
+
+for $q$. Then a bootstrap replicate of $\hat{\Delta}_{\xi, \operatorname{dsm}}(\hat{\theta})$ is $\hat{\Delta}_{\xi, \operatorname{dsm}}^{*}\left(\hat{\theta}^{*}\right)=\hat{q}_{1, \xi, \operatorname{dsm}}^{*}\left(\hat{\theta}^{*}\right)-\hat{q}_{0, \xi, \operatorname{dsm}}^{*}\left(\hat{\theta}^{*}\right)$.
+VE-Step 3'. Repeat VE-Steps 1 and 2' for a large number of times. Calculate the bootstrap variance estimator of $\hat{\Delta}_{\xi, \mathrm{dsm}}(\hat{\theta})$ as the empirical variance of $\hat{\Delta}_{\xi, \mathrm{dsm}}^{*}\left(\hat{\theta}^{*}\right)$ over a large number of bootstrap replicates.
+
+## 6 Extensions to the causal effects on the treated
+
+In this extension, we estimate the average causal effect on the treated $\boldsymbol{\tau}_{\text {ATT }}$ and the quantile treatment effect on the treated $\Delta_{\mathrm{ATT}, \xi}=q_{1, \xi \mid A=1}-q_{0, \xi \mid A=1}$, where $q_{a, \xi \mid A=1}=\inf _{q}[P\{Y$ $(a) \leq q\} \geq \xi \mid A=1], a=0,1$. Here, because $f\{Y(1) \mid A=1\}=f(Y \mid A=1)$, the outcome distribution for the treated is identifiable. Therefore, $\mathbb{E}\{Y(1) \mid A=1\}=\mathbb{E}(Y \mid A=1)$ and $q_{1, \xi} \mid A=1=\inf _{q}\{\mathbb{P}(Y \leq q \mid A=1) \geq \xi\}$.
+
+To identify the outcome distribution for the control, Assumption 1 can be relaxed (Heckman et al.; 1997b).
+
+Assumption 2 i) $Y(0) \Perp A \mid X$; and ii) there exists a constant $c$ such that $e(X) \leq c<1$ almost surely.
+
+For the causal effects on the treated, the prognostic score $\Psi_{0}(X)$ is a sufficient statistic for $Y(0)$ in the sense that $Y(0) \Perp X \mid \Psi_{0}(X)$ according to Hansen (2008). Then, under Assumption 2,
+
+$$
+\begin{aligned}
+& \left.\tau_{\mathrm{ATT}}=\mathbb{E} \mathbb{E}(Y \mid A=1)-\mathbb{E}\{Y \mid A=0, e(X)\} \mid A=1\right] \\
+& =\mathbb{E}\left[\mathbb{E}(Y \mid A=1)-\mathbb{E}\left\{Y \mid A=0, \Psi_{0}(X)\right\} \mid A=1\right]
+\end{aligned}
+$$
+
+and
+
+$$
+\begin{aligned}
+& q_{0}, \xi \mid A=1=\inf (\mathbb{E}[\mathbb{P}\{Y \leq q \mid A=0, e(X)\} \mid A=1] \geq \xi) \\
+& =\inf _{q}\left(\mathbb{E}\left[\mathbb{P}\left\{Y \leq q \mid A=0, \Psi_{0}(X)\right\} \mid A=1\right] \geq \xi\right)
+\end{aligned}
+$$
+
+encoding the double balancing properties of $S=\left\{e(X), \Psi_{0}(X)\right\}$.
+
+The DSM estimators for $\boldsymbol{\tau}_{\text {ATT }}$ and $\Delta_{\text {ATT }, \xi}$ follow similar steps as for $\boldsymbol{\tau}$ and $\Delta_{\xi}$. We describe the differences below.
+
+In the matching step, for each unit $i$ with treatment $A_{i}=1$, find $M$ nearest neighbors from the control group $A_{i}=0$ based on the matching variable $S_{i}=S_{i}(\hat{\theta})$. Let these matched units for unit $i$ be indexed by $\mathcal{J}_{S(\hat{\theta}), i}$.
+
+The initial and de-biasing DSM estimators of $\boldsymbol{\tau}_{\text {ATT }}$ are
+
+$$
+\begin{aligned}
+& \hat{\tau}_{\mathrm{ATT}, \mathrm{dsm}}^{(0)}=n_{1}^{-1} \sum_{i=1}^{n} A_{i}\left\{Y_{i}-\hat{Y}_{i}(0)\right\}, \hat{Y}_{i}(0)=M^{-1} \sum_{j \in \mathcal{J} S, i} Y_{j} \\
+& \hat{\tau}_{\mathrm{ATT}, \mathrm{dsm}}=\hat{\tau}_{\mathrm{ATT}, \mathrm{dsm}}^{(0)}-n_{1}^{-1} \sum_{i=1}^{n} A_{i}\left\{\hat{\mu}_{0}\left(S_{i}\right)-M^{-1} \sum_{j \in \mathcal{J} S, i} \hat{\mu}_{0}\left(S_{j}\right)\right\}
+\end{aligned}
+$$
+
+Let the estimator of $F_{1}(q \mid A=1)=\mathbb{P}\{Y(1)<q \mid A=1\}$ be
+
+$$
+\widehat{F}_{1}(q \mid A=1)=n_{1}^{-1} \sum_{i=1}^{n} A_{i} \mathbf{1}\left(Y_{i} \leq q\right)
+$$
+
+Then, we estimate $q_{1, \xi \mid A=1}$ by
+
+$$
+\hat{q}_{1, \xi} \mid A=1=\inf _{q}\left\{\widehat{F}_{1}(q \mid A=1) \geq \xi\right\}
+$$
+
+The initial and de-biasing DSM estimators of $F_{0}(q \mid A=1)=\mathbb{P}\{Y(0)<q \mid A=1\}$ are
+
+$$
+\begin{aligned}
+& \widehat{F}_{0, \operatorname{dsm}}^{(0)}(q \mid A=1)=n_{1}^{-1} \sum_{i=1}^{n} A_{i} M^{-1} \sum_{j \in \mathcal{J} S, i} \mathbf{1}\left(Y_{j} \leq q\right)=n_{1}^{-1} \sum_{i=1}^{n}\left(1-A_{i}\right) M^{-1} K_{S, i} \mathbf{1}\left(Y_{i} \leq q\right) \\
+& \widehat{F}_{0, \operatorname{dsm}}(q \mid A=1)=\widehat{F}_{0, \operatorname{dsm}}^{(0)}(q \mid A=1)-n_{1}^{-1 / 2} \widehat{B}_{0, n}(q) \\
+& \widehat{B}_{0, n}(q)=-n_{1}^{-1 / 2} \sum_{i=1}^{n} A_{i} M^{-1} \sum_{j \in \mathcal{J} S, i}\left\{\widehat{F}_{0}\left(q ; S_{i}\right)-\widehat{F}_{0}\left(q ; S_{j}\right)\right\}
+\end{aligned}
+$$
+
+Then, we estimate $q_{0, \xi \mid A=1}$ by
+
+$$
+\hat{q}_{0}, \xi \mid A=1, \mathrm{dsm}=\inf _{q}\left\{\widehat{F}_{0}, \operatorname{dsm}(q \mid A=1) \geq \xi\right\}
+$$
+
+Lastly, the DSM estimator of $\Delta_{\mathrm{ATT}, \xi}$ is $\hat{\Delta}_{\mathrm{ATT}, \xi, \mathrm{dsm}}=\hat{q}_{1, \xi \mid A=1}-\hat{q}_{0, \xi \mid A=1, \mathrm{dsm}}$.
+For variance estimation, we replace the VE-Step 2 and VE-Step 2' for $\boldsymbol{\tau}$ and $\Delta_{\xi}$ by the following steps:
+
+ATT-VE-Step 2. Obtain a bootstrap replicate of $\hat{\tau}_{\mathrm{ATT}, \mathrm{dsm}}(\hat{\theta})$,
+
+$$
+\begin{aligned}
+& \hat{\tau}_{\mathrm{ATT}, \mathrm{dsm}}^{*}\left(\hat{\theta}^{*}\right)=n_{1}^{-1} \sum_{i=1}^{n} \omega_{i}^{*} A_{i}\left[\hat{\mu}_{1}\left\{S_{i}\left(\hat{\theta}^{*}\right)\right\}-\hat{\mu}_{0}\left\{S_{i}\left(\hat{\theta}^{*}\right)\right\}\right] \\
+& +n_{1}^{-1} \sum_{i=1}^{n} \omega_{i}^{*}\left\{A_{i}-\left(1-A_{i}\right) M^{-1} K_{S(\hat{\theta}), i}\right\}\left[Y_{i}-\hat{\mu}_{A_{i}}\left\{S_{i}\left(\hat{\theta}^{*}\right)\right\}\right]
+\end{aligned}
+$$
+
+QTT-VE-Step $2^{\prime}$. For $a=1$, obtain a bootstrap replicate of $\hat{q}_{1, \xi \mid A=1}(\hat{\theta}), \hat{q}_{1, \xi \mid A=1}^{*}\left(\hat{\theta}^{*}\right)$, by solving
+
+$$
+\widehat{F}_{1}^{*}(q \mid A=1)=n_{1}^{-1} \sum_{i=1}^{n} \omega_{i}^{*} A_{i} \mathbf{1}\left(Y_{i} \leq q\right)=\xi
+$$
+
+For $a=0$, obtain a bootstrap replicate of $\hat{q}_{0, \xi \mid A=1, \operatorname{dsm}}(\hat{\theta}), \hat{q}_{0, \xi \mid A=1, \operatorname{dsm}}^{*}\left(\hat{\theta}^{*}\right)$, by solving
+
+$$
+\begin{aligned}
+& \widehat{F}_{0, \operatorname{dsm}}^{*}(q \mid A=1)=n_{1}^{-1} \sum_{i=1}^{n} \omega_{i}^{*} A_{i} \widehat{F}_{0}\left\{q ; S_{i}\left(\widehat{\theta}^{*}\right)\right\} \\
+& +n_{1}^{-1} \sum_{i=1}^{n} \omega_{i}^{*} \mathbf{1}\left(A_{i}=0\right) M^{-1} K_{S(\hat{\theta}), i}\left[\mathbf{1}\left(Y_{i} \leq q\right)-\widehat{F}_{0}\left\{q ; S_{i}\left(\hat{\theta}^{*}\right)\right\}\right]=\xi,
+\end{aligned}
+$$
+
+for $q$. Then a bootstrap replicate of $\hat{\Delta}_{\mathrm{ATT}, \xi, \mathrm{dsm}}(\hat{\theta})$ is $\hat{\Delta}_{\mathrm{ATT},}^{*}, \operatorname{dsm}\left(\hat{\theta}^{*}\right)=\hat{q}_{1, \xi \mid A=1}^{*}\left(\hat{\theta}^{*}\right)-\hat{q}_{0, \xi \mid A=1, \operatorname{dsm}}^{*}\left(\hat{\theta}^{*}\right)$.
+
+## 7 Simulation study
+
+We conduct a simulation study to investigate the finite-sample performance of the proposed DSM estimators relative to existing weighting and matching estimators. In the causal inference and missing data literature, previous simulations (e.g., Kang and Schafer; 2007) have found that weighting estimators can have high variability, especially if the probabilities are close to zero or one. Frölich (2004) found that the weighting estimator was inferior to matching estimators in terms of root mean squared error. It has been found that matching on high-dimensional covariates is not practical for commonly found sample sizes (e.g., Abadie and Imbens; 2006). In the comparative effectiveness research, PGM has been shown to be more advantageous than PSM when the propensity score distributions are strongly separated (Wyss et al.; 2015; Kumamaru et al.; 2016). Imbens (2004) noted that if the regression models are misspecified, PGM may be inconsistent. These results motivate us to compare the weighting and matching estimators in a setting with complex data generative models, and where the propensity scores may be extreme (i.e., close to zero or one) or non-extreme.
+
+Let the sample size be $n=1000$. Confounder $X \in \mathbb{R}^{10}$ is generated by $X_{j} \xrightarrow{\text { iid }}$ Uniform $[1-\sqrt{3}, 1+\sqrt{3}]$ for $j=1, \ldots, 10$. To introduce nonlinear relationships between $X$ and dependent variables, let $Z \in \mathbb{R}^{10}$ be a nonlinear transformation of $X$, where $Z_{1}=\exp \left(X_{1} / 2\right)$, $Z_{2}=\exp \left(X_{2} / 3\right), Z_{3}=\log \left\{\left(X_{3}+1\right)^{2}\right\}, Z_{4}=\log \left\{\left(X_{4}+1\right)^{2}\right\}, Z_{5}=\mathbf{1}\left(X_{5}>0.5\right), Z_{6}$ $=1\left(X_{6}>0.75\right), Z_{7}=\sin \left(X_{7}-X_{8}\right), Z_{8}=\cos \left(X_{7}+X_{8}\right), Z_{9}=\sin \left(X_{9}\right)$, and $Z_{10}=$
+$\cos \left(X_{10}\right)$, which are further scaled and centered such that $\mathbb{E}\left(Z_{j}\right)=1$ and $\mathbb{V}\left(Z_{j}\right)=1$ for all $j$. The potential outcomes are $Y(0)=\beta_{0}^{\mathrm{T}} Z+\epsilon(0)$ and $Y(1)=Y(0)-\epsilon(0)+\epsilon(1)$, where $\beta_{0}^{\mathrm{T}}=(0.1,1,1,1,1,-1,-1,-1,-1,-1), \epsilon(0) \sim \mathcal{N}\left(0,2^{2}\right)$, and $\epsilon(1) \sim \mathcal{N}(0,1)$. Under the data generative model, the ATE $\tau$ is 0 and the 75th QTE is -0.45 . An additional simulation with heterogeneous treatment effects and log-normal errors is presented in the supplementary material. The treatment indicator $A$ follows Bernoulli $\{e(X)\}$, where $\operatorname{logit}\{e(X)\}=\alpha_{0}^{\mathrm{T}} Z$. We consider two scenarios for the propensity score distribution: in the first case, $\alpha_{0}^{T}=(5,-5,1,1,2,-2,-2,1,-1,-1)$, resulting in some extreme values of $e(X)$ that are close to zero or one; and in the second case, the propensity score distribution is not extreme, where $\alpha_{0}^{\mathrm{T}}=(5,-5,1,1,2,-2,-2,1,-1,-1) / 4$. Visualization of the propensity score distributions in the two cases is presented in Figure S2.
+
+To assess the multiple robustness property of the DSM estimators, we consider two model specifications for the propensity score: 1) a correctly specified logistic regression model $\operatorname{logit}\left\{e^{1}\left(X ; a^{1}\right)\right\}=a^{1, \mathrm{~T}} Z$ and 2) a misspecified logistic regression model $\operatorname{logit}\left\{e^{2}\left(X ; a^{2}\right)\right\}$ $=a^{2, \mathrm{~T}} X$; we also consider two model specifications for the prognostic score: 3) a correctly specified regression model $\mu_{a}^{1}\left(X ; \beta_{a}^{1}\right)=\beta_{a}^{1, \mathrm{~T}} Z$ for $a=0,1$ and 4) a misspecified regression model $\mu_{a}^{2}\left(X ; \beta_{a}^{2}\right)=\beta_{a}^{2, \mathrm{~T}} X$ for $a=0,1$.
+
+We compare the following estimators:
+a. naive, which is the simple difference of standard estimators from two treatment groups;
+b. the weighting estimators including the IPW, AIPW, and MRW estimators ("ipw", "aipw", and "mrw");
+c. the matching estimators based on $X$ ("m.x"; bias-corrected Abadie and Imbens; 2011), or propensity score ("psm") or prognostic score ("pgm") or double score ("dsm") with $M=5$.
+
+Each weighting and matching estimator is assigned a name in the form of "method-0000", where each digit of the four-digit number, from left to right, indicates if $e^{1}\left(X ; a^{1}\right)$, $e^{2}\left(X ; a^{2}\right),\left\{\mu_{a}^{1}\left(X ; \beta_{a}^{1}\right)\right\}_{a=0}^{1}$, or $\left\{\mu_{a}^{2}\left(X ; \beta_{a}^{2}\right)\right\}_{a=0}^{1}$ is used in the construction of the method, with " 1 " meaning yes and " 0 " meaning no, respectively. For example, "ipw1000" is the IPW estimator with the propensity score model $e^{1}\left(X ; a^{1}\right)$ and "dsm1110" is the DSM estimator with two propensity score models $e^{1}\left(X ; a^{1}\right), e^{2}\left(X ; a^{2}\right)$ and one prognostic score model $\left\{\mu_{a}^{1}\left(X ; \beta_{a}^{1}\right)\right\}_{a=0}^{1}$. We implement standard IPW and AIPW estimators for the ATE estimation and the corresponding estimators of Zhang et al. (2012) for the QTE estimation. MRW is implemented by the R package "MultiRobust". For all matching estimators, the conditional outcome mean functions are approximated using power series, and the conditional distribution functions are approximated based on the power series for the Normal linear model (Zhang et al.; 2012).
+
+Figure 1 shows the distributions of the estimation error (i.e.; the estimator minus the true parameter value) based on 1000 repeated sampling. The naive estimator is biased for the 75th QTE and ATE. Matching directly based on 10-dimensional $X$ (indicated by "m.x") is biased for the QTE and ATE even with bias correction. This suggests that matching on highdimensional covariates is not practical and calls for dimension reduction. IPW is unstable and sensitive to the extreme values of the propensity score. Even when the propensity score model is correctly specified (indicated by "ipw1000"), IPW is biased of the QTE and ATE. By theory, AIPW is supposed to be doubly robust: it should have small biases if either the propensity score model or the prognostic model is correctly specified. However, as indicated by "aipw1001", AIPW is biased of the QTE and ATE when the propensity score is extreme even if its model is correctly specified. We examine the empirical distribution of the estimated propensity score weights and find that there are extremely large weights that dominate other weights. Therefore, weighting estimators by inverting the estimated propensity scores are sensitive to outliers of the propensity score estimates. To mitigate this issue, one can stabilize the weighting estimators by normalizing the weights (Hernán et al.; 2001). However, this strategy is not effective in our setting. Although AIPW is constructed to be semiparametrically efficient, its performance can be poor when it involves large weights. By construction, matching does not invert the estimated propensity scores and therefore is more robust to outliers of the propensity score estimates. We now compare the performances of the score-based matching estimators. The single score matching estimators (indicated by "psm1000", "psm0100", "pgm0010", "pgm0001") are singly robust and rely on a correct specification of the underlying score model. DSM and MRW are multiply robust in that they have small biases for the QTE and the ATE if any model of the propensity score or prognostic score is correctly specified. Compared to MRW, DSM is more robust to extreme values of the propensity score estimates. Therefore, DSM is advantageous in practice compared to weighting.
+
+Table 3 reports the coverage rates of the DSM estimators of the 75th QTE and the ATE using the proposed replication-based method. Under the multiple robustness condition (i.e., if any model of the propensity score or prognostic score is correctly specified), the coverage rates are all close to the nominal coverage except for "dsm0101".
+
+## 8 Real-data application
+
+In this section, we apply the proposed DSM method as well as other matching methods in Section 7 to the well-known National Supported Work (NSW) data (LaLonde; 1986; Firpo; 2007). This dataset documented the effect of a job training program for the unemployed on future earnings. Following Dehejia and Wahba (1999), we include the comparison group from Westat's Matched Current Population Survey-Social Security (CPS) Administration File. In our analysis, we include 185 treated units and 689 control units from the NSW, as well as 429 comparison units from the CPS-3, a subset of the CPS data (LaLonde; 1986; Firpo; 2007). Seven baseline confounding covariates are used for this application: age, education, race, Hispanic, married, having no college degree, and real earnings in 1975. The outcome of interest is the real earnings in 1978.
+
+Because the outcome distributions are highly skewed (see Figure S3), the average treatment effect may not provide a comprehensive evaluation of the job training program. Therefore, we estimate the ATT and QTTs. To gain the robustness and reliability of the results, we posit two propensity score models and two prognostic score models. Following Dehejia and Wahba (1999), one propensity score model is a logistic regression model with all first-order terms of the covariates and second-order terms of numerical variables, and one prognostic score model is a linear regression of the earnings with the same predictors as in the propensity score models for the control group. Given the popularity of probit models, we consider the second propensity score model to be a probit regression model with the same predictors in the first propensity score model. Given the skewness of the outcome distribution, we consider the second prognostic score to be a linear regression model for the logarithm of the real earnings in 1978.
+
+Matching admits a transparent assessment of covariate balance before and after matching. Table 4 presents the means of all covariates by treatment group and the standardized difference in means before and after DSM. The standardized difference is calculated as the difference of the group means divided by the overall standard error in the original sample. DSM makes standardized differences fall between -0.05 to 0.05 for all covariates, reducing the differences of the observed covariates in the treated and the control.
+
+Table 5 shows the estimated ATTs and QTTs at the $0.1,0.25,0.3,0.5,0.75$ and 0.9 quantiles, and $95 \%$ Wald confidence intervals from the four matching methods, as well as ATE and QTE estimated by the naive method. All four matching estimators show that the job training program does not have a significant effect on the average earning for the treated. Figure 2 shows the QTT plot estimated by DSM algorithm. A closer inspection of the QTT plot reveals that the effect is, in fact, significant around the percentile of 0.3 , which suggests that the program is beneficial for the lower middle class.
+
+## 9 Discussion
+
+We have developed multiply robust matching estimators for general causal estimands. This framework offers a new "metric" to summarize the differential roles of different covariates and also serves as a powerful dimensional reduction tool in high-dimensional confounding. The improved robustness comes from multiple model specifications for the propensity score and prognostic score. The proposed DSM thus provides multiple protections to model misspecification and therefore is an attractive alternative to existing weighting estimators.
+
+Several issues are worth discussing. As with PSM, although the matching variables are well balanced, individual covariates may not for a given application. In this case, if the researchers know important confounders based on substantive knowledge, they can augment the double score by adding those confounders to ensure balance for these confounders; however, adding too many variables will results in potential bias as demonstrated in our simulation. Alternatively, one can use regression adjustment for the matched sample Abadie and Spiess (2016), which can remove remaining confounding biases. We focus on a binary treatment. Yang et al. (2016) has developed the generalized propensity score matching for estimating the treatment effects for more than two treatments. It is of interest to extend
+our DSM algorithm to more than two treatment comparisons. The current DSM framework focuses on continuous and binary outcomes, and it would be an important task to extend DSM to handle survival outcomes (Tang et al.; 2019) and clustered data (Yang; 2018) and estimate the heterogeneous treatment effects Huang and Yang (2021). It is crucial to highlight that as for all existing matching methods, the DSM method cannot account for unmeasured confounding. Following Rosenbaum and Rubin (1983a) and Yang and Lok (2017), we will develop sensitivity analyses to no unmeasured confounding in the matching framework.
+
+## Supplementary Material
+
+Refer to Web version on PubMed Central for supplementary material.
+
+## Acknowledgment
+
+We are grateful to Alberto Abadie for providing comments. Yang is partially supported by the National Science Foundation grant DMS 1811245, National Cancer Institute grant P01 CA142538, National Institute on Aging grant 1R01AG066883, and National Institute of Environmental Health Science grant 1R01ES031651.
+
+## Appendix
+
+Sections A1 and A2 present the proofs of Theorems 1 and 2 for ATE estimation. Parallel proofs of Theorems 3 and 4 for QTE estimation are presented in the supplementary material.
+
+## A1 Proof of Theorem 1
+
+Before presenting the asymptotic properties of $\widehat{\tau}_{\mathrm{dsm}}\left(\theta^{*}\right)$, we require technical conditions. For simplicity, let $S_{a}=S_{a}\left(\theta_{a}^{*}\right)$ and let $f_{1}\left(S_{a}\right)$ and $f_{0}\left(S_{a}\right)$ be the conditional density of $S_{a}$ given $A=$ 1 and $A=0$, respectively.
+
+Assumption A1 For $a=0,1$, (i) the matching variable $S_{a}$ has a compact and convex support $\mathcal{S}$, with a continuous density bounded and bounded away from zero: there exist constants $C_{1 L}$ and $C_{1 U}$ such that $C_{1 L} \leq f_{1}\left(S_{a}\right) / f_{0}\left(S_{a}\right) \leq C_{1 U}$ for any $S_{a} \in \mathcal{S}$; (ii) $\mu_{a}\left(S_{a}\right)$ and $\sigma_{a}^{2}\left(S_{a}\right)$ satisfy Lipschitz continuity conditions: there exists a constant $C_{2}$ such that $\left|\mu_{a}\left(S_{a, i}\right)-\mu_{a}\left(S_{a, j}\right)\right|$ $<C_{2}\left\|S_{a, i}-S_{a, j}\right\|$ for any $S_{a, i}$ and $S_{a, j}$, and similarly for $\sigma_{a}^{2}\left(S_{a}\right)$; (iii) there exists $\delta>0$ such that $\mathbb{E}\left\{|Y(a)|^{2+\delta} \mid S_{a}\right\}$ is uniformly bounded for any $S_{a} \in \mathcal{S}$; and (iv) $\widehat{B}_{n}=B_{n}+o_{\mathrm{P}}(1)$.
+
+Assumption A1 has been considered by Abadie and Imbens (2006) and Abadie and Imbens (2016) for matching estimators based on the covariates and the propensity score. Assumption A1 (i) is a convenient regularity condition. Assumption A1 (ii) imposes smoothness conditions for the outcome mean function $\mu_{a}\left(S_{a}\right)$ and the variance function $\sigma_{a}^{2}\left(S_{a}\right)$. Assumption A1 (iii) is a moment condition for establishing the central limit theorem. Assumption A1 (iv) requires regularity conditions on $\mu_{a}\left(S_{a}\right)(a=0,1)$ and the nonparametric estimators; detailed discussions have appeared in Abadie and Imbens (2011), Abadie and Imbens (2012) and Otsu and Rai (2017).
+
+Under Assumption A1, similar to the proof of Theorem 2 in Abadie and Imbens (2011), $\hat{\tau}_{\mathrm{dsm}}\left(\theta^{*}\right)$ has the following asymptotic linear form:
+
+$$
+\begin{align*}
+& n^{1 / 2}\left\{\hat{\tau}_{\mathrm{dsm}}\left(\theta^{*}\right)-\tau\right\}=n^{-1 / 2} \sum_{i=1}^{n}\left\{\mu_{1}\left(S_{1, i}\right)-\mu_{0}\left(S_{0, i}\right)-\tau\right\}  \tag{A1}\\
+& \quad+n^{-1 / 2} \sum_{i=1}^{n} A_{i}\left(1+M^{-1} K_{S_{1}, i}\right)\left\{Y_{i}-\mu_{1}\left(S_{1, i}\right)\right\}  \tag{A2}\\
+& -n^{-1 / 2} \sum_{i=1}^{n}\left(1-A_{i}\right)\left(1+M^{-1} K_{S_{0}, i}\right)\left\{Y_{i}-\mu_{0}\left(S_{0, i}\right)\right\}+o_{\mathrm{P}}(1) \tag{A3}
+\end{align*}
+$$
+
+If any model of the propensity score or prognostic score is correctly specified, by Lemma 2, we have $\mathbb{E}\left\{\mu_{1}\left(S_{1, i}\right)-\mu_{0}\left(S_{0, i}\right)\right\}=\tau$ and therefore the asymptotic bias of $n^{1 / 2}\left\{\hat{\tau}_{\operatorname{dsm}}\left(\theta^{*}\right)-\tau\right\}$ is zero.
+
+Let the three terms in (A1) be
+
+$$
+\begin{aligned}
+T_{1 n} & =n^{-1 / 2} \sum_{i=1}^{n}\left\{\mu_{1}\left(S_{1, i}\right)-\mu_{0}\left(S_{0, i}\right)-\tau\right\} \\
+T_{2 n} & =n^{-1 / 2} \sum_{i=1}^{n} A_{i}\left(1+M^{-1} K_{S_{1}, i}\right)\left\{Y_{i}-\mu_{1}\left(S_{1, i}\right)\right\} \\
+T_{3 n} & =-n^{-1 / 2} \sum_{i=1}^{n}\left(1-A_{i}\right)\left(1+M^{-1} K_{S_{0}, i}\right)\left\{Y_{i}-\mu_{0}\left(S_{0, i}\right)\right\}
+\end{aligned}
+$$
+
+We show the covariances of the three terms are zero:
+
+$$
+\begin{aligned}
+& \operatorname{cov}\left(T_{1 n}, T_{2 n}\right)=n^{-1} \sum_{i=1}^{n} \sum_{j=1}^{n} \operatorname{cov}\left[\mu_{1}\left(S_{1, i}\right)-\mu_{0}\left(S_{0, i}\right)-\tau, A_{j}\left(1+M^{-1} K_{S_{1}, j}\right)\left\{Y_{j}-\mu_{1}\left(S_{1, j}\right)\right\}\right] \\
+& =n^{-1} \sum_{i=1}^{n} \operatorname{cov}\left[\mu_{1}\left(S_{1, i}\right)-\mu_{0}\left(S_{0, i}\right)-\tau, A_{i}\left(1+M^{-1} K_{S_{1}, i}\right)\left\{Y_{i}-\mu_{1}\left(S_{1, i}\right)\right\}\right] \\
+& =n^{-1} \sum_{i=1}^{n} \operatorname{cov}\left(\mathbb{E}\left\{\mu_{1}\left(S_{1, i}\right)-\mu_{0}\left(S_{0, i}\right)-\tau \mid S_{1, i}, S_{0, i}\right\}\right. \\
+& \left.\mathbb{E}\left[A_{i}\left(1+M^{-1} K_{S_{1}, i}\right)\left\{Y_{i}-\mu_{1}\left(S_{1, i}\right)\right\} \mid S_{1, i}, S_{0, i}\right]\right) \\
+& +n^{-1} \sum_{i=1}^{n} \mathbb{E}\left(\operatorname { c o v } \left\{\mu_{1}\left(S_{1, i}\right)-\mu_{0}\left(S_{0, i}\right)-\tau \mid S_{1, i}, S_{0, i}\right.\right. \\
+& \left.\left.A_{i}\left(1+M^{-1} K_{S_{1}, i}\right)\left\{Y_{i}-\mu_{1}\left(S_{1, i}\right)\right\} \mid S_{1, i}, S_{0, i}\right\}\right) \\
+& =0
+\end{aligned}
+$$
+
+similarly, $\operatorname{cov}\left(T_{1 n}, T_{3 n}\right)=0$, and by construction, $\operatorname{cov}\left(T_{2 n}, T_{3 n}\right)=0$. Thus, the asymptotic variance of $n^{1 / 2}\left\{\hat{\tau}_{\mathrm{dsm}}\left(\theta^{*}\right)-\tau\right\}$ is
+
+$$
+\begin{aligned}
+& \mathbb{V}\left[n^{-1 / 2} \sum_{i=1}^{n}\left\{\mu_{1}\left(S_{1, i}\right)-\mu_{0}\left(S_{0, i}\right)-\tau\right\}\right]+\mathbb{V}\left[n^{-1 / 2} \sum_{i=1}^{n} A_{i}\left(1+M^{-1} K_{S_{1}, i}\right)\left\{Y_{i}-\mu_{1}\left(S_{1, i}\right)\right\}\right] \\
+& +\mathbb{V}\left[n^{-1 / 2} \sum_{i=1}^{n}\left(1-A_{i}\right)\left(1+M^{-1} K_{S_{0}, i}\right)\left\{Y_{i}-\mu_{0}\left(S_{0, i}\right)\right\}\right] .
+\end{aligned}
+$$
+
+The first term becomes $\mathbb{E}\left[\left\{\mu_{1}\left(S_{1}\right)-\mu_{0}\left(S_{0}\right)-\tau\right\}^{2}\right]$. Following Abadie and Imbens (2006), the second and third term, as $n \rightarrow \infty$, becomes
+
+$$
+\begin{aligned}
+& \operatorname{plim}_{n \rightarrow \infty}\left[n^{-1} \sum_{i=1}^{n} A_{i}\left(1+M^{-1} K_{S_{1}, i}\right)^{2} \mathbb{V}\left(Y_{i} \mid S_{1, i}\right)\right] \\
+& +\operatorname{plim}_{n \rightarrow \infty}\left[n^{-1} \sum_{i=1}^{n}\left(1-A_{i}\right)\left(1+M^{-1} K_{S_{0}, i}\right)^{2} \mathbb{V}\left(Y_{i} \mid S_{0, i}\right)\right] \\
+& =\mathbb{E}\left(\sigma_{1}^{2}\left(S_{1}\right)\left[\frac{1}{e\left(S_{1}\right)}+\frac{1}{2 M}\left\{\frac{1}{e\left(S_{1}\right)}-e\left(S_{1}\right)\right\}\right]\right) \\
+& +\mathbb{E}\left(\sigma_{0}^{2}\left(S_{0}\right)\left[\frac{1}{1-e\left(S_{0}\right)}+\frac{1}{2 M}\left\{\frac{1}{1-e\left(S_{0}\right)}-1+e\left(S_{0}\right)\right\}\right]\right)
+\end{aligned}
+$$
+
+This completes the proof of Theorem 1.
+
+## A2 Proof of Theorem 2
+
+We follow the technique in Andreou and Werker (2012) and Abadie and Imbens (2016). In Abadie and Imbens (2016), the PSM estimators rely on the nuisance parameter estimator under a correct specification of the propensity score model. In our setting, the nuisance parameters include both parameters in the propensity score model and the prognostic score model, and require only one of the models to be correctly specified. Without loss of generality, we assume one working model $e(X ; a)$ for the propensity score and one working model $\Psi(X ; \beta)=\left\{\Psi_{0}\left(X ; \beta_{0}\right), \Psi_{1}\left(X ; \beta_{1}\right)\right\}$ for the prognostic score. The proof for the case with more than two working models for each score is similar at the expense of heavier notation. Let $\mathbb{P}$ be the distribution of $\left\{\left(A_{i}, X_{i}, Y_{j}\right): i=1, \ldots, n\right\}$. Consider $\mathbb{P}=\mathbb{P}^{\theta^{*}}$ to be indexed by $\theta^{*}=\left(\alpha^{* \mathrm{~T}}, \beta_{0}^{* \mathrm{~T}}, \beta_{1}^{* \mathrm{~T}}\right)^{\mathrm{T}}$, which satisfies
+
+$$
+\mathbb{E}\left\{U\left(A, X, Y ; \theta^{*}\right)\right\}=\mathbb{E}\left\{\left(\begin{array}{c}
+U_{1}\left(A, X ; \alpha^{*}\right)  \tag{A4}\\
+U_{2}\left(A, X, Y ; \beta_{0}^{*}\right) \\
+U_{3}\left(A, X, Y ; \beta_{1}^{*}\right)
+\end{array}\right)\right\}=0
+$$
+
+We invoke standard regularity conditions on Z-estimation (van der Vaart; 2000) as follows.
+Assumption A2 (i) Under $\mathbb{P}^{\theta^{*}}, \mathscr{U}_{n}\left(\theta^{*}\right) \rightarrow \mathscr{N}\left(0, \Sigma_{U}\right)$ in distribution, as $n \rightarrow \infty$, where $\Sigma_{U}=\mathbb{E}\left\{U\left(A, X, Y ; \theta^{*}\right) U\left(A, X, Y ; \theta^{*}\right)^{\mathrm{T}}\right\}$; (ii) $\Gamma_{\theta}=\mathbb{E}\left\{\partial U(A, X, Y ; \theta) / \partial \theta^{\mathrm{T}}\right\}$ is nonsingular around $\theta^{*}$; and (iii) for any vector of constant $h, \exp \left\{n^{1 / 2} h^{\mathrm{T}} \Gamma_{\theta^{*}} \Sigma_{U}^{-1} \mathscr{U}_{n}\left(\theta^{*}\right)\right\}$ is uniformly integrable.
+
+Under Assumption A2,
+
+$$
+\begin{equation*}
+n^{1 / 2}\left(\hat{\theta}-\theta^{*}\right)=-\Gamma_{\theta^{*}}^{-1} \mathscr{U}_{n}\left(\theta^{*}\right)+o_{\mathrm{P}}(1) \rightarrow \mathcal{N}\left(0, \Sigma_{\theta^{*}}\right) \tag{A5}
+\end{equation*}
+$$
+
+in distribution, as $n \rightarrow \infty$, where $\Sigma_{\theta^{*}}=\Gamma_{\theta^{*}}^{-1} \Sigma_{U}\left(\Gamma_{\theta^{*}}^{-1}\right)^{\mathrm{T}}$.
+To derive the large sample distribution of $\hat{\tau}_{\mathrm{dsm}}(\hat{\theta})$, following Abadie and Imbens (2016), we impose the following regularity conditions.
+
+Assumption A3 There exists a neighborhood of $\theta^{*}$, such that for any $\theta$ in this region, the following conditions hold: for $a=0,1$, (i) the matching variable $S_{a}(\theta)$ has a compact and convex support $\mathcal{S}$, with a continuous density bounded and bounded away from zero; (ii) $\mu_{a}\left\{S_{a}(\theta)\right\}$ and $\sigma_{a}^{2}\left\{S_{a}(\theta)\right\}$ satisfy the Lipschitz continuity condition; and (iii) there exists $\delta>0$ such that $\mathbb{E}\left\{|Y(a)|^{2+\delta} \mid S_{a}(\theta)\right\}$ is uniformly bounded for any $S_{a}(\theta) \in \mathcal{S}$.
+
+Following Andreou and Werker (2012), because we consider a semiparametric model for $\theta^{*}$, to invoke the Le Cam's lemma, we specify an auxiliary parametric model $\mathbb{P}^{\theta_{n}}$ defined locally though $\theta^{*}, \theta_{n}=\theta^{*}+n^{-1 / 2} h$, with a density
+
+$$
+\begin{equation*}
+\frac{\exp \left\{n^{1 / 2}\left(\theta_{n}-\theta^{*}\right)^{\mathrm{T}} \Gamma_{\theta^{*}} \Sigma_{U}^{-1} U_{n}\left(\theta^{*}\right)-2^{-1} n\left(\theta_{n}-\theta^{*}\right)^{\mathrm{T}} \Sigma_{\theta^{*}}^{-1}\left(\theta_{n}-\theta^{*}\right)\right\}}{\mathbb{E}\left[\exp \left\{n^{1 / 2}\left(\theta_{n}-\theta^{*}\right)^{\mathrm{T}} \Gamma_{\theta^{*}} \Sigma_{U}^{-1} U_{n}\left(\theta^{*}\right)-2^{-1} n\left(\theta_{n}-\theta^{*}\right)^{\mathrm{T}} \Sigma_{\theta^{*}}^{-1}\left(\theta_{n}-\theta^{*}\right)\right\}\right]} . \tag{A6}
+\end{equation*}
+$$
+
+By Assumption A2 (iii), $\exp \left\{n^{1 / 2}\left(\theta_{n}-\theta^{*}\right)^{\mathrm{T}} \Gamma_{\theta^{*}} \Sigma_{U}^{-1} \mathscr{U}_{n}\left(\theta^{*}\right)\right\}$ is uniformly integrable, and thus model (A6) is uniformly locally asymptotically normal. Because under $\mathbb{P}^{\theta^{*}}$, $\mathscr{U}_{n}\left(\theta^{*}\right) \rightarrow \mathcal{N}\left(0, \Sigma_{U}\right)$ in distribution, the normalizing constant in the denominator converges to one as $n \rightarrow \infty$. The Fisher information under the parametric model (A6) is $n \Sigma_{\theta^{*}}^{-1}$. Therefore, $\widehat{\theta}$ is efficient under model (A6).
+
+Now consider $\left(A_{i}, X_{i}, Y_{i}\right)$, for $i=1, \ldots, n$, with the local shift $\mathbb{P}^{\theta_{n}}$ (Bickel et al.; 1993). Under model (A6), the likelihood ratio under $\mathbb{P}^{\theta_{n}}$ is
+
+$$
+\begin{align*}
+& \log \left(\mathrm{d} \mathbb{P}^{\theta^{*}} / \mathrm{d} \mathbb{P}^{\theta_{n}}\right)=-h^{\mathrm{T}} \Gamma_{\theta^{*}} \Sigma_{U}^{-1} \mathscr{U}_{n}\left(\theta^{*}\right)+\frac{1}{2} h^{\mathrm{T}} \Sigma_{\theta^{*}}^{-1} h+o_{\mathrm{P}}(1) \\
+& =-h^{\mathrm{T}} \Gamma_{\theta^{*}} \Sigma_{U}^{-1} \mathscr{U}_{n}\left(\theta_{n}\right)-\frac{1}{2} h^{\mathrm{T}} \Sigma_{\theta^{*}}^{-1} h+o_{\mathrm{P}}(1) \tag{A7}
+\end{align*}
+$$
+
+where the second equality follows by the Taylor expansion of $\mathscr{U}_{n}\left(\theta^{*}\right)$ at $\theta_{n}$. Moreover, under $\mathbb{P}^{\theta_{n}}: \mathscr{U}_{n}\left(\theta_{n}\right) \rightarrow \mathcal{N}\left(0, \Sigma_{U}\right)$ in distribution, as $n \rightarrow \infty$, and
+
+$$
+\begin{equation*}
+n^{1 / 2}\left(\hat{\theta}-\theta_{n}\right)=\Gamma_{\theta^{*}}^{-1} \mathscr{U}_{n}\left(\theta_{n}\right)+o_{\mathrm{P}}(1) \tag{A8}
+\end{equation*}
+$$
+
+We also assume the following regularity condition.
+
+Assumption A4 For all bounded continuous functions $h(A, X, Y)$, the conditional expectation $\mathbb{E}_{\theta_{n}}\{h(A, X, Y)\}$ converges in distribution to $\mathbb{E}\{h(A, X, Y)\}$, where $\mathbb{E}_{\theta_{n}}(\cdot)$ is the expectation taken with respect to $\mathbb{P}^{\theta_{n}}$.
+
+We derive the results in Theorem 2 in two steps.
+In the first step, under $\mathbb{P}^{\theta}$, we write $\boldsymbol{\tau}=\boldsymbol{\tau}\left(\theta_{n}\right)$ to reflect its dependence on $\theta_{n}$; to be specific, we have
+
+$$
+\tau\left(\theta_{n}\right)=\mathbb{E}\left[\mu_{1}\left\{S_{1}\left(\theta_{n}\right)\right\}-\mu_{0}\left\{S_{0}\left(\theta_{n}\right)\right\}\right]
+$$
+
+We derive that under $\mathbb{P}^{\theta} n$,
+
+$$
+\left.\left(\begin{array}{c}
+n^{1 / 2}\left\{\hat{\tau}_{\mathrm{dsm}}\left(\theta_{n}\right)-\tau\left(\theta_{n}\right)\right\}  \tag{A9}\\
+n^{1 / 2}\left(\hat{\theta}-\theta_{n}\right) \\
+\log \left(\mathrm{d} \mathbb{P}^{\theta^{*}} / \mathrm{d} \mathbb{P}^{\theta_{n}}\right) \\
+V_{\tau} \quad \gamma_{1}^{\mathrm{T}} \Gamma_{\theta^{*}}^{-1} \quad-\gamma_{1}^{\mathrm{T}} \Sigma_{U}^{-1} \Gamma_{\theta^{*}} h \\
+\Gamma_{\theta^{*}}^{-1} \gamma_{1} \quad \Sigma_{\theta^{*}} \\
+-h^{\mathrm{T}} \Gamma_{\theta^{*}} \Sigma_{U}^{-1} \gamma_{1} \quad-h^{\mathrm{T}} \quad h^{\mathrm{T}} \Sigma_{\theta^{*}}^{-1} h
+\end{array}\right)\right\}
+$$
+
+in distribution, as $n \rightarrow \infty$. We then express $\tau\left(\theta_{n}\right)=\tau\left(\theta^{*}\right)+\gamma_{2}^{\mathrm{T}}\left(n^{-1 / 2} h\right)+o\left(n^{-1 / 2}\right)$, where
+
+$$
+\begin{equation*}
+\gamma_{2}=\left.\frac{\partial \tau(\theta)}{\partial \theta}\right|_{\theta=\theta^{*}}=\mathbb{E}\left[\left.\frac{\partial \mu_{1}\left\{S_{1}(\theta)\right\}-\mu_{0}\left\{S_{0}(\theta)\right\}}{\partial \theta}\right|_{\theta=\theta^{*}}\right] . \tag{A10}
+\end{equation*}
+$$
+
+By Le Cam's third lemma, under $\mathbb{P}^{\theta^{*}}$,
+
+$$
+\binom{n^{1 / 2}\left\{\hat{\tau}_{\mathrm{dsm}}\left(\theta_{n}\right)-\tau\right\}}{n^{1 / 2}\left(\hat{\theta}-\theta_{n}\right)} \rightarrow \mathcal{N}\left\{\binom{-\gamma_{1}^{\mathrm{T}} \Sigma_{U}^{-1} \Gamma_{\theta^{* h}}-\gamma_{2}^{\mathrm{T}} h}{-h},\left(\begin{array}{cc}
+V_{\tau} & \gamma_{1}^{\mathrm{T}} \Gamma_{\theta^{*}}^{-1} \\
+\Gamma_{\theta^{*}}^{-1} \gamma_{1} & \Sigma_{\theta^{*}}
+\end{array}\right)\right\}
+$$
+
+in distribution, as $n \rightarrow \infty$. Replacing $\theta_{n}$ by $\theta^{*}+n^{-1 / 2} h$ yields that under $\mathbb{P}^{\theta^{*}}$,
+
+$$
+\binom{n^{1 / 2}\left\{\hat{\tau}_{\mathrm{dsm}}\left(\theta^{*}+n^{-1 / 2} h\right)-\tau\right\}}{n^{1 / 2}\left(\hat{\theta}-\theta^{*}\right)} \rightarrow \mathcal{N}\left\{\binom{-\gamma_{1}^{\mathrm{T}} \Sigma_{U}^{-1} \Gamma_{\theta^{*}} h-\gamma_{2}^{\mathrm{T}} h}{0},\left(\begin{array}{cc}
+V_{\tau} & \gamma_{1}^{\mathrm{T}} \Gamma_{\theta^{*}}^{-1}  \tag{A11}\\
+\Gamma_{\theta^{*}}^{-1} \gamma_{1} & \Sigma_{\theta^{*}}
+\end{array}\right)\right\}
+$$
+
+in distribution, as $n \rightarrow \infty$.
+In the second step, we provide a heuristic derivation for (A11) to obtain the approximate distribution (8). If the Normal distribution were exact, then
+
+$$
+\begin{equation*}
+n^{1 / 2}\left\{\hat{\tau}_{\mathrm{dsm}}\left(\theta^{*}+n^{-1 / 2} h\right)-\tau\right\} \mid n^{1 / 2}\left(\hat{\theta}-\theta^{*}\right)=h \sim \mathcal{N}\left(-\gamma_{2}^{\mathrm{T}} h, V_{\tau}-\gamma_{1}^{\mathrm{T}} \Sigma_{U}^{-1} \gamma_{1}\right) . \tag{A12}
+\end{equation*}
+$$
+
+Given that $n^{1 / 2}\left(\hat{\theta}-\theta^{*}\right)=h$, we have $\theta^{*}+n^{-1 / 2} h=\hat{\theta}$, and hence $\hat{\tau}_{\mathrm{dsm}}\left(\theta^{*}+n^{-1 / 2} h\right)=\hat{\tau}_{\mathrm{dsm}}(\hat{\theta})$. Marginalizing (A12) over the asymptotic distribution of $n^{1 / 2}\left(\widehat{\theta}-\theta^{*}\right)$, we derive (8). The formal technique to derive (8) can be find in Andreou and Werker (2012) and Abadie and Imbens (2016). To avoid repetition, we omit this step.
+
+In the following, we provide the proof to (A9) in the first step of the proof. Asymptotic normality of $n^{1 / 2}\left\{\hat{\tau}_{\mathrm{dsm}}\left(\theta_{n}\right)-\tau\left(\theta_{n}\right)\right\}$ under $\mathbb{P}^{\theta_{n}}$ follows from Theorem 1 and the uniform local asymptotic normality of model (A6). Asymptotic joint normality of $\log \left(\mathrm{dP}^{\theta^{*}} / \mathrm{d} \mathbb{P}^{\theta_{n}}\right)$ and $n^{1 / 2}\left(\hat{\theta}-\theta_{n}\right)$ follows from (A7) and (A8). Also, $n^{1 / 2}\left\{\hat{\tau}_{\mathrm{dsm}}\left(\theta_{n}\right)-\tau\left(\theta_{n}\right)\right\}=D_{n}\left(\theta_{n}\right)+o_{\mathrm{P}}(1)$, where
+
+$$
+\begin{aligned}
+& D_{n}\left(\theta_{n}\right)=n^{-1 / 2} \sum_{i=1}^{n}\left[\mu_{1}\left\{S_{1, i}\left(\theta_{n}\right)\right\}-\mu_{0}\left\{S_{0, i}\left(\theta_{n}\right)\right\}-\tau\left(\theta_{n}\right)\right] \\
+& +n^{-1 / 2} \sum_{i=1}^{n} A_{i}\left\{1+M^{-1} K_{S_{1}\left(\theta_{n}\right), i}\right\}\left[Y_{i}-\mu_{1}\left\{S_{1, i}\left(\theta_{n}\right)\right\}\right] \\
+& -n^{-1 / 2} \sum_{i=1}^{n}\left(1-A_{i}\right)\left\{1+M^{-1} K_{S_{0}\left(\theta_{n}\right), i}\right\}\left[Y_{i}-\mu_{0}\left\{S_{0, i}\left(\theta_{n}\right)\right\}\right]+o_{\mathrm{P}}(1) .
+\end{aligned}
+$$
+
+Therefore, the remaining is to show that, under $\mathbb{P}^{\theta}$ :
+
+$$
+\binom{D_{n}\left(\theta_{n}\right)}{\mathcal{U}_{n}\left(\theta_{n}\right)} \rightarrow \mathcal{N}\left\{\binom{0}{0},\left(\begin{array}{ll}
+V_{\tau} & \gamma_{1}^{\mathrm{T}}  \tag{A13}\\
+\gamma_{1} & \Sigma_{U}
+\end{array}\right)\right\}
+$$
+
+in distribution, as $n \rightarrow \infty$. To prove (A13), consider the linear combination
+
+$$
+\begin{aligned}
+& T_{n}=c_{0} D_{n}\left(\theta_{n}\right)+c^{\mathrm{T}} \mathscr{U}_{n}\left(\theta_{n}\right) \\
+& =c_{0} n^{-1 / 2} \sum_{i=1}^{n}\left[\mu_{1}\left\{S_{1, i}\left(\theta_{n}\right)\right\}-\mu_{0}\left\{S_{0, i}\left(\theta_{n}\right)\right\}-\tau\left(\theta_{n}\right)\right] \\
+& +c_{0} n^{-1 / 2} \sum_{i=1}^{n}\left(2 A_{i}-1\right)\left\{1+M^{-1} K_{S_{A_{i}}}\left(\theta_{n}\right), i\right\}\left[Y_{i}-\mu_{A_{i}}\left\{S_{A_{i}, i}\left(\theta_{n}\right)\right\}\right] \\
+& +c_{1}^{\mathrm{T}} n^{-1 / 2} \sum_{i=1}^{n}\left[\frac{\partial e\left(X_{i} ; \alpha_{n}\right)}{\partial \alpha} \frac{A_{i}-e\left(X_{i} ; \alpha_{n}\right)}{e\left(X_{i} ; \alpha_{n}\right)\left\{1-e\left(X_{i} ; \alpha_{n}\right)\right\}}\right] \\
+& +c_{2}^{\mathrm{T}} n^{-1 / 2} \sum_{i=1}^{n}\left[\left(1-A_{i}\right) \frac{\partial \mu_{0}\left(X_{i} ; \beta_{0}, n\right)}{\partial \beta_{0}}\left\{Y_{i}-\mu_{0}\left(X_{i} ; \beta_{0, n}\right)\right\}\right] \\
+& +c_{3}^{\mathrm{T}} n^{-1 / 2} \sum_{i=1}^{n}\left[A_{i} \frac{\partial \mu_{1}\left(X_{i} ; \beta_{1, n}\right)}{\partial \beta_{1}}\left\{Y_{i}-\mu_{1}\left(X_{i} ; \beta_{1, n}\right)\right\}\right]+o_{\mathrm{P}}(1)
+\end{aligned}
+$$
+
+where $c=\left(c_{1}^{\mathrm{T}}, c_{2}^{\mathrm{T}}, c_{3}^{\mathrm{T}}\right)^{\mathrm{T}}$. We analyze $T_{n}$ using the martingale theory. We rewrite $T_{n}=\sum_{k=1}^{2 n} \xi_{n, k}$, where
+
+$$
+\xi_{n, k}=\left\{\begin{array}{l}
+\sum_{j=1}^{8} \xi_{n, k}^{(j)}, 1 \leq k \leq n \\
+\sum_{j=9}^{11} \xi_{n, k}^{(j)}, n+1 \leq k \leq 2 n
+\end{array}\right.
+$$
+
+$$
+\begin{aligned}
+& \xi_{n, k}^{(1)}=c_{0} n^{-1 / 2}\left[\mu_{1}\left\{S_{1, k}\left(\theta_{n}\right)\right\}-\mu_{0}\left\{S_{0, k}\left(\theta_{n}\right)\right\}-\tau\left(\theta_{n}\right)\right], \\
+& \xi_{n, k}^{(2)}=c_{0} n^{-1 / 2}\left(2 A_{k}-1\right)\left\{1+M^{-1} K_{S_{A_{k}}}\left(\theta_{n}\right), k\right\}\left[\mu_{A_{k}}\left(X_{k}\right)-\mu_{A_{k}}\left\{S_{A_{k}, k}\left(\theta_{n}\right)\right\}\right] \\
+& \xi_{n, k}^{(3)}=c_{1}^{\mathrm{T}} n^{-1 / 2}\left[\frac{\partial e\left(X_{k} ; \alpha_{n}\right)}{\partial \alpha} \frac{e\left(X_{k}\right)-e\left(X_{k} ; \alpha_{n}\right)}{e\left(X_{k} ; \alpha_{n}\right)\left\{1-e\left(X_{k} ; \alpha_{n}\right)\right\}}\right], \\
+& \xi_{n, k}^{(4)}=c_{2}^{\mathrm{T}} n^{-1 / 2}\left\{1-e\left(X_{k}\right)\right\} \frac{\partial \mu_{0}\left(X_{k} ; \beta_{0, n}\right)}{\partial \beta_{0}}\left\{\mu_{0}\left(X_{k}\right)-\mu_{0}\left(X_{k} ; \beta_{0, n}\right)\right\}, \\
+& \xi_{n, k}^{(5)}=c_{3}^{\mathrm{T}} n^{-1 / 2} e\left(X_{k}\right) \frac{\partial \mu_{1}\left(X_{k} ; \beta_{1, n}\right)}{\partial \beta_{1}}\left\{\mu_{1}\left(X_{k}\right)-\mu_{1}\left(X_{k} ; \beta_{1, n}\right)\right\}, \\
+& \xi_{n, k}^{(6)}=c_{1}^{\mathrm{T}} n^{-1 / 2}\left[\frac{\partial e\left(X_{k} ; \alpha_{n}\right)}{\partial \alpha} \frac{A_{k}-e\left(X_{k}\right)}{e\left(X_{k} ; \alpha_{n}\right)\left\{1-e\left(X_{k} ; \alpha_{n}\right)\right\}}\right], \\
+& \xi_{n, k}^{(7)}=-c_{2}^{\mathrm{T}} n^{-1 / 2}\left[\left\{A_{k}-e\left(X_{k}\right)\right\} \frac{\partial \mu_{0}\left(X_{k} ; \beta_{0, n}\right)}{\partial \beta_{0}}\left\{\mu_{0}\left(X_{k}\right)-\mu_{0}\left(X_{k} ; \beta_{0, n}\right)\right\}\right], \\
+& \xi_{n, k}^{(8)}=c_{3}^{\mathrm{T}} n^{-1 / 2}\left[\left\{A_{k}-e\left(X_{k}\right)\right\} \frac{\partial \mu_{1}\left(X_{k} ; \beta_{1, n}\right)}{\partial \beta_{1}}\left\{\mu_{1}\left(X_{k}\right)-\mu_{1}\left(X_{k} ; \beta_{1, n}\right)\right\}\right], \\
+& \xi_{n, k}^{(9)}=c_{0} n^{-1 / 2}\left(2 A_{k}-n-1\right)\left\{1+M^{-1} K_{S_{A_{k}}-n}\left(\theta_{n}\right), k-n\right\}\left\{Y_{k-n}-\mu_{A_{k-n}}\left(X_{k-n}\right)\right\} \\
+& \xi_{n, k}^{(10)}=c_{2}^{\mathrm{T}} n^{-1 / 2}\left(1-A_{k-n}\right) \frac{\partial \mu_{0}\left(X_{k-n} ; \beta_{0, n}\right)}{\partial \beta_{0}}\left\{Y_{k-n}-\mu_{0}\left(X_{k-n}\right)\right\}, \\
+& \xi_{n, k}^{(11)}=c_{3}^{\mathrm{T}} n^{-1 / 2} A_{k-n} \frac{\partial \mu_{1}\left(X_{k-n} ; \beta_{1, n}\right)}{\partial \beta_{1}}\left\{Y_{k-n}-\mu_{1}\left(X_{k-n}\right)\right\} .
+\end{aligned}
+$$
+
+Consider the $\sigma$-fields
+
+$$
+\mathscr{F}_{n, k}= \begin{cases}\sigma\left(A_{1}, \ldots, A_{k}, X_{1}, \ldots, X_{k}\right), & 1 \leq k \leq n \\ \sigma\left(A_{1}, \ldots, A_{n}, X_{1}, \ldots, X_{n}, Y_{k-1}, \ldots, Y_{k-n}\right), & 2 n+1 \leq k \leq 3 n\end{cases}
+$$
+
+Then, we have $\left\{\sum_{k=1}^{i} \xi_{n, i}, \mathscr{F}_{n, i}, 1 \leq i \leq 2 n\right\}$ is a martingale for each $n \geq 1$, which follows by the following reasons:
+i. because $S_{a, k}\left(\theta_{n}\right)$ is a double balancing score,
+
+$$
+\mathbb{E}_{\theta_{n}}\left(\xi_{n, k}^{(1)} \mid \mathscr{F}_{n, k-1}\right)=\mathbb{E}\left(c_{0} n^{-1 / 2}\left[\mu_{1}\left\{S_{1, k}\left(\theta_{n}\right)\right\}-\mu_{0}\left\{S_{0, k}\left(\theta_{n}\right)\right\}-\tau\left(\theta_{n}\right)\right] \mid \mathscr{F}_{n, k-1}\right)=0
+$$
+
+ii. let $\mathscr{F}_{n, k}^{0}=\sigma\left\{A_{1}, \ldots, A_{k}, S_{1}\left(\theta_{n}\right), \ldots, S_{k}\left(\theta_{n}\right)\right\}$ for $1 \leq k \leq n$, then
+
+$$
+\begin{aligned}
+& \mathbb{E}_{\theta_{n}}\left(\xi_{n, k}^{(2)} \mid \mathscr{F}_{n, k-1}\right)=\mathbb{E}_{\theta_{n}}\left\{\mathbb{E}_{\theta_{n}}\left(\xi_{n, k}^{(2)} \mid \mathscr{F}_{n, k-1}^{0}\right) \mid \mathscr{F}_{n, k-1}\right\} \\
+& =c_{0} n^{-1 / 2} \mathbb{E}_{\theta_{n}}\left(\left(2 A_{k}-1\right)\left\{1+M^{-1} K_{S_{A_{k}}}\left(\theta_{n}\right), k\right\}\right. \\
+& \left.\times \mathbb{E}_{\theta_{n}}\left[\mu_{A_{k}}\left(X_{k}\right)-\mu_{A_{k}}\left\{S_{A_{k}, k}\left(\theta_{n}\right)\right\} \mid \mathscr{F}_{n, k-1}^{0}\right] \mid \mathscr{F}_{n, k-1}\right) \\
+& =c_{0} n^{-1 / 2} \mathbb{E}_{\theta_{n}}\left[\left(2 A_{k}-1\right)\left\{1+M^{-1} K_{S_{A_{k}}}\left(\theta_{n}\right), k\right\} \times 0 \mid \mathscr{F}_{n, k-1}\right] \\
+& =0 ;
+\end{aligned}
+$$
+
+iii. $\quad \mathbb{E}_{\theta_{n}}\left(\xi_{n, k}^{(3)} \mid \mathscr{F}_{n, k-1}\right)=\mathbb{E}_{\theta_{n}}\left(\xi_{n, k}^{(4)} \mid \mathscr{F}_{n, k-1}\right)=\mathbb{E}_{\theta_{n}}\left(\xi_{n, k}^{(5)} \mid \mathscr{F}_{n, k-1}\right)=0$ because
+
+$$
+\mathbb{E}_{\theta_{n}}\left\{U\left(\theta_{n}\right)\right\}=0
+$$
+
+iv. by the conditioning argument,
+
+$$
+\mathbb{E}_{\theta_{n}}\left(\xi_{n, k}^{(6)} \mid \mathscr{F}_{n, k-1}\right)=\mathbb{E}_{\theta_{n}}\left[\left.c_{1}^{\mathrm{T}} n^{-1 / 2} \frac{\partial e\left(X_{k} ; \alpha_{n}\right)}{\partial \alpha} \frac{\mathbb{E}_{\left\{A_{k}-e\left(X_{k}\right) \mid \mathscr{F}_{n, k-1}, X_{k}\right\}}}{e\left(X_{k} ; \alpha_{n}\right)\left\{1-e\left(X_{k} ; \alpha_{n}\right)\right\}} \right\rvert\, \mathscr{F}_{n, k-1}\right]=0
+$$
+
+v. $\quad \mathbb{E}_{\theta_{n}}\left(\xi_{n, k}^{(7)} \mid \mathscr{F}_{n, k-1}\right)=0$ and $\mathbb{E}_{\theta_{n}}\left(\xi_{n, k}^{(8)} \mid \mathscr{F}_{n, k-1}\right)=0$ due to that fact that $A_{k}-$ $e\left(X_{k}\right)$ is unbiased conditional on $X_{k}$;
+vi. $\quad \mathbb{E}_{\theta_{n}}\left(\xi_{n, k}^{(9)} \mid \mathscr{F}_{n, k-1}\right)=0$ because $\left(1-A_{k-n}\right)\left\{Y_{k-n}-\mu_{0}\left(X_{k-n}\right)\right\}$ is unbiased given $\mathscr{F}_{n, k-1}$;
+vii. $\quad \mathbb{E}_{\theta_{n}}\left(\xi_{n, k}^{(10)} \mid \mathscr{F}_{n, k-1}\right)=0$ because $A_{k-n}\left\{Y_{k-n}-\mu_{1}\left(X_{k-n}\right)\right\}$ is unbiased given $\mathscr{F}_{n, k-1}$.
+
+Therefore, we can apply the martingale central limit theorem (Billingsley; 1995) to derive the limiting distribution of $T_{n}$. Under Assumption A3, we can verify the conditions for the martingale central limit theorem hold. It follows that under $\mathbb{P}^{\theta_{n}}, T_{n} \rightarrow \mathcal{N}\left(0, \sigma^{2}\right)$ in distribution, as $n \rightarrow \infty$, where $\sigma^{2}=\operatorname{plim} \sum_{k=1}^{2 n} \mathbb{E}_{\theta_{n}}\left(\xi_{n, k}^{2} \mid \mathscr{F}_{n, k-1}\right)$. Under Assumption A4, we thus derive the expression of $\sigma^{2}$ and specify the components in (A13) with
+
+$$
+\begin{gather*}
+\gamma_{1}=\left(\gamma_{11}^{\mathrm{T}}, \gamma_{12}^{\mathrm{T}}, \gamma_{13}^{\mathrm{T}}\right)^{\mathrm{T}},  \tag{A14}\\
+\gamma_{11}=\mathbb{E}\left(\left[\mu_{1}\left\{S_{1}\left(\theta^{*}\right)\right\}-\mu_{0}\left\{S_{0}\left(\theta^{*}\right)\right\}-\tau\right] \frac{\partial e\left(X ; \alpha^{*}\right)}{\partial \alpha} \frac{A-e\left(X ; \alpha^{*}\right)}{e\left(X ; \alpha^{*}\right)\left\{1-e\left(X ; \alpha^{*}\right)\right\}}\right) \\
++\mathbb{E}\left(\left[\mu_{1}(X)-\mu_{1}\left\{S_{1}\left(\theta^{*}\right)\right\}\right] \frac{\partial e\left(X ; \alpha^{*}\right)}{\partial \alpha} \frac{1-e\left(X ; \alpha^{*}\right)}{e\left(X ; \alpha^{*}\right)\left\{1-e\left(X ; \alpha^{*}\right)\right\}}\right) \\
+-\mathbb{E}\left[\left[\mu_{0}(X)-\mu_{0}\left\{S_{0}\left(\theta^{*}\right)\right\}\right] \frac{\partial e\left(X ; \alpha^{*}\right)}{\partial \alpha} \frac{-e\left(X ; \alpha^{*}\right)}{e\left(X ; \alpha^{*}\right)\left\{1-e\left(X ; \alpha^{*}\right)\right\}}\right), \\
+\left.\gamma_{12}=-\mathbb{E}\left(\left[\mu_{1}\left\{S_{1}\left(\theta^{*}\right)\right\}-\mu_{0}\left\{S_{0}\left(\theta^{*}\right)\right\}-\tau\right](1-A) \frac{\partial \mu_{0}\left(X ; \beta_{0}^{*}\right)}{\partial \beta_{0}}\left\{\mu_{0}(X)-\mu_{0}\left(X ; \beta_{0}^{*}\right)\right\}\right)\right\} \\
+-\mathbb{E}\left(\left[\mu_{0}(X)-\mu_{0}\left\{S_{0}\left(\theta^{*}\right)\right\}\right] \frac{\partial \mu_{0}\left(X ; \beta_{0}^{*}\right)}{\partial \beta_{0}}\left\{\mu_{0}(X)-\mu_{0}\left(X ; \beta_{0}^{*}\right)\right\}\right)-\mathbb{E}\left\{\frac{\partial \mu_{0}\left(X ; \beta_{0}^{*}\right)}{\partial \beta_{0}} \sigma_{0}^{2}(X)\right\},
+\end{gather*}
+$$
+
+and
+
+$$
+\begin{aligned}
+& \gamma_{13}=-\mathbb{E}\left(\left[\mu_{1}\left\{S_{1}\left(\theta^{*}\right)\right\}-\mu_{0}\left\{S_{0}\left(\theta^{*}\right)\right\}-\tau\right] A \frac{\partial \mu_{1}\left(X ; \beta_{1}^{*}\right)}{\partial \beta_{1}}\left\{\mu_{1}(X)-\mu_{1}\left(X ; \beta_{1}^{*}\right)\right\}\right) \\
+& +\mathbb{E}\left(\left[\mu_{1}(X)-\mu_{1}\left\{S_{1}\left(\theta^{*}\right)\right\}\right] \frac{\partial \mu_{1}\left(X ; \beta_{1}^{*}\right)}{\partial \beta_{1}}\left\{\mu_{1}(X)-\mu_{1}\left(X ; \beta_{1}^{*}\right)\right\}\right)-\mathbb{E}\left\{\frac{\partial \mu_{1}\left(X ; \beta_{1}^{*}\right)}{\partial \beta_{1}} \sigma_{1}^{2}(X)\right\} .
+\end{aligned}
+$$
+
+## References
+
+Abadie A and Imbens GW (2006). Large sample properties of matching estimators for average treatment effects, Econometrica 74: 235-267.
+
+Abadie A and Imbens GW (2008). On the failure of the bootstrap for matching estimators, Econometrica 76: 1537-1557.
+Abadie A and Imbens GW (2011). Bias-corrected matching estimators for average treatment effects, Journal of Business \& Economic Statistics 29: 1-11.
+Abadie A and Imbens GW (2012). A martingale representation for matching estimators, J Am Stat Assoc 107: 833-843.
+Abadie A and Imbens GW (2016). Matching on the estimated propensity score, Econometrica 84: 781-807.
+Abadie A and Spiess J (2016). Robust post-matching inference, Unpublished Paper. MIT and Harvard University. Retrieved from https://editorialexpress.com/cgi-bin/conference/download.
+Andreou E and Werker BJ (2012). An alternative asymptotic analysis of residual-based statistics, Rev Econ Stat 94: 88-99.
+Antonelli J, Cefalu M, Palmer N and Agniel D (2018). Doubly robust matching estimators for high dimensional confounding adjustment, Biometrics 74: 1171-1179. [PubMed: 29750844]
+Bang H and Robins JM (2005). Doubly robust estimation in missing data and causal inference models, Biometrics 61: 962-973. [PubMed: 16401269]
+Bickel PJ, Klaassen C, Ritov Y and Wellner J (1993). Efficient and Adaptive Inference in Semiparametric Models, Johns Hopkins University Press, Baltimore.
+Billingsley P (1995). Probability and Measure, 3 edn, Wiley: New York.
+Chen J and Shao J (2000). Nearest neighbor imputation for survey data, J. Offic. Stat 16: 113-131.
+Chen J and Shao J (2001). Jackknife variance estimation for nearest-neighbor imputation, J Am Stat Assoc 96: 260-269.
+Chen S and Haziza D (2017a). Multiply robust imputation procedures for the treatment of item nonresponse in surveys, Biometrika 104: 439-453.
+Chen S and Haziza D (2017b). Multiply robust nonparametric multiple imputation for the treatment of missing data, Stat. Sin 29: 2035-2053.
+Chen X (2007). Large sample sieve estimation of semi-nonparametric models, Handbook of Econometrics 6: 5549-5632.
+Chernozhukov V, Fernández-Val I, Hahn J and Newey W (2013). Average and quantile effects in nonseparable panel models, Econometrica 81: 535-580.
+Chiang C-T and Huang M-Y (2012). New estimation and inference procedures for a single-index conditional distribution model, Journal of Multivariate Analysis 111: 271-285.
+Dehejia RH and Wahba S (1999). Causal effects in nonexperimental studies: Reevaluating the evaluation of training programs, J Am Stat Assoc 94: 1053-1062.
+Dehejia RH and Wahba S (2002). Propensity score matching methods for nonexperimental causal studies, Rev Econ Stat 84: 151-161.
+Efron B (1979). Bootstrap methods: another look at the jackknife, Annals of Statistics 7: 1-26.
+Firpo S (2007). Efficient semiparametric estimation of quantile treatment effects, Econometrica 75: 259-276.
+Ford BL (1983). An overview of hot-deck procedures, Incomplete data in sample surveys 2(Part IV): 185-207.
+Foresi S and Peracchi F (1995). The conditional distribution of excess returns: An empirical analysis, Journal of the American Statistical Association 90: 451-466.
+Francisco CA and Fuller WA (1991). Quantile estimation with a complex survey design, Annals of Statistics 19: 454-469.
+
+Frölich M (2004). Finite-sample properties of propensity-score matching and weighting estimators, Rev Econ Stat 86: 77-90.
+Guo S and Fraser MW (2014). Propensity Score Analysis: Statistical Methods and Applications, Vol. 11, Thousand Oaks, CA: SAGE.
+Hahn J (1998). On the role of the propensity score in efficient semiparametric estimation of average treatment effects, Econometrica 66: 315-331.
+
+Han P (2014). Multiply robust estimation in regression analysis with missing data, J Am Stat Assoc 109(507): 1159-1173.
+Han P, Kong L, Zhao J and Zhou X (2019). A general framework for quantile estimation with incomplete data, Journal of the Royal Statistical Society: Series B (Statistical Methodology) 81: 305-333. [PubMed: 31632183]
+Han P and Wang L (2013). Estimation with missing data: beyond double robustness, Biometrika 100: 417-430.
+Hansen BB (2008). The prognostic analogue of the propensity score, Biometrika 95: 481-488.
+Heckman JJ, Ichimura H and Todd PE (1997a). Matching as an econometric evaluation estimator: Evidence from evaluating a job training programme, The Review of Economic Studies 64: 605654.
+
+Heckman JJ, Ichimura H and Todd PE (1997b). Matching as an econometric evaluation estimator: Evidence from evaluating a job training programme, The Review of Economic Studies 64: 605654.
+
+Hernán MA, Brumback B and Robins JM (2001). Marginal structural models to estimate the joint causal effect of nonrandomized treatments, J Am Stat Assoc 96: 440-448.
+Huang M-Y and Yang S (2021). Robust inference of conditional average treatment effects using dimension reduction, Statistica Sinica p. doi:10.5705/ss.202020.0409.
+Imbens GW (2004). Nonparametric estimation of average treatment effects under exogeneity: A review, Rev Econ Stat 86: 4-29.
+Imbens GW and Rubin DB (2015). Causal Inference in Statistics, Social, and Biomedical Sciences, Cambridge University Press, Cambridge UK.
+Kang JD and Schafer JL (2007). Demystifying double robustness: A comparison of alternative strategies for estimating a population mean from incomplete data, Statistical Science 22: 523-539.
+King G and Nielsen R (2019). Why propensity scores should not be used for matching, Political Analysis 27: 435-454.
+Kumamaru H, Schneeweiss S, Glynn RJ, Setoguchi S and Gagne JJ (2016). Dimension reduction and shrinkage methods for high dimensional disease risk scores in historical data, Emerging Themes in Epidemiology 13: Article 5.
+LaLonde RJ (1986). Evaluating the econometric evaluations of training programs with experimental data, The American Economic Review 76: 604-620.
+Leacy FP and Stuart EA (2014). On the joint use of propensity and prognostic scores in estimation of the average treatment effect on the treated: a simulation study, Stat Med 33: 3488-3508. [PubMed: 24151187]
+Li W, Yang S and Han P (2020). Robust estimation for moment condition models with data missing not at random, Journal of Statistical Planning and Inference 207: 246-254.
+Little RJ and Rubin DB (2002). Statistical Analysis with Missing Data, Wiley, Hoboken.
+Lunceford JK and Davidian M (2004). Stratification and weighting via the propensity score in estimation of causal treatment effects: a comparative study, Stat Med 23: 2937-2960. [PubMed: 15351954]
+Naik C, McCoy EJ and Graham DJ (2016). Multiply robust dose-response estimation for multivalued causal inference problems, arXiv preprint arXiv:1611.02433
+Otsu T and Rai Y (2017). Bootstrap inference of matching estimators for average treatment effects, J Am Stat Assoc 112: 1720-1732.
+Rosenbaum PR (1989). Optimal matching for observational studies, J Am Stat Assoc 84: 1024-1032.
+Rosenbaum PR and Rubin DB (1983a). Assessing sensitivity to an unobserved binary covariate in an observational study with binary outcome, J. R. Stat. Soc. Ser. B Stat. Methodol 45: 212-218.
+Rosenbaum PR and Rubin DB (1983b). The central role of the propensity score in observational studies for causal effects, Biometrika 70: 41-55.
+Rubin DB (2006). Matched Sampling for Causal Effects, Cambridge University Press, Cambridge, England.
+Stuart EA (2010). Matching methods for causal inference: A review and a look forward, Statistical Science 25: 1-21. [PubMed: 20871802]
+
+Tang S, Yang S, Wang T, Cui Z, Li L and Faries DE (2019). Causal inference of hazard ratio based on propensity score matching, arXiv preprint arXiv:1911.12430
+van der Vaart AW (2000). Asymptotic Statistics, Cambridge University Press, Cambridge, MA.
+Wang L (2019). Multiple robustness estimation in causal inference, Communications in StatisticsTheory and Methods 48: 5701-5718.
+Wolter K (2007). Introduction to Variance Estimation, 2 edn, Springer, New York.
+Wyss R, Ellis AR, Brookhart MA, Jonsson Funk M, Girman CJ, Simpson RJ Jr and Stürmer T (2015). Matching on the disease risk score in comparative effectiveness research of new treatments, Pharmacoepidemiology and Drug Safety 24: 951-961. [PubMed: 26112690]
+Yang S (2018). Propensity score weighting for causal inference with clustered data, Journal of Causal Inference pp. 10.1515/jci-2017-0027.
+Yang S and Ding P (2018). Asymptotic inference of causal effects with observational studies trimmed by the estimated propensity scores, Biometrika 105: 487-493.
+Yang S, Imbens GW, Cui Z, Faries DE and Kadziola Z (2016). Propensity score matching and subclassification in observational studies with multi-level treatments, Biometrics 72: 1055-1065. [PubMed: 26991040]
+Yang S and Kim JK (2018). Nearest neighbor imputation for general parameter estimation in survey sampling, Advances in Econometrics 39: 211-236.
+Yang S and Kim JK (2019). Asymptotic theory and inference of predictive mean matching imputation using a superpopulation model framework, Scand J Stat p. 10.1111/sjos.12429.
+Yang S and Lok JJ (2017). Sensitivity analysis for unmeasured confounding in coarse structural nested mean models, Statistica Sinica 28: 1703-1723.
+Zhang Z, Chen Z, Troendle JF and Zhang J (2012). Causal inference on quantiles with an obstetric application, Biometrics 68: 697-706. [PubMed: 22150612]
+Zhao Z (2004). Using matching to estimate treatment effects: Data requirements, matching metrics, and Monte Carlo evidence, Rev Econ Stat 86: 91-107.
+![](https://cdn.mathpix.com/cropped/2025_07_06_a578fff7e87ac018f38dg-32.jpg?height=983&width=1540&top_left_y=197&top_left_x=398)
+
+Figure 1:
+Simulation results of various weighting and matching estimators. There are four panels of results: the left for the 75th QTE, the right for the ATE, the top for the extreme propensity score, and the bottom for the non-extreme propensity score. Each box plot shows the distribution of the estimator subtracting the true parameter value based on 1000 Monte Carlo simulated datasets.
+![](https://cdn.mathpix.com/cropped/2025_07_06_a578fff7e87ac018f38dg-33.jpg?height=931&width=1527&top_left_y=201&top_left_x=402)
+
+Figure 2:
+Quantile effect plot on the treated from the DSM algorithm
+
+Table 1:
+Two matching schemes for imputing potential outcomes. $\mathcal{F}_{V, i}$ denotes the index set for the matched units for unit $i$, where the subscript " $V$ " represents the name of the matching variable. In (I), the matching variable $V$ is the same for imputing the missing values of $Y(0)$ and $Y(1)$. In (II), the matching variables $V_{0}$ and $V_{1}$ are different for imputing the missing values of $Y(0)$ and $Y(1)$.
+
+|  |  |  | (I) Matching imputation |  |  | (II) New matching imputation |  |  |  |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Unit | A | Y | $\widehat{Y}(0)$ | $\widehat{Y}(1)$ | Unit | $A$ | $Y$ | $\widehat{Y}(0)$ | $\widehat{Y}(1)$ |
+| i | 0 | $Y_{i}$ | $Y_{i}$ | $M^{-1} \sum_{l \in \mathscr{J}_{\mathrm{v}, i}} Y_{l}$ | $i$ | 0 | $Y_{i}$ | $Y_{i}$ | $M^{-1} \sum_{l \in \mathscr{J}_{\mathrm{v}_{1}, i}} Y_{l}$ |
+| $i^{\prime}$ | 1 | $Y_{i^{\prime}}$ | $M^{-1} \sum_{l \in \mathscr{J}_{\mathrm{v}, i^{\prime}}} Y_{l}$ | $Y_{I^{\prime}}$ | $i^{\prime}$ | 1 | $Y_{I^{\prime}}$ | $M^{-1} \sum_{l \in \mathscr{J}_{\mathrm{v}_{0}, i^{\prime}}} Y_{l}$ | $Y_{i^{\prime}}$ |
+
+
+|  | (I) Matching Variable |  | (II) Matching Variable |  |
+| :--- | :--- | :--- | :--- | :--- |
+|  | $V$ | $d_{V}$ | $V_{0}$ | $V_{1}$ |
+| M.X | $X$ | $\operatorname{dim}(X)$ | X | X |
+| PSM | $e(X)$ | 1 | $e(X)$ | $e(X)$ |
+| PGM | $\left\{\Psi_{0}(X), \Psi_{1}(X)\right\}$ | 2 | $\Psi_{0}(X)$ | $\Psi_{1}(X$ |
+| DSM | $S=\left\{e(X), \Psi_{0}(X), \Psi_{1}(X)\right\}$ | 3 | $S_{0}=\left\{e(X), \Psi_{0}(X)\right\}$ | $S_{1}=\{e(X)$, |
+| DSM | $S=\left\{e^{j}(X), \Psi_{0}^{k}(X), \Psi_{1}^{k}(X): j=1, \ldots J ; k=1, \ldots, K\right\}$ | $J+2 K$ | $S_{0}=\left\{e^{j}(X), \Psi_{0}^{k}(X): j=1, \ldots J ; k=1, \ldots, K\right\}$ | $S_{1}=\left\{e^{j}(X), \Psi_{1}^{k}(X): j=\right.$ |
+
+## Table 2:
+
+The order of bias of the matching variable in terms of the dimension of the matching variable
+
+| $\boldsymbol{d}_{\boldsymbol{V}}$ | $\mathbf{1}$ | $\mathbf{2}$ | $\mathbf{3}$ | $\mathbf{4}$ | $>\mathbf{4}$ |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| $O\left(n^{1 / 2-2 / d} V\right)$ | $O\left(n^{-3 / 2}\right)$ | $O\left(n^{-1 / 2}\right)$ | $O\left(n^{-1 / 6}\right)$ | $O(1)$ | $O\left(n^{1 / 10}\right)$ |
+
+Table 3:
+Simulation results based on 1000 Monte Carlo simulated datasets for the coverage properties of the DSM estimators using the replication-based method: empirical coverage rate and (empirical coverage rate $\pm$ $1.96 \times$ Monte Carlo standard error)
+
+|  | Non-extreme PS |  |  |  | Extreme PS |  |  |  |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+|  | 75th QTE |  | ATE |  | 75th QTE |  | ATE |  |
+| "dsm1010" | 94.8 | (93.4,96.2) | 95.2 | (93.9,96.5) | 96.0 | (94.8, 97.2) | 95.8 | (94.6, 97.0) |
+| "dsm0110" | 94.4 | (93.0,95.8) | 96.0 | (94.8,97.2) | 95.7 | (94.4, 97.0) | 95.2 | (93.9, 96.5) |
+| "dsm1001" | 95.4 | (94.1,96.7) | 95.9 | (94.7,97.1) | 95.9 | (94.7, 97.1) | 95.7 | (94.4, 97.0) |
+| "dsm0101" | 72.9 | (70.1,75.6) | 29.2 | (26.4,32.0) | 19.4 | (16.9, 21.9) | 0.2 | (-0.1, 0.5) |
+| "dsm1111" | 95.0 | (93.6,96.4) | 95.5 | (94.2,96.8) | 95.4 | (94.1, 96.7) | 95.8 | (94.6, 97.0) |
+| "dsm1110" | 95.4 | (94.1,96.7) | 95.6 | (95.5,97.7) | 95.7 | (94.4, 97.0) | 96.2 | (95.0, 97.4) |
+| "dsm1101" | 94.8 | (93.4,96.2) | 95.4 | (94.1,96.7) | 96.3 | (95.1, 97.5) | 95.4 | (94.1, 96.7) |
+| "dsm1011" | 94.0 | (92.5,95.5) | 95.8 | (94.6,97.0) | 95.7 | (94.4, 97.0) | 95.8 | (94.6, 97.0) |
+| "dsm0111" | 95.3 | (94.0,96.6) | 95.2 | (93.9,96.5) | 96.0 | (94.8, 97.2) | 95.4 | (94.1, 96.6) |
+
+## Table 4:
+
+Covariate balance check before and after DSM
+
+|  |  | age | educ | black | hisp | married | nodegr | re75 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Before Matching | Treatment group mean | 24.63 | 10.38 | 0.80 | 0.09 | 0.17 | 0.73 | 3066 |
+|  | Control group mean | 26.25 | 10.21 | 0.50 | 0.13 | 0.34 | 0.70 | 2745 |
+|  | Stand diff. in means | -0.19 | 0.08 | 0.61 | -0.10 | -0.37 | 0.06 | 0.07 |
+| After Matching | Treatment group mean | 24.63 | 10.38 | 0.80 | 0.09 | 0.17 | 0.73 | 3066 |
+|  | Control group mean | 25.01 | 10.31 | 0.69 | 0.12 | 0.21 | 0.73 | 2876 |
+|  | Stand diff. in means | -0.04 | -0.03 | 0.22 | -0.08 | -0.10 | 0.00 | 0.04 |
+
+Table 5:
+Estimated ATT and QTTs at the $0.1,0.25,0.3,0.5,0.75$ and 0.9 quantiles, and $95 \%$ Wald confidence intervals
+
+| Estimand | m.x | psm | pgm | dsm | Naive(ATE\&QTE) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| ATT | $372(-746,1489)$ | $918(-222,2058)$ | -150 (-1215,914) | $641(-429,1711)$ | -65 $(-957,827)$ |
+| 0.1-QTT | $0(0,0)$ | $0(0,0)$ | $0(0,0)$ | $0(0,0)$ | $0(0,0)$ |
+| 0.25-QTT | $549(-90,1189)$ | $549(-55,1154)$ | $549(-104,1202)$ | $549(-62,1160)$ | $549(-55,1153)$ |
+| 0.3-QTT | $935(57,1813)$ | $1064(268,1860)$ | $1039(96,1982)$ | $1036(211,1861)$ | $604(-641,1170)$ |
+| 0.5-QTT | $524(-1606,2654)$ | $889(-741,2519)$ | 1296 (-252,2844) | $680(-766,2126)$ | $69(-1093,1230)$ |
+| 0.75-QTT | -391 (-2752,1970) | $617(-1451,2686)$ | $737(-2070,3544)$ | $558(-1297,2414)$ | -195 $(-1441,1578)$ |
+| 0.9-QTT | -963 $(-3482,1556)$ | $897(-1750,3543)$ | -936 (-4770,1795) | -718 $(-3711,2275)$ | -2326 (-2021,2158) |
+

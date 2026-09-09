@@ -1,0 +1,2 @@
+"Method","Outcome","Sample_Size","Treated","Control","Weighted_N","PATE_Estimate","SE","CI_Lower","CI_Upper","P_Value","Bootstrap_Samples"
+"WDSM (M=5)","Any Mental Illness (AMIPY)",17471,1877,15594,51794162.8992302,421.951935835469,2230.85070470369,-3950.43510026957,4794.33897194051,0.849979988388994,500

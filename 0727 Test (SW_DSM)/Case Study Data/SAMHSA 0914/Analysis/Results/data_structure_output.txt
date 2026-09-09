@@ -1,0 +1,59 @@
+Warning message:
+'memory.limit()' is Windows-specific 
+=== NSDUH 2023 Data Structure ===
+
+Data object name: data 
+Dimensions: 56705 2636 
+Number of observations: 56705 
+Number of variables: 2636 
+
+=== First 100 Variables ===
+  [1] "QUESTID2"     "FILEDATE"     "ANALWT2_C"    "VESTR_C"      "VEREP"       
+  [6] "PDEN10"       "COUTYP4"      "MAIIN102"     "AIIND102"     "AGE3"        
+ [11] "SERVICE"      "MILSTAT"      "ACTDEVER"     "ACTD2001"     "ACTD9001"    
+ [16] "ACTD7590"     "ACTDVIET"     "ACTDPRIV"     "COMBATPY"     "NOMARR2"     
+ [21] "HEALTH"       "MOVSINPYR2"   "SEXATRACT2"   "SEXIDENT22"   "SPEAKENGL"   
+ [26] "LVLDIFSEE2"   "LVLDIFHEAR2"  "LVLDIFWALK2"  "LVLDIFMEM2"   "LVLDIFCARE2" 
+ [31] "LVLDIFCOMM2"  "IRSEX"        "IRMARIT"      "IIMARIT"      "IREDUHIGHST2"
+ [36] "IIEDUHIGHST2" "CATAGE"       "CATAG2"       "CATAG3"       "CATAG6"      
+ [41] "CATAG7"       "PREGAGE2"     "DRVINAGE"     "DRVINDETAG"   "SEXAGE"      
+ [46] "NEWRACE2"     "SEXRACE"      "EDUHIGHCAT"   "HEALTH2"      "EDUSCHLGO"   
+ [51] "EDUSCHGRD2"   "EDUFULPAR"    "EDUSCKMON"    "EDUSCKEST"    "EDUSCKCOM"   
+ [56] "EDUSKPMON"    "EDUSKPEST"    "EDUSKPCOM"    "MILTFAMLY"    "MILTSPPAR"   
+ [61] "MILTPARNT"    "MILTCHLDR"    "MILTSIBLN"    "ENRLCOLLFT2"  "ENRLCOLLST2" 
+ [66] "WRKSTATWK2"   "WRKDPSTWK"    "WRKHADJOB"    "WRKDHRSWK2"   "WRK35WKUS"   
+ [71] "WRKRSNNOT"    "WRKRSNJOB"    "WRKEFFORT"    "WRKDPSTYR"    "WRKSELFEM"   
+ [76] "WRKNUMJOB2"   "WRKNJBPYR"    "WRKNJBWKS"    "WRKLASTYR2"   "WRKSICKMO"   
+ [81] "WRKSKIPMO"    "WRKDRGPOL"    "WRKDRGALB"    "WRKDRGEDU"    "WRKDRGHLP"   
+ [86] "WRKTSTALC"    "WRKTSTDRG"    "WRKTSTHIR"    "WRKTSTRDM"    "WRKTST1ST"   
+ [91] "WRKOKPREH"    "WRKOKRAND"    "IRWRKSTAT"    "IIWRKSTAT"    "II2WRKSTAT"  
+ [96] "IRWRKSTAT18"  "IIWRKSTAT18"  "II2WRKST18"   "EDFAM18"      "IMOTHER"     
+
+=== Survey Design Variables ===
+[1] "ANALWT2_C" "VESTR_C"   "VEREP"    
+
+=== Demographic Variables ===
+[1] "AGE3"       "SEXATRACT2" "SEXIDENT22" "SEXAGE"     "SEXRACE"   
+[6] "INCOME"    
+
+=== Substance Use Variables (sample) ===
+ [1] "CIGEVER"    "CIGTRY"     "CIGYFU"     "CIGMFU"     "CIGREC"    
+ [6] "CIG30USE"   "CIG30AV"    "CIGMENTH30" "CIGROLL30"  "CIGDLYMO"  
+[11] "CIGAGE"     "CIGDLYFU"   "CIGDLMFU"   "CIG100LF"   "CIGAREVR"  
+[16] "CIGARTRY"   "CIGARYFU"   "CIGARMFU"   "CIGARREC"   "CIGIRTBL"  
+[21] "CIGCRAVE"   "CIGCRAGP"   "CIGINCTL"   "CIGAVOID"   "CIGFNSMK"  
+[26] "CIGFNLKE"   "CIGPLANE"   "CIGRNOUT"   "CIGREGDY"   "CIGREGWK"  
+[31] "CIGREGNM"   "CIGNMCHG"   "CIGSVLHR"   "CIGINFLU"   "CIGNOINF"  
+[36] "CIGINCRS"   "CIGSATIS"   "CIGLOTMR"   "CIGWAKE"    "ALCEVER"   
+[41] "ALCTRY"     "ALCYFU"     "ALCMFU"     "ALCREC"     "ALCYRTOT"  
+[46] "ALCDAYS"    "ALCUS30D"   "ALCBNG30D"  "MJEVER"     "MJAGE"     
+
+=== Mental Health Variables (sample) ===
+ [1] "SUICTHNK"    "SMIPPPY"     "SMIPY"       "AMIPY"       "SMISUD5ANY" 
+ [6] "AMISUD5ANY"  "SMIRSUD5ANY" "SMISUD5ANYO" "AMIRSUD5ANY" "AMISUD5ANYO"
+[11] "MDEIMPY"    
+
+=== Treatment Variables (sample) ===
+character(0)
+
+=== Summary saved ===

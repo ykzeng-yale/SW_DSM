@@ -1,0 +1,27 @@
+JOB SUBMISSION INFORMATION - 100 REPLICATES TEST RUN
+================================================
+Date: 2025-02-04 21:36
+Job ID: 57089294
+Remote Directory: /gpfs/gibbs/project/tong/yz2324/pate_retro_20250804_2136
+
+Configuration:
+- 100 replicates (TEST RUN with updated WDSM)
+- 22 CPUs (20 for R + overhead)
+- 8GB per CPU (~176GB total)
+- FORK cluster type
+- Expected runtime: 30-60 minutes
+
+Updates Applied:
+✅ Survey-weighted standardization for double scores
+✅ Polynomial sieve method for bias correction
+✅ Quasibinomial GLM for PS estimation
+✅ Bootstrap weights: w_star × survey_weights
+
+Check status:
+ssh yz2324@login2.mccleary.ycrc.yale.edu 'squeue -j 57089294'
+
+Monitor output:
+ssh yz2324@login2.mccleary.ycrc.yale.edu 'tail -f /gpfs/gibbs/project/tong/yz2324/pate_retro_20250804_2136/pate_retro_*.out'
+
+Download results:
+scp -r yz2324@login2.mccleary.ycrc.yale.edu:/gpfs/gibbs/project/tong/yz2324/pate_retro_20250804_2136/* .

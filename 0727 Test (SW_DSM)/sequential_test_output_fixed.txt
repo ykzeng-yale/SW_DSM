@@ -1,0 +1,105 @@
+Warning message:
+'memory.limit()' is Windows-specific 
+Loading required package: grid
+Loading required package: Matrix
+Loading required package: survival
+
+Attaching package: ‘survey’
+
+The following object is masked from ‘package:graphics’:
+
+    dotchart
+
+Warning messages:
+1: package ‘Matrix’ was built under R version 4.4.1 
+2: package ‘survival’ was built under R version 4.4.1 
+
+Attaching package: ‘sampling’
+
+The following objects are masked from ‘package:survival’:
+
+    cluster, strata
+
+Warning message:
+package ‘sampling’ was built under R version 4.4.1 
+Warning message:
+package ‘MASS’ was built under R version 4.4.1 
+Warning message:
+package ‘nnet’ was built under R version 4.4.1 
+Warning message:
+package ‘MatchIt’ was built under R version 4.4.1 
+
+Attaching package: ‘boot’
+
+The following object is masked from ‘package:survival’:
+
+    aml
+
+Warning message:
+package ‘boot’ was built under R version 4.4.1 
+Warning message:
+package ‘marginaleffects’ was built under R version 4.4.1 
+
+Attaching package: ‘dplyr’
+
+The following object is masked from ‘package:MASS’:
+
+    select
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+
+Attaching package: ‘tidyr’
+
+The following objects are masked from ‘package:Matrix’:
+
+    expand, pack, unpack
+
+
+Attaching package: ‘matrixStats’
+
+The following object is masked from ‘package:dplyr’:
+
+    count
+
+
+Attaching package: ‘Hmisc’
+
+The following objects are masked from ‘package:dplyr’:
+
+    src, summarize
+
+The following object is masked from ‘package:survey’:
+
+    deff
+
+The following objects are masked from ‘package:base’:
+
+    format.pval, units
+
+Warning messages:
+1: package ‘mvtnorm’ was built under R version 4.4.1 
+2: package ‘purrr’ was built under R version 4.4.1 
+3: package ‘matrixStats’ was built under R version 4.4.1 
+4: package ‘Hmisc’ was built under R version 4.4.1 
+WDSM Method 2: Multinomial Bootstrap module loaded successfully.
+Main function: method2_multinomial_bootstrap_ci()
+Wrapper function: compute_wdsm_method2_ci()
+ℹ Loading dsmatch
+
+True Population PATE: 0.8664 
+
+Running sequential test...
+
+Replicate 1 of 2 
+Error in WDSM: unused arguments (weights = w, show_progress_bar = FALSE) 
+MatchIt completed
+Results for replicate 1 :
+Error in if (!is.na(result$WDSM$estimate)) { : argument is of length zero
+Execution halted

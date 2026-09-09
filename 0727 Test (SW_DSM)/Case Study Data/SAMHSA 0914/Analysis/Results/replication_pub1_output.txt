@@ -1,0 +1,152 @@
+Warning message:
+'memory.limit()' is Windows-specific 
+
+================================================================
+PUBLICATION 1 REPLICATION: MDE → Binge Alcohol Use
+Sample: Adults with Major Depressive Episode
+================================================================
+
+Warning messages:
+1: package 'ggplot2' was built under R version 4.4.1 
+2: package 'purrr' was built under R version 4.4.1 
+3: package 'lubridate' was built under R version 4.4.1 
+4: package 'Matrix' was built under R version 4.4.1 
+5: package 'survival' was built under R version 4.4.1 
+6: package 'broom' was built under R version 4.4.1 
+Loading NSDUH 2023 data...
+
+=== STEP 1: Sample Selection ===
+
+Filter 1: Adults 18+ (CATAGE >= 2)
+  Adults 18+: 45133 
+Filter 2: Past-Year Major Depressive Episode (IRAMDEYR == 1)
+  Adults with MDE: 5185 
+
+Final Study Sample: Adults 18+ with Past-Year MDE
+  N = 5185 
+
+=== STEP 2: Creating Survey Design ===
+
+Survey design created for MDE sample!
+
+=== STEP 3: Outcome Prevalence ===
+
+Past Month Binge Alcohol Use (Among Adults with MDE):
+  Weighted Prevalence: 27.49% 
+  Standard Error: 1.097% 
+  Unweighted:  29.87% (N=1549) 
+
+=== STEP 4: Sample Characteristics (Our Table 1) ===
+
+GENDER:
+  Male (1): 35.4% (N=1709)
+  Female (2): 64.6% (N=3476)
+
+AGE GROUPS (AGE3):
+  Age category 1: N=804
+  Age category 2: N=949
+  Age category 3: N=582
+  Age category 4: N=573
+  Age category 5: N=625
+  Age category 6: N=1164
+  Age category 7: N=312
+  Age category 8: N=176
+
+RACE/ETHNICITY (NEWRACE2):
+  White: N=3256
+  Black: N=430
+  Am Indian/AK Native: N=67
+  Native HI/Pacific Islander: N=13
+  Asian: N=154
+  More than one: N=358
+  Hispanic: N=907
+
+=== STEP 5: Survey-Weighted Logistic Regression ===
+
+Model: Binge Alcohol Use ~ Demographics (Among Adults with MDE)
+
+Fitting logistic regression model...
+
+MODEL RESULTS:
+                  Estimate Std. Error    t value     Pr(>|t|)
+(Intercept)    -1.65599344 0.31724469 -5.2199248 1.520396e-05
+age_cat5        1.03684003 0.15832786  6.5486895 4.236580e-07
+age_cat6        0.47279978 0.19474699  2.4277642 2.187325e-02
+age_cat7        0.39929520 0.18860546  2.1170924 4.326792e-02
+age_cat8        0.72083040 0.16427715  4.3878921 1.473978e-04
+age_cat9        0.08215385 0.17023422  0.4825930 6.331363e-01
+age_cat10      -0.25058682 0.25717356 -0.9743879 3.382074e-01
+age_cat11      -0.82270764 0.40632059 -2.0247747 5.252184e-02
+marital_cat2    0.44940877 0.39751401  1.1305482 2.678367e-01
+marital_cat3    0.49650579 0.19810145  2.5063209 1.828353e-02
+marital_cat4    0.19854303 0.16193153  1.2260925 2.303760e-01
+education_cat2  0.16518571 0.20214907  0.8171480 4.207427e-01
+education_cat3  0.27663520 0.20954105  1.3201958 1.974609e-01
+education_cat4  0.18131777 0.22668551  0.7998648 4.305232e-01
+poverty_cat2    0.09998346 0.15918874  0.6280812 5.350405e-01
+poverty_cat3    0.09320848 0.15286449  0.6097458 5.469470e-01
+sex_cat2       -0.11000799 0.09735739 -1.1299399 2.680886e-01
+race_cat2       0.17350582 0.17179407  1.0099640 3.211611e-01
+race_cat3      -0.65512510 0.56594519 -1.1575769 2.568163e-01
+race_cat4      -1.29622044 0.92312709 -1.4041625 1.712660e-01
+race_cat5      -0.41764125 0.48135693 -0.8676332 3.929706e-01
+race_cat6      -0.11544532 0.21114256 -0.5467648 5.888716e-01
+race_cat7       0.10098736 0.13328458  0.7576823 4.549711e-01
+
+
+ODDS RATIOS (Exponentiated Coefficients):
+                     Variable    OR CI_Lower CI_Upper P_value
+age_cat5             age_cat5 2.820    2.039    3.901  0.0000
+age_cat6             age_cat6 1.604    1.077    2.391  0.0219
+age_cat7             age_cat7 1.491    1.013    2.194  0.0433
+age_cat8             age_cat8 2.056    1.469    2.879  0.0001
+age_cat9             age_cat9 1.086    0.766    1.539  0.6331
+age_cat10           age_cat10 0.778    0.460    1.318  0.3382
+age_cat11           age_cat11 0.439    0.191    1.010  0.0525
+marital_cat2     marital_cat2 1.567    0.694    3.538  0.2678
+marital_cat3     marital_cat3 1.643    1.095    2.465  0.0183
+marital_cat4     marital_cat4 1.220    0.875    1.699  0.2304
+education_cat2 education_cat2 1.180    0.780    1.785  0.4207
+education_cat3 education_cat3 1.319    0.858    2.026  0.1975
+education_cat4 education_cat4 1.199    0.753    1.907  0.4305
+poverty_cat2     poverty_cat2 1.105    0.798    1.531  0.5350
+poverty_cat3     poverty_cat3 1.098    0.803    1.501  0.5469
+sex_cat2             sex_cat2 0.896    0.734    1.094  0.2681
+race_cat2           race_cat2 1.189    0.837    1.691  0.3212
+race_cat3           race_cat3 0.519    0.163    1.656  0.2568
+race_cat4           race_cat4 0.274    0.041    1.813  0.1713
+race_cat5           race_cat5 0.659    0.246    1.765  0.3930
+race_cat6           race_cat6 0.891    0.578    1.373  0.5889
+race_cat7           race_cat7 1.106    0.842    1.454  0.4550
+
+=== STEP 6: Key Findings ===
+
+Significant Predictors of Binge Alcohol Use (p < 0.05):
+  age_cat5: OR=2.820 (2.039-3.901), p=0.0000
+  age_cat6: OR=1.604 (1.077-2.391), p=0.0219
+  age_cat7: OR=1.491 (1.013-2.194), p=0.0433
+  age_cat8: OR=2.056 (1.469-2.879), p=0.0001
+  marital_cat3: OR=1.643 (1.095-2.465), p=0.0183
+
+================================================================
+PUBLICATION 1 REPLICATION COMPLETE!
+Results saved to: replication_pub1_mde_binge_alcohol.rds
+================================================================
+
+COMPARISON TO ORIGINAL PAPER:
+Original finding: 'Age and marital status significantly predicted BAU'
+Our 2023 finding: Check which predictors are significant above
+
+HONEST ASSESSMENT:
+✅ Sample created correctly (Adults 18+ with MDE)
+✅ Outcome identified (Binge alcohol use)
+✅ Covariates matched (age, marital, education, poverty, sex, race)
+✅ Survey weights applied correctly
+⏳ Need to compare ORs to original paper's published ORs
+
+NEXT STEPS:
+1. Compare our ORs to original paper's Table
+2. If match: ✅ Successful replication!
+3. Then: Apply our 5 matching methods to this same question
+4. Compare: Standard regression vs PSM vs DSM vs WDSM
+

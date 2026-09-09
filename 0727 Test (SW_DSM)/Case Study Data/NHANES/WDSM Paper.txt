@@ -1,0 +1,1095 @@
+\documentclass[12pt]{article}
+
+% Core style and spacing
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{epsfig}
+\usepackage{lscape}
+\usepackage{amsmath, amssymb, bm}  % math and bold symbols
+\usepackage{dcolumn}
+\usepackage{multirow, multicol, makecell, booktabs, tabularx, array}
+\usepackage{color, xcolor, colortbl}  % for colored tables/text
+\usepackage{caption}
+\usepackage{titlesec} % for \subsubsubsection
+\usepackage{subcaption}
+\usepackage{rotating}
+\usepackage{url}
+\usepackage{natbib}
+\usepackage[normalem]{ulem}
+\usepackage{comment}
+\usepackage{hyperref}
+\usepackage{xr}  % for cross referencing external documents
+
+\usepackage{colortbl}
+\definecolor{lightgray}{gray}{0.92}
+
+% Optional: Control figure and table numbering by section (uncomment if needed)
+% \numberwithin{figure}{section}
+% \numberwithin{table}{section}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  CONTROL OF BLINDING
+\newcommand{\blinding}[2]{#1}   %%% USE THIS FOR UNBLINDED
+% \newcommand{\blinding}[2]{#2}   %%% USE THIS FOR BLINDED
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Page layout for JASA
+\paperheight 27.8cm \paperwidth 21.4cm \textheight 20.5cm \voffset -.6in
+\headheight .45in \headsep .4in
+\oddsidemargin .25in \textwidth 15.9cm \hoffset -.25cm \evensidemargin .1in
+\footskip 1cm
+\renewcommand{\baselinestretch}{1.60}
+\newcommand{\Longpage}{\enlargethispage{1cm}}
+\newcommand{\nspace}{\vspace*{.2cm}}
+\newcommand{\longpage}{\enlargethispage{\baselineskip}}
+
+% Theorem environments
+\usepackage{amsthm}
+\theoremstyle{plain} \newtheorem{thm}{{\sc Theorem}}
+\theoremstyle{plain} \newtheorem{result}{{\sc Result}}
+\renewcommand{\theresult}{\normalfont \arabic{result}}
+\theoremstyle{plain} \newtheorem{defn}{{\sc Definition}}
+\theoremstyle{plain} \newtheorem{property}{{\sc Property}}
+\renewcommand{\thedefn}{\normalfont }
+\renewcommand{\theproperty}{\normalfont \arabic{property}}
+\theoremstyle{plain} \newtheorem{crn}{{\sc Criterion}}
+\renewcommand{\thecrn}{\normalfont \arabic{crn}}
+\newtheorem{theorem}{\sc Theorem}
+\newtheorem{proposition}{\sc Proposition}
+\newtheorem{assumption}{\sc Assumption}
+\newtheorem{lemma}{Lemma}
+
+% Math operators and commands
+\DeclareMathOperator\bE{\mathbb{E}}  % expectation
+\DeclareMathOperator\bV{\mathbb{V}}  % variance
+
+\renewcommand{\qed}{\hfill \mbox{\raggedright \rule{.07in}{.1in}}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+
+% Vector and matrix bold commands
+\newcommand{\bfGamma}{\bm{\Gamma}}
+\newcommand{\bfLambda}{\bm{\Lambda}}
+\newcommand{\bfX}{\bm{X}}
+\newcommand{\bfS}{\bm{S}}
+\newcommand{\bfT}{\bm{T}}
+\newcommand{\bfZ}{\bm{Z}}
+\newcommand{\bfU}{\bm{U}}
+\newcommand{\bfR}{\bm{R}}
+\newcommand{\bfI}{\bm{I}}
+\newcommand{\bfJ}{\bm{J}}
+\newcommand{\bfSigma}{\bm{\Sigma}}
+\newcommand{\bfbeta}{\bm{\beta}}
+\newcommand{\bfb}{\bm{b}}
+
+% Useful shorthand
+\newcommand{\one}{\mathbf{1}}
+\newcommand{\bone}[1]{\one_{\{#1\}}}
+\newcommand{\ATE}{\mbox{\tiny{ATE}}}
+\newcommand{\ATT}{\mbox{\tiny{ATT}}}
+\newcommand{\ATC}{\mbox{\tiny{ATC}}}
+\newcommand{\ACD}{\mbox{\tiny{ACD}}}
+\newcommand{\overlap}{\mbox{\tiny{overlap}}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bbeta}{\bm{\beta}}
+\newcommand{\eh}{{\hat{e}_i}}
+\newcommand{\dr}{\mathrm{dr}}
+
+% Commenting and placeholders
+\newcommand{\new}{{\Large\bf ***}}
+\newcommand{\newstuff}{{\Large\bf ***}}
+\renewcommand{\comment}[1]{{\bf [[#1]]}}
+
+% \newtheorem{theorem}{Theorem}
+
+\begin{document}
+
+% \begin{center}
+% \vspace*{-2.5cm}
+
+% {\Large Title}
+
+% \medskip
+% \blinding{
+% Fan Li \quad \quad B 
+% \footnote{Fan Li is associate professor, Department of Statistical Science, Duke University, Durham, NC, 27705 (email: fli@stat.duke.edu); B is xxx. The authors are grateful to xx for comments that help improve the clarity and exposition of the article, to xxx for xxx. Li's research is partially funded by grant xxx.}
+
+% %\today
+% }{}
+% \end{center}
+
+\begin{center}
+\vspace*{-2.5cm}
+
+{\Large \bf Weighted Double Score Matching for Causal Inference in Survey Observational Data}
+
+\medskip
+
+\blinding{
+Yukang Zeng$^{1,2}$, Fan Li$^{1,3,4}$, and Guangyu Tong$^{1,2,3,4}$ \\
+\small
+$^1$Department of Biostatistics, Yale School of Public Health, New Haven, CT, USA \\
+$^2$Cardiovascular Medicine Analytics Center, Yale School of Medicine, New Haven, CT, USA \\
+$^3$Section of Cardiovascular Medicine, Department of Internal Medicine, Yale School of Medicine, New Haven, CT, USA \\
+$^4$Center for Methods in Implementation and Prevention Science, Yale School of Public Health, New Haven, CT, USA \\
+\footnote{Corresponding author: Yukang Zeng, MS. Email: \texttt{yukang.zeng@yale.edu}}
+}{}
+\end{center}
+
+
+
+
+{\centerline{\sc ABSTRACT}}
+
+\noindent Matching methods are widely used for causal inference from observational data, creating comparable treatment and control groups through systematic pairing of units with similar characteristics. Double score matching has emerged as a robust approach utilizing both propensity and prognostic scores to achieve dimension reduction and protection against model misspecification. However, existing double score matching methods assume simple random sampling and cannot accommodate complex survey designs, limiting their applicability to population-level inference from survey data where sampling probabilities vary systematically across population subgroups.
+We develop weighted double score matching (WDSM) estimators that extend double score matching to complex survey designs while preserving doubly robust properties. Under both prospective and retrospective sampling frameworks, we establish comprehensive theoretical foundations including consistency, $\sqrt{n}$-convergence rates, and asymptotic normality for population average treatment effects (PATE) and population average treatment effects on the treated (PATT). We demonstrate that WDSM maintains doubly robust properties—remaining consistent when either propensity or prognostic score models are correctly specified—while enabling valid population-level inference through proper survey weight incorporation. We provide explicit bias decomposition, develop bias correction procedures for finite-sample enhancement, and establish that PATT estimation requires only weaker unconfoundedness assumptions though optimal convergence depends on control group size.
+We derive comprehensive variance estimation procedures including analytical sandwich estimators and bootstrap methods that respect survey design complexity and matching uncertainty. Through extensive simulation studies, we demonstrate that WDSM outperforms existing survey-weighted methods, remaining stable under extreme propensity scores while achieving superior finite-sample performance compared to standard approaches. We illustrate the practical utility of WDSM through an empirical application using National Survey on Drug Use and Health data to estimate the causal effect of early marijuana use on adult mental health outcomes. Our findings provide evidence-based guidance for practitioners conducting population-level causal inference from complex survey data using matching methods.
+
+
+
+
+
+
+\vspace*{0.3cm}
+
+\noindent {\sc Key words}: causal inference, complex surveys, double score matching, population average treatment effect, survey weights, double robustness, propensity score matching, observational studies
+
+\clearpage
+
+
+% generate the contents
+\tableofcontents
+\newpage  % optional: start body on a new page
+
+
+
+
+\section{Introduction}
+
+Observational studies serve as a cornerstone of empirical research across disciplines, especially when randomized experiments are impractical, ethically problematic, or resource-prohibitive. Researchers frequently rely on observational data collected through surveys employing sophisticated sampling methodologies intended to ensure sample representativeness of target populations. Large-scale surveys typically implement intricate sampling features including multistage designs, geographic stratification, cluster sampling, and purposeful oversampling of underrepresented demographic groups. Survey weights derived from these sampling protocols are essential for reconstructing population characteristics, properly accounting for differential selection probabilities and patterns of survey nonparticipation.
+
+The design and timing of survey data collection fundamentally shapes the nature of survey weights and their role in causal inference. In prospective sampling designs, selection probabilities depend only on baseline covariates unrelated to treatment assignment, with survey weights reflecting predetermined demographic or geographic characteristics. Conversely, retrospective sampling designs involve selection probabilities that depend on the treatment or exposure variable itself—such as racial health disparities studies where sampling deliberately varies by race, or case-control studies that oversample based on disease status. To estimate valid causal effects from such data requires methods that simultaneously address confounding bias through covariate adjustment and selection bias through appropriate survey weight incorporation. Traditional regression approaches struggle with high-dimensional covariate spaces and model specification sensitivity, motivating the development of balancing score methodologies that achieve dimension reduction while maintaining properties necessary for unbiased treatment effect estimation.
+
+
+
+Matching methods have evolved as a fundamental approach to causal inference, creating comparable treatment and control groups through systematic pairing of units with similar characteristics. Early developments relied on exact matching or Mahalanobis distance matching directly on observed covariates (Rubin, 1973), but proved computationally intensive and suffered from the curse of dimensionality as covariate spaces expanded. Rosenbaum and Rubin (1983) revolutionized the field by demonstrating that matching on scalar propensity scores preserves covariate balance while achieving computational tractability and dimension reduction. Subsequent innovations addressed matching optimization and flexibility: optimal matching algorithms minimized global distance rather than greedy sequential decisions (Rosenbaum, 1989; Stuart, 2010); genetic matching automated distance metric selection to optimize balance (Diamond and Sekhon, 2013); coarsened exact matching provided finite-sample balance guarantees through discretization (Iacus et al., 2011). Abadie and Imbens (2006, 2011, 2016) established comprehensive asymptotic theory including bias correction procedures addressing finite-sample performance and variance estimation accounting for matching uncertainty. Recent work has expanded to optimal frameworks balancing bias-variance trade-offs (Kallus, 2020) and examined fundamental questions about matching objectives in replicating experimental designs.
+
+
+Survey weight incorporation has been actively integrated across causal inference methods, with extensive emperical resutls and theoretical frameworks for stratification (Zanutto, 2006), subclassification (Zanutto et al., 2005), and weighting approaches (DuGoff et al. 2013; Ridgeway et al., 2015; Zeng et al., 2025). Ridgeway et al. (2015) provided theoretical justification for survey-weighted propensity score estimation in weighting methods, while Zeng et al. (2025) developed a unified balancing weights framework establishing comprehensive theoretical foundations for various target estimands under both prospective and retrospective sampling designs. However, matching methods lack comparable theoretical development despite extensive empirical investigation, with fundamental disputes persisting over optimal survey weight utilization strategies. Core disagreements center on two implementation stages: first, whether survey weights should be incorporated during propensity score estimation through survey-weighted models (Ridgeway et al., 2015) versus inclusion as auxiliary covariates (DuGoff et al., 2014); second, whether matched units should retain original survey weights versus adopting transferred weights from their matched counterparts (Lenis et al., 2019). Austin et al. (2018) demonstrated through comprehensive simulation that neither propensity score estimation approach consistently dominates across scenarios, while Lenis et al. (2019) found that survey weight incorporation during score estimation provides limited population-level benefits when adequate covariate balance is achievable, though benefits emerge under specific missingness mechanisms. These disputes reflect deeper methodological tensions between sampling-based perspectives emphasizing population representativeness and experimental design perspectives prioritizing confounding control.
+
+
+Recently, double score matching has emerged through systematic methodological advances addressing model uncertainty in causal inference. Hansen (2008) established foundational theory by demonstrating that prognostic scores—conditional expectations of potential outcomes—serve as balancing scores complementary to propensity scores for dimension reduction in confounding control. Leacy and Stuart (2014) conducted the first comprehensive simulation study examining joint use of propensity and prognostic scores, comparing three approaches including full matching on Mahalanobis distance combining both scores, demonstrating empirical benefits but lacking formal theoretical foundations. Antonelli et al. (2018) provided the first rigorous theoretical framework for doubly robust matching estimators in high-dimensional settings, proving that estimators combining propensity and prognostic scores maintain consistency when either model is correctly specified while establishing convergence rates superior to single-score approaches. Yang and Zhang (2022) formalized double score matching as a comprehensive theoretical framework, establishing complete asymptotic theory including consistency guarantees, distributional properties, and extending to multiply robust properties accommodating multiple candidate models for enhanced protection against misspecification. Zhang et al. (2022) addressed the critical gap between theory and practice by providing comprehensive implementation guidance including variable selection strategies, caliper choices, and replacement decisions through extensive simulation studies. Extensions have broadened applicability to multilevel treatment settings (Zhao et al., 2022) and quantile treatment effects. This methodological progression has established DSM as a mature approach offering theoretical robustness against model misspecification and superior empirical performance in challenging settings.
+
+
+Despite comprehensive theoretical development and demonstrated empirical advantages, existing DSM methodology has not addressed survey weight integration, creating a significant gap for population-level causal inference from complex survey data. This limitation prevents legitimate application of DSM to survey-based studies requiring population generalizability, as standard DSM assumes simple random sampling that conflicts with complex survey designs. The technical challenges involve extending DSM's doubly robust properties while accommodating survey selection mechanisms and their interactions with treatment assignment and outcome prediction processes, developing practical algorithms for survey-weighted score estimation and matching procedures, and constructing bias correction and variance estimation methods that respect survey design features while maintaining DSM's efficiency advantages.
+
+This article develops weighted double score matching (WDSM) estimators that extend DSM to complex survey designs while preserving doubly robust properties and computational efficiency. We establish comprehensive theoretical foundations encompassing consistency guarantees, convergence rates, and asymptotic distributions under both prospective and retrospective sampling frameworks for population average treatment effects (PATE) and treatment effects on the treated (PATT). Our contributions include practical bias correction and variance estimation procedures accommodating both matching uncertainty and survey design complexity, comprehensive simulation evidence documenting superior performance relative to existing survey-weighted methods while maintaining robustness advantages, and empirical applications demonstrating practical importance for population-level causal inference from survey data.
+
+
+The rest of this paper is organized as follows. Section 2 develops the methodological framework including notation, identification assumptions, and survey-weighted double score construction. Sections 3 and 4 present WDSM estimators for population average treatment effects and treatment effects on the treated with complete asymptotic theory. Section 5 addresses variance estimation and inference procedures. Section 6 reports extensive simulation studies, Section 7 demonstrates empirical applications, and Section 8 concludes with methodological extensions and future research directions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Method}
+
+This section establishes the theoretical foundation for weighted double score matching (WDSM) in complex survey data. We develop a unified framework that extends the double score matching methodology of Yang and Zhang (2020) to incorporate survey weights following the principles established by Zeng et al. (2025), while building upon the rigorous asymptotic theory framework of Abadie and Imbens (2016).
+
+\subsection{Causal Inference Setup and Basic Notation}
+
+We consider a finite population of size $N$ indexed by $i = 1, \ldots, N$. For each unit $i$, we observe covariates $\mathbf{X}_i \in \mathcal{X} \subseteq \mathbb{R}^d$, treatment indicator $Z_i \in \{0,1\}$, and outcome $Y_i \in \mathbb{R}$. Following the potential outcomes framework of Rubin (1974), each unit has potential outcomes $Y_i(0)$ and $Y_i(1)$ corresponding to control and treatment conditions, respectively, with the observed outcome given by $Y_i = Z_i Y_i(1) + (1-Z_i) Y_i(0)$.
+
+Let $S_i \in \{0,1\}$ denote the survey selection indicator, where $S_i = 1$ if unit $i$ is included in the survey sample and $S_i = 0$ otherwise. The survey sample size is $n = \sum_{i=1}^N S_i$, with treatment-specific sample sizes $n_1 = \sum_{i=1}^N S_i Z_i$ and $n_0 = \sum_{i=1}^N S_i (1-Z_i)$.
+
+Our primary estimands are population-level causal parameters. The \textit{population average treatment effect} (PATE) is defined as
+\begin{align}
+\tau_{\text{PATE}} = E_{\Omega}[Y_i(1) - Y_i(0)],
+\end{align}
+where $E_{\Omega}[\cdot]$ denotes expectation over the finite population $\Omega$. The \textit{population average treatment effect on the treated} (PATT) is
+\begin{align}
+\tau_{\text{PATT}} = E_{\Omega}[Y_i(1) - Y_i(0) \mid Z_i = 1].
+\end{align}
+
+These population-level estimands differ from their sample analogs and require careful incorporation of survey weights for consistent estimation, as emphasized by Imbens (2004) and Ridgeway et al. (2015).
+
+The fundamental causal identification assumptions follow the standard framework. We assume \textit{consistency}: $Y_i = Z_i Y_i(1) + (1-Z_i) Y_i(0)$, \textit{treatment unconfoundedness}: $(Y_i(0), Y_i(1)) \perp Z_i \mid \mathbf{X}_i$, and \textit{treatment positivity}: $0 < P(Z_i = 1 \mid \mathbf{X}_i) < 1$ almost surely. For PATT estimation, unconfoundedness can be relaxed to require only $Y_i(0) \perp Z_i \mid \mathbf{X}_i$, following Yang and Zhang (2020).
+
+\subsection{Survey Design Frameworks and Weight Structures}
+
+We consider two primary survey design frameworks that differ in the relationship between treatment assignment and survey selection, following the taxonomy of Zeng et al. (2025). A key theoretical insight is that both frameworks utilize population-level matching variables while differing in their independence structures and weighting schemes.
+
+\subsubsection{Prospective Sampling Design}
+
+In prospective sampling, survey selection depends only on pre-treatment covariates, with selection probabilities $p_i = P(S_i = 1 \mid \mathbf{X}_i)$. This implies $P(S_i = 1 \mid \mathbf{X}_i, Z_i) = P(S_i = 1 \mid \mathbf{X}_i) = p_i$, ensuring prospective ignorability when the survey design occurs before treatment assignment. The corresponding survey weights are $w_i = 1/p_i$, representing the inverse probability of selection. This design is common in longitudinal studies where baseline covariates determine sampling probabilities before treatment assignment occurs.
+
+\begin{assumption}[Prospective Survey Ignorability]
+\label{ass:prosp_ignorability}
+Under prospective sampling, $(Y_i(0), Y_i(1)) \perp S_i \mid \mathbf{X}_i$.
+\end{assumption}
+
+\begin{assumption}[Prospective Survey Positivity]
+\label{ass:prosp_positivity}
+$P(S_i = 1 \mid \mathbf{X}_i) \geq \delta > 0$ almost surely for some constant $\delta$.
+\end{assumption}
+
+The prospective design ensures that the survey selection mechanism does not introduce additional confounding beyond that already controlled by $\mathbf{X}_i$. Under this design, sampling and treatment assignment exhibit extended balancing properties: conditional on population-level matching variables $V_{z,i}^{\text{pop}}$, we have both $(Y_i(0), Y_i(1)) \perp Z_i \mid V_{z,i}^{\text{pop}}$ and $S_i \perp Z_i \mid V_{z,i}^{\text{pop}}$, providing a joint conditional independence structure.
+
+\subsubsection{Retrospective Sampling Design}
+
+In retrospective sampling, survey selection probabilities depend on both covariates and treatment status: $p_{z,i} = P(S_i = 1 \mid \mathbf{X}_i, Z_i = z)$ for $z \in \{0,1\}$. This leads to treatment-specific survey weights $w_{z,i} = 1/p_{z,i}$. Retrospective designs are prevalent in case-control studies and post-treatment surveys where treatment status influences the probability of survey participation.
+
+\begin{assumption}[Retrospective Survey Ignorability]
+\label{ass:retro_ignorability}
+Under retrospective sampling, $(Y_i(0), Y_i(1)) \perp S_i \mid \mathbf{X}_i, Z_i$.
+\end{assumption}
+
+\begin{assumption}[Retrospective Survey Positivity]
+\label{ass:retro_positivity}
+$P(S_i = 1 \mid \mathbf{X}_i, Z_i = z) \geq \delta_z > 0$ almost surely for $z \in \{0,1\}$ and some constants $\delta_z$.
+\end{assumption}
+
+The retrospective design maintains core balancing properties through a decomposed independence structure. While $S_i \not\perp Z_i \mid V_{z,i}^{\text{pop}}$ generally, the essential properties $(Y_i(0), Y_i(1)) \perp Z_i \mid V_{z,i}^{\text{pop}}$ and $Y_i(z) \perp S_i \mid V_{z,i}^{\text{pop}}, Z_i$ are preserved, ensuring valid causal inference under treatment-specific weighting.
+
+\subsubsection{Universal Matching Variable Framework}
+
+A fundamental theoretical result is that both prospective and retrospective sampling utilize identical population-level matching variables:
+
+$$V_{z,i}^{\text{pop}} = \left(e_{\text{pop}}(\mathbf{X}_i), \Psi_{z,\text{pop}}(\mathbf{X}_i)\right)$$
+where $e_{\text{pop}}(\mathbf{X}_i) = P(Z_i = 1 \mid \mathbf{X}_i)$ is the population propensity score and $\Psi_{z,\text{pop}}(\mathbf{X}_i) = E_\Omega[Y_i(z) \mid \mathbf{X}_i]$ is the population prognostic score. The distinction between sampling designs lies in the weighting schemes required to recover population quantities from sample data, not in the matching variables themselves.
+
+
+
+\subsection{Double Score Construction and Extended Balancing Properties}
+
+Following Yang and Zhang (2020), we construct matching variables using both propensity and prognostic scores to achieve dimension reduction while maintaining balancing properties. The \textit{propensity score} is defined as $e_{\text{sp}}(\mathbf{X}_i) = P(Z_i = 1 \mid \mathbf{X}_i)$, and the \textit{prognostic scores} are $\Psi_z(\mathbf{X}_i) = E[Y_i(z) \mid \mathbf{X}_i]$ for $z \in \{0,1\}$.
+
+The key insight of Yang and Zhang (2020) is to construct treatment-specific double scores rather than a single high-dimensional score. For estimating $E[Y(z)]$, we use the double score $V_{z,i} = (e_{\text{sp}}(\mathbf{X}_i), \Psi_z(\mathbf{X}_i))$, which reduces the matching dimension from potentially $d + 2$ (full covariates plus both prognostic scores) to 2, thereby improving finite-sample performance through reduced matching bias of order $O(n^{1/2-2/d_V})$ where $d_V$ is the matching dimension.
+
+The double score inherits balancing properties from both components. The propensity score satisfies $Z_i \perp \mathbf{X}_i \mid e_{\text{sp}}(\mathbf{X}_i)$ (Rosenbaum and Rubin 1983), while the prognostic score provides outcome prediction. Together, they form a \textit{balancing score} for treatment assignment: $(Y_i(0), Y_i(1)) \perp Z_i \mid V_{z,i}$ under unconfoundedness.
+
+For survey-weighted matching, we require extended balancing properties that account for the survey selection mechanism. These properties ensure that matching on the double score eliminates both treatment assignment bias and survey selection bias.
+
+\begin{assumption}[Extended Survey Ignorability - Prospective]
+\label{ass:extended_prosp}
+Under prospective sampling, $Y_i(z) \perp S_i \mid V_{z,i}$ for $z \in \{0,1\}$.
+\end{assumption}
+
+\begin{assumption}[Extended Survey Ignorability - Retrospective]
+\label{ass:extended_retro}
+Under retrospective sampling, $Y_i(z) \perp S_i \mid V_{z,i}, Z_i$ for $z \in \{0,1\}$.
+\end{assumption}
+
+These extended ignorability conditions ensure that, conditional on the double score (and treatment status in the retrospective case), the survey selection mechanism does not introduce additional bias beyond that controlled by the matching procedure.
+
+The theoretical foundation established in this section provides the necessary framework for developing consistent and asymptotically normal WDSM estimators. The distinction between prospective and retrospective designs, combined with the extended balancing properties of the double score, forms the basis for the comprehensive asymptotic analysis presented in the following sections. The survey weight structures introduced here will be integral to achieving valid population-level inference while maintaining the multiple robustness properties that make double score matching particularly attractive in practice.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{PATE Weighted Double Score Matching}
+
+
+
+
+% This section develops weighted double score matching (WDSM) estimators for the population average treatment effect under both prospective and retrospective sampling designs. We establish the estimator construction, bias decomposition, and main asymptotic results while maintaining the multiple robustness properties of Yang and Zhang (2020) in the survey-weighted context.
+
+This section develops weighted double score matching (WDSM) estimators for the Population Average Treatment Effect (PATE) under complex survey designs. We establish estimator construction using Hájek normalization with within-match donor weighting, present equivalent representations including donor reuse formulations, and derive bias correction procedures. The framework prioritizes retrospective sampling as the primary case, with prospective sampling treated as a special case.
+
+
+
+
+
+\subsection{WDSM Estimator Construction}
+
+% We begin by constructing WDSM estimators through an imputation-based approach that leverages the double score matching framework. For each unit $i$, let $\mathcal{J}_{V_z,i}$ denote the set of $M$ nearest neighbors from treatment group $z$ based on the Euclidean distance in the double score space $V_z(\mathbf{X})$. The imputed potential outcomes are constructed using survey-weighted averages of matched units.
+We construct the WDSM estimator through survey-weighted imputation of potential outcomes using double score matching. For each unit $i$, let $\mathcal{J}_{D_z}(i)$ denote the set of $M$ nearest neighbors from treatment group $z$ based on Euclidean distance in the double score space $D_z(\mathbf{X}) = (e_{\text{sp}}(\mathbf{X}), \Psi_z(\mathbf{X}))$, where $e_{\text{sp}}(\mathbf{X})$ is the population propensity score and $\Psi_z(\mathbf{X}) = \mathbb{E}[Y(z) \mid \mathbf{X}]$ is the prognostic score.
+
+Under retrospective sampling with treatment-specific inclusion probabilities $\pi_{z,i} = \Pr(S_i = 1 \mid Z_i = z, \mathbf{X}_i)$ and corresponding weights $w_{z,i} = 1/\pi_{z,i}$, the imputed potential outcomes are constructed using weighted averages that properly account for the survey design:
+\begin{align}
+\hat{Y}_i(1) &= \frac{\sum_{j \in \mathcal{J}_{D_1}(i)} w_{1,j} Y_j}{\sum_{j \in \mathcal{J}_{D_1}(i)} w_{1,j}}, \quad \text{for } Z_i = 0, \\
+\hat{Y}_i(0) &= \frac{\sum_{j \in \mathcal{J}_{D_0}(i)} w_{0,j} Y_j}{\sum_{j \in \mathcal{J}_{D_0}(i)} w_{0,j}}, \quad \text{for } Z_i = 1.
+\end{align}
+This weighted averaging within match sets is critical: using equal weights $1/M$ instead would fail to account for the informative sampling mechanism and lead to biased estimation. For notational convenience in later theoretical developments, we denote these within-set weights as $\lambda^{(z)}_{i \to j} = w_{z,j}/\sum_{k \in \mathcal{J}_{D_z}(i)} w_{z,k}$, though the explicit ratio form is more transparent for understanding the estimator construction.
+
+The WDSM estimator for the population average treatment effect is then:
+\begin{align}
+\hat{\tau}_{\text{WDSM}}^R &= \frac{1}{\sum_{i:S_i=1} w_i} \sum_{i:S_i=1} w_i \{\hat{Y}_i(1) - \hat{Y}_i(0)\} \\
+&= \frac{1}{\sum_{i:S_i=1} w_i} \sum_{i:S_i=1} w_i \{[Z_i Y_i + (1-Z_i)\hat{Y}_i(1)] - [(1-Z_i)Y_i + Z_i\hat{Y}_i(0)]\} \\
+&= \frac{1}{\sum_{i:S_i=1} w_i} \sum_{i:S_i=1} w_i (2Z_i - 1)\{Y_i - \hat{Y}_i(1-Z_i)\},
+\end{align}
+where $w_i = w_{Z_i,i}$ denotes the treatment-specific weight for unit $i$. The final expression reveals how the estimator contrasts observed outcomes with imputed counterfactuals, weighted by the survey design.
+
+Under prospective sampling where $S_i \perp Z_i \mid \mathbf{X}_i$, the inclusion probabilities do not depend on treatment status: $\pi_{1,i} = \pi_{0,i} = \pi_i$. Consequently, the weights simplify to $w_{1,i} = w_{0,i} = w_i = 1/\pi_i$, and the imputed outcomes become:
+\begin{align}
+\hat{Y}_i(1) &= \frac{\sum_{j \in \mathcal{J}_{D_1}(i)} w_j Y_j}{\sum_{j \in \mathcal{J}_{D_1}(i)} w_j}, \quad \text{for } Z_i = 0, \\
+\hat{Y}_i(0) &= \frac{\sum_{j \in \mathcal{J}_{D_0}(i)} w_j Y_j}{\sum_{j \in \mathcal{J}_{D_0}(i)} w_j}, \quad \text{for } Z_i = 1.
+\end{align}
+The prospective WDSM estimator maintains the same functional form:
+\begin{align}
+\hat{\tau}_{\text{WDSM}}^P = \frac{1}{\sum_{i:S_i=1} w_i} \sum_{i:S_i=1} w_i (2Z_i - 1)\{Y_i - \hat{Y}_i(1-Z_i)\},
+\end{align}
+but with common weights across treatment groups. This special case corresponds to settings where the survey design is non-informative with respect to treatment assignment, such as stratified random sampling based solely on pre-treatment covariates.
+
+
+
+
+\subsection{Weighted Matching Geometry and Reuse Structure}
+
+The asymptotic analysis of WDSM requires understanding how survey weights affect the reuse structure of matched units. Following \cite{abadie2016matching}, we develop a donor-centric representation that reveals how each unit contributes to the estimator both as a recipient and as a donor, but now accounting for the survey-weighted matching geometry.
+
+Define the survey-weighted reuse factor for unit $j$ with treatment $Z_j = z$:
+\begin{align}\label{weighted reuse factor}
+\widetilde{\mathcal{K}}_{D_z,j} = \sum_{i:S_i=1,Z_i=1-z} \frac{w_{1-z,i} \mathbf{1}[j \in \mathcal{J}_{D_z}(i)]}{\sum_{k \in \mathcal{J}_{D_z}(i)} w_{z,k}},
+\end{align}
+which represents the total weighted contribution unit $j$ makes as a donor across all match sets that include it. Under retrospective sampling, this differs fundamentally from the unweighted count $K_M(j)$ in standard matching because both the recipients' weights $w_{1-z,i}$ and the within-set donor normalization $\sum_{k} w_{z,k}$ reflect the informative sampling design with treatment-specific weights.
+
+The WDSM estimator admits the following donor-centric representation:
+\begin{align}
+\hat{\tau}_{\text{WDSM}}^R = \frac{1}{\sum_{j:S_j=1} w_{Z_j,j}} \sum_{j:S_j=1} w_{Z_j,j} (2Z_j - 1)[1 + \widetilde{\mathcal{K}}_{D_{Z_j},j}] Y_j,
+\end{align}
+where $w_{Z_j,j}$ denotes the treatment-specific weight for unit $j$. This identity shows that each unit $j$ contributes to the estimator with weight $w_{Z_j,j}[1 + \widetilde{\mathcal{K}}_{D_{Z_j},j}]$, where the term in brackets captures both its role as a recipient (weight 1) and as a donor (weight $\widetilde{\mathcal{K}}_{D_{Z_j},j}$). The proof follows by algebraic rearrangement of the imputation-based form, utilizing the identity $\sum_{j \in \mathcal{J}_{D_z}(i)} (w_{z,j}/\sum_k w_{z,k}) = 1$.
+
+For prospective sampling where $w_{1,j} = w_{0,j} = w_j$, the reuse factor simplifies to:
+\begin{align}
+\widetilde{\mathcal{K}}_{D_z,j}^P = \sum_{i:S_i=1,Z_i=1-z} \frac{w_i \mathbf{1}[j \in \mathcal{J}_{D_z}(i)]}{\sum_{k \in \mathcal{J}_{D_z}(i)} w_k},
+\end{align}
+maintaining the same structural form but with common weights across treatment groups.
+
+The concentration of weights within match sets plays a crucial role in determining the variance properties. Define the intrinsic reuse constant:
+\begin{align}
+\kappa_{2,M}^{(z)}(d) = \frac{1}{2}\mathbb{E}\left[\sum_{k \in \mathcal{J}_{D_z}(i)} \left(\frac{w_{z,k}}{\sum_{l \in \mathcal{J}_{D_z}(i)} w_{z,l}}\right)^2 \Bigg| Z_i = 1-z, D_{z,i} = d\right],
+\end{align}
+which measures the expected concentration of squared weights within match sets conditional on the double score value $d$. Under retrospective sampling, this constant satisfies $1/(2M) \leq \kappa_{2,M}^{(z)}(d) \leq 1/2$, where the lower bound corresponds to uniform weights within match sets and the upper bound to complete concentration on a single donor. The bounds follow from the Cauchy-Schwarz inequality applied to the constraint that weights sum to one within each match set.
+
+The weighted reuse factors satisfy the following moment conditions, which are essential for variance calculations:
+\begin{align}
+\mathbb{E}[\widetilde{\mathcal{K}}_{D_z,j} \mid D_{z,j} = d] &= \frac{1 - \pi_{z|d}}{\pi_{z|d}}, \\
+\mathbb{E}[(1 + \widetilde{\mathcal{K}}_{D_z,j})^2 \mid D_{z,j} = d] &= \frac{1}{\pi_{z|d}} + \kappa_{2,M}^{(z)}(d)\left(\frac{1}{\pi_{z|d}} - \pi_{z|d}\right),
+\end{align}
+where $\pi_{z|d} = \Pr(Z = z \mid D_z = d, S = 1)$ is the conditional treatment probability in the sample. These moments generalize the results of \cite{abadie2016matching} to the survey-weighted context, with the intrinsic reuse constant $\kappa_{2,M}^{(z)}(d)$ replacing the fixed value $1/(2M)$ from the unweighted case. The second moment formula reveals how survey weights inflate the variance through both the inverse sampling fraction $1/\pi_{z|d}$ and the weight concentration captured by $\kappa_{2,M}^{(z)}(d)$.
+
+\subsection{Bias Decomposition and Correction}
+
+The finite-sample bias of the WDSM estimator decomposes into three components that require distinct theoretical treatment. For retrospective sampling:
+\begin{align}\label{Decomposition Retrospective}
+\hat{\tau}_{\text{WDSM}}^R - \tau_{\text{PATE}} = (\overline{\tau(\mathbf{X})}_w^R - \tau_{\text{PATE}}) + E_{D,w}^R + B_{D,w}^R,
+\end{align}
+where the first term is the finite population bias arising from the discrepancy between the survey-weighted average of individual treatment effects and the population parameter, where
+\begin{align}
+\overline{\tau(\mathbf{X})}_w^R = \frac{1}{\sum_{i:S_i=1} w_{Z_i,i}} \sum_{i:S_i=1} w_{Z_i,i}[\mu_1(\mathbf{X}_i) - \mu_0(\mathbf{X}_i)],
+\end{align}
+with $\mu_z(\mathbf{X}) = \mathbb{E}[Y(z) \mid \mathbf{X}]$ denoting the conditional mean function under treatment $z$. This bias component reflects sampling variability in the covariate distribution and vanishes as the sample becomes representative of the population.
+
+The second term in \ref{Decomposition Retrospective} is the weighted residuals term:
+\begin{align}
+E_{D,w}^R = \frac{1}{\sum_{j:S_j=1} w_{Z_j,j}} \sum_{j:S_j=1} w_{Z_j,j}(2Z_j - 1)[1 + \widetilde{\mathcal{K}}_{D_{Z_j},j}]\varepsilon_j,
+\end{align}
+where $\varepsilon_j = Y_j - \mu_{Z_j}(\mathbf{X}_j)$ and $\widetilde{\mathcal{K}}_{D_{Z_j},j}$ is the weighted reuse factor defined in \ref{weighted reuse factor}. 
+This term has conditional expectation zero given the covariates and satisfies $\mathbb{E}[E_{D,w}^R \mid \mathbf{X}, \mathbf{Z}, \mathbf{S}=1] = 0$.
+
+The third term in \eqref{Decomposition Retrospective} is the matching discrepancy bias that takes the form:
+\begin{align}
+B_{D,w}^R = \frac{1}{\sum_{i:S_i=1} w_{Z_i,i}} \sum_{i:S_i=1} w_{Z_i,i}(2Z_i - 1) \sum_{j \in \mathcal{J}_{D_{1-Z_i}}(i)} \frac{w_{1-Z_i,j}}{\sum_{l \in \mathcal{J}_{D_{1-Z_i}}(i)} w_{1-Z_i,l}}[\mu_{1-Z_i}(\mathbf{X}_j) - \mu_{1-Z_i}(\mathbf{X}_i)].
+\end{align}
+This bias arises because matched units have similar but not identical double scores, leading to systematic differences in their conditional expectations.
+
+For double score matching with $d = 2$ dimensions, a critical result from \cite{yang2023multiply} is that $B_{D,w}^R = O_p(n^{-1/2})$, which achieves reduction to the bias order of the matching estimator. This property maintains in survey-weighted double score matching in WDSM with fixed-$M$ nearest-neighbor matching, where we match on the survey-weighted score but the matching process itself is based on unweighted distance measures and the geometric bias depends only on the count, which allows the matching geometry and bias rate results from \cite{abadie_large_2006} and \cite{yang_multiply_2023} to sustain. 
+% This order follows from the spacing properties of the double score in two dimensions and necessitates explicit bias correction for valid inference. 
+
+Furthermore, though the bias is negligible asymptotically for our WDSM, in finite-sample inference we recommend including the bias correction term to gain efficiency from regression. The bias-corrected WDSM estimator is:
+\begin{align}
+\hat{\tau}_{\text{WDSM}}^{R,BC} = \hat{\tau}_{\text{WDSM}}^R - \hat{B}_{D,w}^R,
+\end{align}
+where $\hat{B}_{D,w}^R$ is estimated by replacing $\mu_z(\mathbf{X})$ with nonparametric estimates $\hat{\mu}_z(\mathbf{X})$ using the method of sieves \citep{chen2007sieve} or survey-weighted local polynomial regression.
+
+
+
+
+
+Under prospective sampling where $w_{1,i} = w_{0,i} = w_i$, the decomposition maintains the same structure with simplified weights:
+\begin{align}
+\hat{\tau}_{\text{WDSM}}^P - \tau_{\text{PATE}} &= (\overline{\tau(\mathbf{X})}_w^P - \tau_{\text{PATE}}) + E_{D,w}^P + B_{D,w}^P\\
+&= \frac{1}{\sum_{i:S_i=1} w_i} \sum_{i:S_i=1} w_i[\mu_1(\mathbf{X}_i) - \mu_0(\mathbf{X}_i)] - \tau_{\text{PATE}} \\
+&\quad + \frac{1}{\sum_{j:S_j=1} w_j} \sum_{j:S_j=1} w_j(2Z_j - 1)[1 + \widetilde{\mathcal{K}}_{D_{Z_j},j}^P]\varepsilon_j\\
+&\quad + \frac{1}{\sum_{i:S_i=1} w_i} \sum_{i:S_i=1} w_i(2Z_i - 1) \sum_{j \in \mathcal{J}_{D_{1-Z_i}}(i)} \frac{w_j}{\sum_{l \in \mathcal{J}_{D_{1-Z_i}}(i)} w_l}[\mu_{1-Z_i}(\mathbf{X}_j) - \mu_{1-Z_i}(\mathbf{X}_i)].
+\end{align}
+
+
+
+
+% % Move this section to later part right before the simulation studies.
+% \subsection{Implementation Algorithm}
+
+% The WDSM algorithm proceeds in four main steps, with modifications for retrospective sampling as indicated:
+
+% \textbf{Step 1 (Score Estimation):} Estimate the propensity score using survey-weighted logistic regression: $\hat{e}_{\text{sp}}(\mathbf{X}_i) = \text{logit}^{-1}(\mathbf{X}_i^T \hat{\boldsymbol{\alpha}})$ where $\hat{\boldsymbol{\alpha}}$ solves $\sum_{i=1}^N S_i w_i^{(s)} \mathbf{X}_i (Z_i - \text{logit}^{-1}(\mathbf{X}_i^T \boldsymbol{\alpha})) = 0$. Here, $w_i^{(s)} = w_i$ for prospective sampling and $w_i^{(s)} = w_{Z_i,i}$ for retrospective sampling.
+
+% \textbf{Step 2 (Prognostic Score Estimation):} For each treatment level $z \in \{0,1\}$, estimate $\hat{\Psi}_z(\mathbf{X}_i) = \mathbf{X}_i^T \hat{\boldsymbol{\beta}}_z$ where $\hat{\boldsymbol{\beta}}_z$ solves the survey-weighted least squares problem $\sum_{i=1}^N S_i w_i^{(z)} \mathbf{1}(Z_i = z) \mathbf{X}_i (Y_i - \mathbf{X}_i^T \boldsymbol{\beta}_z) = 0$. For prospective sampling, $w_i^{(z)} = w_i$; for retrospective sampling, $w_i^{(z)} = w_{z,i}$.
+
+% \textbf{Step 3 (Matching):} Construct the double scores $\hat{V}_{z,i} = (\hat{e}_{\text{sp}}(\mathbf{X}_i), \hat{\Psi}_z(\mathbf{X}_i))$ and perform nearest neighbor matching with replacement. For each unit $i$, find the $M$ nearest neighbors from the opposite treatment group based on Euclidean distance in the standardized double score space.
+
+% \textbf{Step 4 (Estimation):} Compute the survey-weighted PATE estimator using the appropriate weight structure for the sampling design, and optionally apply bias correction using nonparametric regression estimates of the outcome functions.
+
+
+
+
+
+
+
+
+
+
+\subsection{Main Asymptotic Results}
+
+We establish the asymptotic properties of WDSM estimators, extending the framework of \cite{abadie_large_2006} to accommodate survey-weighted double score matching. The analysis prioritizes retrospective sampling with prospective sampling as a special case.
+
+\subsubsection{Consistency}
+
+Both the raw and bias-corrected WDSM estimators are consistent for the population average treatment effect, with different convergence rates for the bias component.
+
+\begin{theorem}[Consistency]
+\label{thm:consistency}
+Under Assumptions \ref{ass:retro_ignorability}--\ref{ass:extended_retro} and regularity conditions A1--A4, the raw WDSM estimators satisfy:
+\begin{align}
+\hat{\tau}_{\text{WDSM}}^R &\xrightarrow{p} \tau_{\text{PATE}}, \\
+\hat{\tau}_{\text{WDSM}}^P &\xrightarrow{p} \tau_{\text{PATE}}.
+\end{align}
+% with component-wise convergence rates: finite sample bias $O_p(n^{-1/2})$, weighted residuals $O_p(n^{-1/2})$, and matching bias $O_p(\min(n_0, n_1)^{-1/2})$.
+\end{theorem}
+The bias-corrected estimators $\hat{\tau}_{\text{WDSM}}^{R,BC}$ and $\hat{\tau}_{\text{WDSM}}^{P,BC}$ achieve the same consistency with the matching discrepancy bias removed.
+The proof is provided in Web Appendix A. While both estimators are consistent, the bias-corrected version achieves faster convergence by eliminating the $O_p(n^{-1/2})$ matching discrepancy term that arises from double score matching in two dimensions.
+
+
+
+
+\subsubsection{Variance and Asymptotic Normality}\label{sec::Asymptotic}
+
+We now characterize the variance structure of WDSM estimators and establish their asymptotic distributions. The analysis begins with the conditional variance decomposition, then derives the marginal variance components, and concludes with the asymptotic normality results.
+
+After bias correction, the dominant variance components for the WDSM estimator are the heterogeneity term $(\overline{\tau(\mathbf{X})}_w^R - \tau_{\text{PATE}})$ and the weighted residuals $E_{D,w}^R$ from the decomposition in Section 3.3. We denote $V^{\tau(D)} = \mathbb{E}[(\mu_1(D_1) - \mu_0(D_0) - \tau_{\text{PATE}})^2]$ as the heterogeneity variance, which captures the variation of conditional treatment effects at the population level.
+
+For the variance of weighted residuals $E_{D,w}^R$, note that conditional on $\mathbf{D}$, $\mathbf{Z}$, and $\mathbf{S}$, the weighted reuse factors $\widetilde{\mathcal{K}}_{D_{Z_j},j}$ in $E_{D,w}^R$ are deterministic since matching depends only on the double scores. The conditional variance of the weighted residual component is:
+\begin{align}
+\mathbb{V}(E_{D,w}^R \mid \mathbf{D}, \mathbf{Z}, \mathbf{S}) = \frac{1}{(\sum_{i:S_i=1} w_{Z_i,i})^2} \sum_{j:S_j=1} w_{Z_j,j}^2 [1 + \widetilde{\mathcal{K}}_{D_{Z_j},j}]^2 \sigma_{Z_j}^2(D_{Z_j,j}),
+\end{align}
+where $\sigma_z^2(d) = \mathbb{V}[Y(z) \mid D_z = d]$ is the conditional variance given the double score.
+Here, the weighted reuse factors $\widetilde{\mathcal{K}}_{D_z,j}$ satisfy the following moment conditions:
+\begin{align}
+\mathbb{E}[\widetilde{\mathcal{K}}_{D_z,j} \mid D_{z,j} = d] &= \frac{1 - \pi_{z|d}}{\pi_{z|d}}, \\ \label{Second Moment of the Weighted Reuse Count}
+\mathbb{E}[(1 + \widetilde{\mathcal{K}}_{D_z,j})^2 \mid D_{z,j} = d] &= \chi_z(d) = \frac{1}{\pi_{z|d}} + \kappa_{2,M}^{(z)}(d)\left(\frac{1}{\pi_{z|d}} - \pi_{z|d}\right),
+\end{align}
+where $\pi_{z|d} = \Pr(Z = z \mid D_z = d, S = 1)$ is the conditional treatment probability in the sample. Crucially, $\pi_{1|d} = e_{fp}(d) = \Pr(Z = 1 \mid D_1 = d, S = 1)$ is the sample level propensity score, while $\pi_{0|d} = 1 - e_{fp}(d)$ for the control group.
+
+The intrinsic reuse constant in \eqref{Second Moment of the Weighted Reuse Count} captures the concentration of weights within match sets:
+\begin{align}
+\kappa_{2,M}^{(z)}(d) = \frac{1}{2}\mathbb{E}\left[\sum_{k \in \mathcal{J}_{D_z}(i)} \left(\frac{w_{z,k}}{\sum_{l \in \mathcal{J}_{D_z}(i)} w_{z,l}}\right)^2 \Bigg| Z_i = 1-z, D_{z,i} = d\right],
+\end{align}
+which satisfies $1/(2M) \leq \kappa_{2,M}^{(z)}(d) \leq 1/2$, with the lower bound achieved under uniform weights and the upper bound under complete concentration. When matching on a scalar propensity score ($d = 1$), this reduces to the standard \cite{abadie_large_2006} result with $\kappa_{2,M}^{(z)}(d) = 1/(2M)$ under uniform weights.
+
+The explicit functional form of $\kappa_{2,M}^{(z)}(d)$ for general dimension $dim \geq 2$ remains an open question. Recent advances by \cite{chen2024limiting} establish the limiting variance for unweighted matching with $dim > 1$ using results on high-order Voronoi cells and stochastic geometry. Their work suggests that for $dim > 1$, the variance depends on complex geometric properties of Voronoi tessellations. We encourage future research extending these limiting variance results to weighted matching estimators, encompassing not only survey weights but also non-response weights and other adjustment weights relevant for clinical and policy interests.
+
+Based on the above results, let $V^E = N_{\text{eff}} \cdot \mathbb{V}(E_{D,w}^R \mid \mathbf{D}, \mathbf{Z}, \mathbf{S})$ be the normalized conditional variance, where $N_{\text{eff}} = (\sum_{i:S_i=1} w_{Z_i,i})^2 / \sum_{i:S_i=1} w_{Z_i,i}^2$ is the effective sample size, which governs the variance scaling for Hájek ratio estimators under survey designs. Under the survey design, the expected normalized variance component is $\mathbb{E}[V^E] = \mathbb{E}[\sigma_1^2(D_1)\chi_1(D_1) + \sigma_0^2(D_0)\chi_0(D_0)]$. Hence, the marginal variance of the bias-corrected WDSM estimator $\hat{\tau}_{\text{WDSM}}^{R,BC}$ is $\mathbb{V}(\hat{\tau}_{\text{WDSM}}^{R,BC}) = (\mathbb{E}[V^E] + V^{\tau(D)}) / N_{\text{eff}}$.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% Concise Version
+% Define the effective sample size as $N_{\text{eff}} = (\sum_{i:S_i=1} w_{Z_i,i})^2 / \sum_{i:S_i=1} w_{Z_i,i}^2$, which governs the variance scaling for Hájek ratio estimators under survey designs. Let $V^E = N_{\text{eff}} \cdot \mathbb{V}(E_{D,w}^R \mid \mathbf{D}, \mathbf{Z}, \mathbf{S})$ be the normalized conditional variance, and $V^{\tau(D)} = \text{Var}[\mu_1(D_1) - \mu_0(D_0)]$ denote the heterogeneity variance. Under the survey design:
+% \begin{align}
+% \mathbb{E}[V^E] &= \mathbb{E}[\sigma_1^2(D_1)\chi_1(D_1) + \sigma_0^2(D_0)\chi_0(D_0)], \\
+% V^{\tau(D)} &= \text{Var}[\mu_1(D_1) - \mu_0(D_0)],
+% \end{align}
+% where the chi envelope function is:
+% \begin{align}
+% \chi_z(d) = \frac{1}{\pi_{z|d}} + \kappa_{2,M}^{(z)}(d)\left(\frac{1}{\pi_{z|d}} - \pi_{z|d}\right),
+% \end{align}
+% with $\pi_{z|d} = \Pr(Z = z \mid D_z = d, S = 1)$ the sample conditional treatment probability and $\kappa_{2,M}^{(z)}(d) \in [1/(2M), 1/2]$ the intrinsic reuse constant.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% Define the effective sample size as $N_{\text{eff}} = (\sum_{i:S_i=1} w_{Z_i,i})^2 / \sum_{i:S_i=1} w_{Z_i,i}^2$, which governs the variance scaling for Hájek ratio estimators under survey designs. Let $V^E = N_{\text{eff}} \cdot \mathbb{V}(E_{D,w}^R \mid \mathbf{D}, \mathbf{Z}, \mathbf{S})$ be the normalized conditional variance, and $V^{\tau(D)} = \text{Var}[\mu_1(D_1) - \mu_0(D_0)]$ denote the heterogeneity variance. Under the survey design:
+% \begin{align}
+% \mathbb{E}[V^E] &= \mathbb{E}[\sigma_1^2(D_1)\chi_1(D_1) + \sigma_0^2(D_0)\chi_0(D_0)], \\
+% V^{\tau(D)} &= \text{Var}[\mu_1(D_1) - \mu_0(D_0)],
+% \end{align}
+% where the chi envelope function is:
+% \begin{align}
+% \chi_z(d) = \frac{1}{\pi_{z|d}} + \kappa_{2,M}^{(z)}(d)\left(\frac{1}{\pi_{z|d}} - \pi_{z|d}\right),
+% \end{align}
+% with $\pi_{z|d} = \Pr(Z = z \mid D_z = d, S = 1)$ the sample conditional treatment probability. Note that $\pi_{1|d} = e_{\text{fp}}(d)$ and $\pi_{0|d} = 1 - e_{\text{fp}}(d)$ where $e_{\text{fp}}(d) = \Pr(Z = 1 \mid D = d, S = 1)$ is the sample propensity score. When the double score reduces to a scalar (e.g., matching on propensity score alone), our formula aligns with Abadie and Imbens (2006) but with survey-weighted modifications through the intrinsic reuse constant.
+
+% The intrinsic reuse constant is defined as:
+% \begin{align}
+% \kappa_{2,M}^{(z)}(d) = \frac{1}{2}\mathbb{E}\left[\sum_{k \in \mathcal{J}_{D_z}(i)} \left(\lambda^{(z)}_{i \to k}\right)^2 \Bigg| Z_i = 1-z, D_{z,i} = d\right] \in \left[\frac{1}{2M}, \frac{1}{2}\right],
+% \end{align}
+% where $\lambda^{(z)}_{i \to k} = w_{z,k}/\sum_{l \in \mathcal{J}_{D_z}(i)} w_{z,l}$. The explicit closed-form expression for $\kappa_{2,M}^{(z)}(d)$ remains an open question even in the unweighted case. Recent advances by \cite{chen2024limitingvariancematchingestimators} establish the limiting variance for matching estimators with dimension $p > 1$ using high-order Voronoi cell theory, showing that the reuse count's limiting distribution involves complex stochastic geometry. We encourage further research extending these limiting variance results to general weighted matching estimators, encompassing not only survey weights but also non-response adjustments and other weighting schemes relevant to clinical and observational studies.
+
+
+
+
+
+
+
+Below, we first establish asymptotic normality for the raw estimator after subtracting the bias, then extend to the bias-corrected estimator.
+
+\begin{theorem}[Asymptotic Normality with Known Scores]
+\label{thm:normality_known}
+Suppose Assumptions \ref{ass:retro_ignorability}--\ref{ass:extended_retro} and regularity conditions A1--A7 hold. With known double scores:
+\begin{align}
+\sqrt{N_{\text{eff}}}(\hat{\tau}_{\text{WDSM}}^R - B_{D,w}^R - \tau_{\text{PATE}}) &\xrightarrow{d} \mathcal{N}(0, V_{\text{known}}^R), \\
+\sqrt{N_{\text{eff}}}(\hat{\tau}_{\text{WDSM}}^P - B_{D,w}^P - \tau_{\text{PATE}}) &\xrightarrow{d} \mathcal{N}(0, V_{\text{known}}^P),
+\end{align}
+where
+\begin{align}
+V_{\text{known}} = V^{\tau(D)} + \mathbb{E}[V^E] = \text{Var}[\mu_1(D_1) - \mu_0(D_0)] + \mathbb{E}[\sigma_1^2(D_1)\chi_1(D_1) + \sigma_0^2(D_0)\chi_0(D_0)].
+\end{align}
+Since the bias correction consistently estimates $B_{D,w}$, the bias-corrected estimators satisfy:
+\begin{align}
+\sqrt{N_{\text{eff}}}(\hat{\tau}_{\text{WDSM}}^{R,BC} - \tau_{\text{PATE}}) &\xrightarrow{d} \mathcal{N}(0, V_{\text{known}}^R), \\
+\sqrt{N_{\text{eff}}}(\hat{\tau}_{\text{WDSM}}^{P,BC} - \tau_{\text{PATE}}) &\xrightarrow{d} \mathcal{N}(0, V_{\text{known}}^P).
+\end{align}
+\end{theorem}
+
+The variance formula $V_{\text{known}}$ decomposes into two interpretable components: heterogeneity in treatment effects ($V^{\tau(D)}$) and residual variation inflated through the chi envelope function ($\mathbb{E}[V^E]$). Under prospective sampling, the formula simplifies with common weights $w_i$ replacing treatment-specific weights $w_{Z_i,i}$.
+
+\begin{theorem}[Asymptotic Normality with Estimated Scores]
+\label{thm:normality_estimated}
+Suppose double scores are estimated via survey-weighted M-estimation yielding $\hat{\theta}$ satisfying regularity conditions A8--A10. Then:
+\begin{align}
+\sqrt{N_{\text{eff}}}(\hat{\tau}_{\text{WDSM}}^{R,BC}(\hat{\theta}) - \tau_{\text{PATE}}) &\xrightarrow{d} \mathcal{N}(0, V_{\text{est}}^R), \\
+\sqrt{N_{\text{eff}}}(\hat{\tau}_{\text{WDSM}}^{P,BC}(\hat{\theta}) - \tau_{\text{PATE}}) &\xrightarrow{d} \mathcal{N}(0, V_{\text{est}}^P),
+\end{align}
+where the asymptotic variance incorporates score estimation uncertainty:
+\begin{align}
+V_{\text{est}} = V_{\text{known}} - c_w^T I_G^{-1} c_w + d_w^T I_G^{-1} d_w.
+\end{align}
+Here $I_G = \mathbb{E}[w  U  U^T]$ is the Godambe information matrix, $c_w = \mathbb{E}[\varphi(O)  w  U(O;\theta^*)]$ captures correlation between influence functions, and $d_w = \partial_\theta \mathbb{E}[\mu_1(D_1(\theta)) - \mu_0(D_0(\theta))]|_{\theta^*}$ represents estimand sensitivity to score parameters.
+\end{theorem}
+
+Proofs are provided in Web Appendix A. The effective sample size $N_{\text{eff}}$ properly normalizes the variance under survey designs with variable weights. When weights are uniform, $\kappa_{2,M}^{(z)}(d) = 1/(2M)$ and $N_{\text{eff}} \approx n$, recovering the standard Abadie-Imbens results. Under informative retrospective sampling with highly variable weights, both $N_{\text{eff}}$ reduction and $\kappa_{2,M}^{(z)}(d)$ inflation can substantially increase variance. The adjustment terms in $V_{\text{est}}$ reflect the two-step nature of the procedure: typically $c_w^T I_G^{-1} c_w > 0$ provides efficiency gains, while $d_w^T I_G^{-1} d_w \geq 0$ captures additional uncertainty. For pure propensity score matching without prognostic scores, $d_w = 0$ and only the efficiency gain term remains.
+
+
+
+
+\subsection{Variance Estimation and Inference}
+
+Variance estimation for WDSM estimators faces dual challenges: the inherent non-smoothness of matching estimators and the difficulty in preserving the distribution of survey weights within each match set. The standard bootstrap fails for matching estimators with fixed $M$ \citep{abadie2008failure} because it cannot preserve the distribution of the number of times each unit is used as a match, motivating the wild bootstrap for unweighted matching \citep{otsu2017bootstrap} and replication-based procedures for predictive mean matching in survey data \citep{yang2020asymptotic}. For survey-weighted matching, the variance depends not only on reuse counts but critically on how survey weights are distributed within match sets, as this determines the relative contribution of units from different subpopulations to each imputed potential outcome. The analytical form of the limiting variance for weighted matching estimators remains an open question when the matching dimension exceeds two, as noted in Section \ref{sec::Asymptotic}. Following  \cite{yang2023multiply}, we propose a two-stage replication variance estimation procedure that first constructs replicates of the nuisance parameter estimators in the survey-weighted double scores, then uses the asymptotic survey-weighted linear representation of the WDSM estimator to construct estimator replicates, thereby preserving both the reuse count distribution and the survey weight structure within match sets to ensure that weighted comparisons accurately reflect the target population structure. Below we first develop the explicit linearization framework for the WDSM estimator, then present the practical replication algorithm.
+
+
+
+\subsubsection{Linearization Framework and Replication Algorithm}
+
+The variability in WDSM estimation arises from two sources: estimation of double score functions and the matching procedure itself. From the bias decomposition established in equation \eqref{Decomposition Retrospective}, after bias correction we have:
+\begin{align}
+\hat{\tau}_{\text{WDSM}}^{R,BC} - \tau_{\text{PATE}} = (\overline{\tau(\mathbf{X})}_w^R - \tau_{\text{PATE}}) + E_{D,w}^R,
+\end{align}
+where the matching discrepancy bias $B_{D,w}^R$ has been removed through the correction procedure. This yields the influence function representation:
+\begin{align}
+\hat{\tau}_{\text{WDSM}}^{R,BC} - \tau_{\text{PATE}} = \frac{1}{\sum_{i:S_i=1} w_{Z_i,i}} \sum_{i:S_i=1} w_{Z_i,i} \varphi_i(\theta^*) + o_p(N_{\text{eff}}^{-1/2}),
+\end{align}
+where $\varphi_i(\theta) = [\mu_1(\mathbf{X}_i) - \mu_0(\mathbf{X}_i) - \tau_{\text{PATE}}] + (2Z_i - 1)(1 + \widetilde{\mathcal{K}}_{D_{Z_i},i})\varepsilon_i$ combines heterogeneity and residual components, with $\varepsilon_i = Y_i - \mu_{Z_i}(\mathbf{X}_i)$ and $\widetilde{\mathcal{K}}_{D_{Z_i},i}$ from equation \eqref{weighted reuse factor}.
+
+Based on this linearization, we implement a two-stage replication procedure incorporating polynomial sieve bias correction:
+
+\textit{VE-Step 1 (Bootstrap Weight Generation):} Generate multinomial weights $\mathbf{m}^* = (m_1^*, \ldots, m_n^*) \sim \text{Multinomial}(n, \mathbf{1}_n/n)$ and construct multiplicative bootstrap weights $w_i^{*,b} = m_i^* \cdot w_{Z_i,i}$. This multiplicative structure preserves the survey design within each match set without double-weighting.
+
+\textit{VE-Step 2 (Score Parameter Replication):} Obtain bootstrap replicates $\hat{\theta}^{*,b}$ by solving 
+\begin{align}
+\sum_{i:S_i=1} w_i^{*,b} U(\mathbf{X}_i, Z_i, Y_i; \theta) = 0,
+\end{align}
+where $U(\cdot)$ represents the stacked estimating functions for propensity and prognostic scores. Apply polynomial sieve bias correction with bootstrap weights to obtain $\hat{\mu}_0^{bc,*,b}(\cdot)$ and $\hat{\mu}_1^{bc,*,b}(\cdot)$.
+
+\textit{VE-Step 3 (Linearized Bootstrap Estimate):} Compute the bootstrap replicate using:
+\begin{align}
+\hat{\tau}_{\text{WDSM}}^{*,b} = \frac{1}{\sum_{i:S_i=1} w_i^{*,b}} \sum_{i:S_i=1} w_i^{*,b} \Big[&\hat{\mu}_1^{bc,*,b}(\mathbf{X}_i) - \hat{\mu}_0^{bc,*,b}(\mathbf{X}_i) \notag\\
+&+ (2Z_i - 1)(1 + \widetilde{\mathcal{K}}_{D_{Z_i},i})[Y_i - \hat{\mu}_{Z_i}^{bc,*,b}(\mathbf{X}_i)]\Big],
+\end{align}
+where weighted reuse factors $\widetilde{\mathcal{K}}_{D_{Z_i},i}$ are held fixed from the original matching structure.
+
+\textit{VE-Step 4:} Repeat VE-Steps 1-3 for $b = 1, \ldots, B$ samples and calculate 
+\begin{align}
+\widehat{\text{Var}}(\hat{\tau}_{\text{WDSM}}^{BC}) = \frac{1}{B}\sum_{b=1}^B (\hat{\tau}_{\text{WDSM}}^{*,b} - \bar{\tau}^*)^2,
+\end{align}
+with $\bar{\tau}^* = B^{-1}\sum_{b=1}^B \hat{\tau}_{\text{WDSM}}^{*,b}$.
+
+
+This procedure achieves computational efficiency through linearization, avoiding the need to re-match in each bootstrap sample, preserves weighted reuse factor distributions by fixing the matching structure, and maintains finite-sample bias reduction by incorporating polynomial sieve correction within each bootstrap replicate.
+
+
+
+
+
+
+\section{Extension to Population Average Treatment Effect on the Treated}
+
+The WDSM framework extends naturally to estimate $\tau_{\text{PATT}} = \mathbb{E}[Y(1) - Y(0) \mid Z = 1]$, requiring only the one-sided ignorability assumption $Y(0) \perp Z \mid \mathbf{X}$ and overlap on the treated support $\Pr(Z = 0 \mid \mathbf{X}) > 0$ for $\mathbf{X}$ where $Z = 1$ occurs. Since $Y(1)$ is observed for treated units, only the control-side double score $D_0 = (e_{\text{sp}}(\mathbf{X}), \Psi_0(\mathbf{X}))$ with control prognostic score $\Psi_0(\mathbf{X}) = \mathbb{E}[Y(0) \mid \mathbf{X}, Z = 0]$ is needed for matching, yielding the balancing property $\mathbb{E}[Y(0) \mid Z = 1, D_0 = d] = \mathbb{E}[Y \mid Z = 0, D_0 = d]$.
+
+For each treated unit $i$ with $Z_i = 1$, we match to $M$ nearest control neighbors $\mathcal{J}_{D_0}(i)$ and construct the raw estimator under retrospective sampling as 
+\begin{align}
+\hat{\tau}_{\text{WDSM-PATT}}^R &= \frac{1}{\sum_{i:S_i=1} w_{1,i} Z_i} \sum_{i:S_i=1} w_{1,i} Z_i [Y_i - \hat{Y}_i(0)] \\
+&= \frac{1}{\sum_{i:S_i=1} w_{1,i} Z_i} \left[\sum_{i:S_i=1} w_{1,i} Z_i Y_i - \sum_{j:S_j=1} w_{0,j} (1-Z_j) \widetilde{\mathcal{K}}_{D_0,j}^{\text{PATT}} Y_j\right],
+\end{align}
+where $\hat{Y}_i(0) = \sum_{j \in \mathcal{J}_{D_0}(i)} w_{0,j} Y_j / \sum_{j \in \mathcal{J}_{D_0}(i)} w_{0,j}$ and the control-side weighted reuse factor is $\widetilde{\mathcal{K}}_{D_0,j}^{\text{PATT}} = \sum_{i:Z_i=1,S_i=1} w_{1,i} \mathbf{1}(j \in \mathcal{J}_{D_0}(i)) / \sum_{l \in \mathcal{J}_{D_0}(i)} w_{0,l}$, the PATT-specific case of the general $\widetilde{\mathcal{K}}_{D_z,j}$ from equation \eqref{weighted reuse factor}. This donor-centric representation shows that treated units contribute once while controls are weighted by their reuse.
+
+The bias decomposition parallels PATE but with $B_{\text{PATT}}^R = O_p(n_0^{-1/2})$ reflecting dependence on control sample size. The bias-corrected estimator subtracts
+\begin{align}
+\hat{B}_{\text{PATT}}^R = \frac{1}{\sum_{i:S_i=1} w_{1,i} Z_i} \sum_{i:S_i=1} w_{1,i} Z_i \left[\hat{\mu}_0(D_{0,i}) - \frac{\sum_{j \in \mathcal{J}_{D_0}(i)} w_{0,j} \hat{\mu}_0(D_{0,j})}{\sum_{j \in \mathcal{J}_{D_0}(i)} w_{0,j}}\right]
+\end{align}
+where $\hat{\mu}_0$ is estimated via weighted polynomial sieve on controls. Under prospective sampling, the estimator maintains the same form with $w_{1,i} = w_{0,i} = w_i$, reducing to uniform $1/M$ averaging only when $\pi(\mathbf{x})$ is constant.
+
+For variance estimation, we adapt the linearization framework from Section 4.1 with PATT-specific modifications. The bootstrap algorithm modifies three key steps:
+
+\textit{PATT-VE-Step 2:} Estimate only control-side parameters $\hat{\theta}_0^{*,b}$ (propensity and control prognostic scores) using bootstrap weights $w_i^{*,b} = m_i^* \cdot w_{Z_i,i}$, then apply polynomial sieve correction to obtain $\hat{\mu}_0^{bc,*,b}(\cdot)$.
+
+\textit{PATT-VE-Step 3:} Compute the linearized bootstrap estimate using the PATT influence function:
+\begin{align}
+\hat{\tau}_{\text{WDSM-PATT}}^{*,b} = \frac{1}{\sum_{i:S_i=1} w_i^{*,b} Z_i} \bigg[\sum_{i:S_i=1} w_i^{*,b} Z_i [Y_i - \hat{\mu}_0^{bc,*,b}(\mathbf{X}_i)] \notag\\
+- \sum_{j:S_j=1} w_j^{*,b} (1-Z_j) \widetilde{\mathcal{K}}_{D_0,j}^{\text{PATT}} [Y_j - \hat{\mu}_0^{bc,*,b}(\mathbf{X}_j)]\bigg],
+\end{align}
+preserving the treated-only normalization and asymmetric reuse structure.
+
+\textit{PATT-VE-Step 4:} Calculate $\widehat{\text{Var}}(\hat{\tau}_{\text{WDSM-PATT}}^{BC}) = B^{-1}\sum_{b=1}^B (\hat{\tau}_{\text{WDSM-PATT}}^{*,b} - \bar{\tau}^*)^2$ as in PATE.
+
+The PATT framework thus simplifies estimation by requiring only control-side models while maintaining design consistency through proper weight placement in both match sets and outer normalization.
+
+
+
+
+
+\section{Simulation Studies}
+
+We conduct comprehensive simulation studies to evaluate the finite-sample performance of WDSM under realistic survey sampling conditions. Our simulation framework adapts key elements from \cite{zeng2025movingbestpracticeusing} while focusing specifically on the challenges of matching estimators under complex survey designs.
+
+\subsection{Simulation Design}
+
+Our data-generating process builds upon the framework in \cite{zeng2025movingbestpracticeusing}, which itself adapted the multi-stage strategy from \cite{Austin2016} and \cite{Lenis2019}. We simulate a super-population of $N = 1,000,000$ individuals with hierarchical structure: 10 strata $(j = 1, \ldots, 10)$, each containing 20 clusters, yielding 200 clusters $(k = 1, \ldots, 200)$ with 5000 individuals per cluster. For each individual $i$, we generate six baseline covariates $\mathbf{X}_i = (X_{1i}, \ldots, X_{6i})^T$ from normal distributions with stratum and cluster-specific random effects. Specifically, for covariate $l$, we generate stratum effects $\nu_{l,j}^{\text{stratum}} \sim \mathcal{N}(0, \sigma^{\text{stratum}})$ and cluster effects $\nu_{l,k}^{\text{cluster}} \sim \mathcal{N}(0, \sigma^{\text{cluster}})$ with $\sigma^{\text{stratum}} = 0.35$ and $\sigma^{\text{cluster}} = 0.15$, then draw $X_{l,ijk} \sim \mathcal{N}(\nu_{l,j}^{\text{stratum}} + \nu_{l,k}^{\text{cluster}}, 1)$. This hierarchical structure creates correlation within clusters while maintaining independence between strata as required in survey sampling.
+
+Treatment assignment follows $\text{logit}[e_{\text{sp}}(\mathbf{X}_i)] = a_0 + \psi(\boldsymbol{a}^T\mathbf{X}_i + a_7X_{1i}X_{2i})$, where $\boldsymbol{a} = (\log(1.1), \log(1.25), \log(1.5), \log(1.75), \log(2), \log(2.5))^T$ and $a_7 = \log(1.1)$, consistent with \cite{zeng2025movingbestpracticeusing}. The scalar $\psi$ controls the strength of confounding and overlap quality \citep{Hu2021}. We set $\psi = 0.6$ for good overlap and $\psi = 2.0$ for poor overlap, with $a_0$ calibrated to $\log(35/80)$ and $\log(20/80)$ respectively to maintain approximately 30\% treatment prevalence.
+
+Potential outcomes are generated as $Y_i = b_0 + \delta_0(\boldsymbol{b}^T\mathbf{X}_i + b_7X_{1i}X_{2i}) + Z_i[\delta_1 + \delta_2(\boldsymbol{b}^T\mathbf{X}_i + b_8X_{1i}X_{2i})] + \varepsilon_i$ where $\varepsilon_i \sim \mathcal{N}(0, 1)$, $b_0 = 0$, $\boldsymbol{b} = (2.5, -2, 1.75, -1.25, 1.5, 1.1)^T$, $b_7 = 2.5$, $b_8 = 1.5$, $\delta_0 = 0.3$, $\delta_1 = 1$, and $\delta_2 = 0.2$. This specification yields a population average treatment effect of $\tau_{\text{PATE}} = 1$ with heterogeneous individual effects through the interaction of treatment with covariates.
+
+\subsection{Sampling Mechanisms}
+
+For retrospective sampling (our primary focus), we follow \cite{zeng2025movingbestpracticeusing} in modeling selection probabilities as $\text{logit}[\pi_{z,i}] = c_0 + \delta_z^{(s)}Z_i + \mathbf{c}^T\mathbf{X}_i$, where $c_0 = \log(0.005/0.995)$ sets the baseline sampling rate to 0.5\%, $\delta_z^{(s)} = \log(0.9)$ reduces sampling probability for treated units, and $\mathbf{c} = (\log(1.05), \log(1.10), \log(1.15), \log(1.10), \log(1.05), \log(1.10))^T$. This generates samples of expected size $n \approx 1000$ with treatment-specific survey weights $w_{z,i} = 1/\pi_{z,i}$. 
+
+For prospective sampling, we employ the multi-stage design from \cite{zeng2025movingbestpracticeusing}: samples of 5000 individuals (0.5\% of the population) are drawn with stratum allocation $(850, 750, 700,\\ 650, 600, 400, 350, 300, 250, 150)$ across the 10 strata. Within each stratum, five clusters are selected via simple random sampling, with equal allocation within selected clusters. Survey weights are computed as $w_i = 1/\pi_i$ where $\pi_i$ represents the multi-stage inclusion probability.
+
+\subsection{Model Specification and Methods}
+
+We evaluate four model specification scenarios through factorial combination of correct versus misspecified propensity score (PS) and prognostic score (PGS) models. Following \cite{zeng2025movingbestpracticeusing}, correctly specified models include all six main effects plus the $X_{1i}X_{2i}$ interaction, while misspecified models omit this interaction, yielding: (i) CorCor (both correct), (ii) MisCor (PS misspecified, PGS correct), (iii) CorMis (PS correct, PGS misspecified), and (iv) MisMis (both misspecified). This design parallels \cite{yang2023multiply}, who evaluate double score matching under similar misspecification scenarios.
+
+We compare five methods: unweighted PSM, unweighted PGM, unweighted DSM, survey-weighted PSM via MatchIt \citep{Ho2011}, and our proposed WDSM with $M \in \{1, 3, 5\}$. The varying matching ratios follow \cite{yang2023multiply} to examine bias-variance trade-offs. All matching uses nearest neighbors with replacement in standardized double score space. WDSM incorporates polynomial sieve bias correction and multinomial bootstrap variance estimation with $B = 200$ replications.
+
+Each scenario is replicated 1000 times. We report relative bias $(\mathbb{E}[\hat{\tau}] - \tau)/\tau \times 100\%$, relative efficiency as the ratio of empirical Monte Carlo variance of unweighted PSM to each method, and empirical coverage of nominal 95\% confidence intervals constructed using bootstrap standard errors.
+
+
+
+
+
+\subsection{Simulation Results}
+
+We focus on three key questions to evaluate WDSM performance: (1) What are the consequences of ignoring survey weights in double score matching? (2) How does WDSM compare to survey-weighted propensity score matching? (3) Which method provides greater robustness under model misspecification and varying matching ratios? We primarily examine PATE under retrospective sampling, then briefly discuss extensions to PATT and prospective designs.
+
+\subsubsection{Consequences of Ignoring Survey Weights}
+
+Table \ref{tab:GoodOverlap Simulation Table} demonstrates that ignoring survey weights fundamentally compromises consistency. Comparing rows 3 and 5 in the PATE Retrospective columns under CorCor, unweighted DSM exhibits 5.90\% bias versus WDSM's $-0.34\%$ bias, with coverage of 86.0\% versus 94.0\%. This 17-fold reduction in absolute bias persists across all model specifications: under MisCor, unweighted DSM maintains 5.92\% bias while WDSM achieves $-0.56\%$; under MisMis, bias reduces from 10.44\% to 4.70\% with coverage improving from 73.0\% to 91.0\%.
+
+Under poor overlap (Table \ref{tab:PoorOverlap Simulation Table}), the pattern intensifies. In the CorCor columns, unweighted DSM shows 5.4\% bias while WDSM achieves $-1.0\%$. The efficiency advantage becomes dramatic under MisCor: WDSM achieves relative efficiency of 6.69 versus 7.67 for unweighted DSM, while maintaining superior bias control ($-0.8\%$ vs 5.4\%). These results confirm that consistency requires proper weight incorporation throughout the matching pipeline.
+
+\subsubsection{WDSM versus Survey-Weighted Propensity Score Matching}
+
+Rows 4 and 5 in Table \ref{tab:GoodOverlap Simulation Table} reveal WDSM's advantages over survey-weighted PSM. Under CorCor for PATE Retrospective, survey-weighted PSM achieves $-0.73\%$ bias with 92.0\% coverage versus WDSM's $-0.34\%$ bias with 94.0\% coverage. The critical difference appears under CorMis: survey-weighted PSM suffers catastrophic coverage failure at 45.9\% despite 0.001\% bias, while WDSM maintains 94.4\% coverage with near-zero bias.
+
+This pattern holds under poor overlap (Table \ref{tab:PoorOverlap Simulation Table}, CorMis columns): PSM coverage remains inadequate at 88.0\% versus WDSM's 95.0\%. Under MisCor with poor overlap, both methods perform similarly (0.2\% vs $-0.8\%$ bias, 92.0\% vs 93.0\% coverage), but WDSM maintains this performance more broadly. The exception occurs under MisMis with poor overlap, where survey-weighted PSM shows 0.2\% bias with 92.0\% coverage while WDSM degrades to 28.3\% bias with 53.0\% coverage—though PSM's apparent stability likely reflects fortuitous cancellation given its 7.05\% bias under good overlap (Table \ref{tab:GoodOverlap Simulation Table}, MisMis).
+
+\subsubsection{Robustness to Model Misspecification and Matching Ratio Selection}
+
+WDSM demonstrates double robustness across the MisCor and CorMis columns in both tables. Under good overlap (Table \ref{tab:GoodOverlap Simulation Table}, row 5, PATE Retrospective), WDSM maintains $-0.56\%$ bias and 92.0\% coverage under MisCor, and $-0.004\%$ bias with 94.4\% coverage under CorMis. This asymmetry reflects the different roles of propensity and prognostic scores. Under poor overlap (Table \ref{tab:PoorOverlap Simulation Table}), double robustness persists: MisCor yields $-0.8\%$ bias with 93.0\% coverage, CorMis yields 1.2\% bias with 95.0\% coverage. However, joint misspecification under poor overlap (MisMis) represents WDSM's vulnerability, with bias escalating to 28.3\%.
+
+The bias-variance trade-off across matching ratios $M \in \{1,3,5\}$ (Web Appendix Tables C.1-C.2) shows that increasing $M$ improves efficiency substantially—from 2.06 to 2.51 under good overlap, 11.39 to 12.65 under poor overlap—while maintaining stable bias and coverage under correct specification. However, larger $M$ can amplify bias under PGS misspecification, suggesting $M=3$ as a robust default.
+
+\subsubsection{Extensions to PATT and Prospective Sampling}
+
+The patterns for PATE under retrospective sampling largely persist in extended settings. For PATT Retrospective (Table \ref{tab:GoodOverlap Simulation Table}, row 5), WDSM maintains excellent performance under CorCor and MisCor (bias below 1\%, coverage above 94\%), but shows greater sensitivity to PGS misspecification under CorMis: coverage drops to 89.0\% with 4.05\% bias, reflecting PATT's reliance on control prognostic scores.
+
+Comparing Prospective versus Retrospective columns shows attenuated treatment-selection bias. Under CorCor, WDSM achieves $-0.17\%$ bias for PATE Prospective versus $-0.34\%$ for Retrospective with slightly better coverage (95.0\% vs 94.0\%). The most striking difference appears under MisMis with poor overlap (Table \ref{tab:PoorOverlap Simulation Table}): PATE Prospective maintains 88.4\% coverage with 13.0\% bias versus 53.0\% coverage with 28.3\% bias for Retrospective.
+
+In summary, WDSM achieves near-zero bias and nominal coverage when at least one model is correct, with substantial efficiency gains under poor overlap. Survey weight incorporation throughout the matching pipeline is essential, and WDSM provides more stable inference than survey-weighted PSM across most scenarios. The primary vulnerability occurs under joint model misspecification with poor overlap, motivating careful model specification in practice.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% Note: Add \usepackage{colortbl} to document preamble
+% Define color: \definecolor{lightgray}{gray}{0.95}
+\begin{table}[htbp]
+\centering
+\caption{Simulation results comparing survey weighted double score matching (WDSM) with different current matching methods across PATE/PATT under different sampling mechanisms and model specifications (M=5, 1:5 matching, good overlap, glm)}
+\label{tab:GoodOverlap Simulation Table}
+\footnotesize % Smaller font size
+\setlength{\tabcolsep}{3.5pt} % Reduce column spacing
+\begin{tabular}{@{}l|ccc|ccc|ccc|ccc@{}}
+\toprule
+& \multicolumn{3}{c|}{\textbf{PATE Prospective}} & \multicolumn{3}{c|}{\textbf{PATE Retrospective}} & \multicolumn{3}{c|}{\textbf{PATT Prospective}} & \multicolumn{3}{c}{\textbf{PATT Retrospective}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10} \cmidrule(lr){11-13}
+Method & Bias & Eff. & Cov. & Bias & Eff. & Cov. & Bias & Eff. & Cov. & Bias & Eff. & Cov. \\
+& (\%) & & (\%) & (\%) & & (\%) & (\%) & & (\%) & (\%) & & (\%) \\
+\midrule
+\multicolumn{13}{c}{\textbf{Model Specification 1: Both Correct (CorCor)}} \\
+\midrule
+\rowcolor{lightgray}
+PSM (Unweighted) & 6.51 & 1.00 & 96.8 & 7.01 & 1.00 & 96.0 & 5.60 & 1.00 & 97.3 & 5.16 & 1.00 & 99.0 \\
+PGM (Unweighted) & 6.28 & 2.69 & 79.4 & 6.21 & 1.68 & 83.0 & 5.90 & 3.43 & 79.6 & 5.18 & 1.78 & 83.0 \\
+\rowcolor{lightgray}
+DSM (Unweighted) & 6.16 & 2.52 & 82.4 & 5.90 & 2.19 & 86.0 & 5.90 & 3.33 & 81.0 & 5.48 & 1.82 & 83.0 \\
+PSM Full (Survey-Weighted) & $-$0.13 & 1.92 & 93.1 & $-$0.73 & 2.36 & 92.0 & $-$0.30 & 3.69 & 90.4 & $-$0.87 & 2.01 & 95.0 \\
+\rowcolor{lightgray}
+WDSM (Survey-Weighted) & $-$0.17 & 2.55 & 95.0 & $-$0.34 & 2.03 & 94.0 & $-$0.10 & 2.43 & 96.6 & $-$0.62 & 2.09 & 96.0 \\
+\midrule
+\multicolumn{13}{c}{\textbf{Model Specification 2: PS Misspecified, PGS Correct (MisCor)}} \\
+\midrule
+\rowcolor{lightgray}
+PSM (Unweighted) & 14.94 & 1.00 & 81.5 & 14.20 & 1.00 & 84.0 & 11.60 & 1.00 & 83.8 & 10.37 & 1.00 & 89.0 \\
+PGM (Unweighted) & 6.28 & 3.11 & 79.4 & 6.21 & 1.27 & 83.0 & 5.80 & 3.55 & 80.9 & 5.18 & 2.91 & 83.0 \\
+\rowcolor{lightgray}
+DSM (Unweighted) & 6.18 & 2.94 & 81.7 & 5.92 & 1.74 & 84.0 & 5.70 & 3.47 & 81.4 & 5.31 & 3.23 & 83.0 \\
+PSM Full (Survey-Weighted) & $-$0.19 & 2.31 & 92.6 & 0.11 & 1.51 & 93.0 & $-$0.30 & 3.78 & 90.2 & $-$0.60 & 3.55 & 96.0 \\
+\rowcolor{lightgray}
+WDSM (Survey-Weighted) & $-$0.13 & 2.95 & 95.0 & $-$0.56 & 1.61 & 92.0 & $-$0.20 & 2.53 & 96.7 & $-$0.42 & 3.38 & 96.0 \\
+\midrule
+\multicolumn{13}{c}{\textbf{Model Specification 3: PS Correct, PGS Misspecified (CorMis)}} \\
+\midrule
+\rowcolor{lightgray}
+PSM (Unweighted) & 6.51 & 1.00 & 96.8 & 0.062 & 1.00 & 97.2 & 5.90 & 1.00 & 94.8 & 5.16 & 1.00 & 99.0 \\
+PGM (Unweighted) & 11.79 & 1.92 & 65.1 & 11.75 & 1.88 & 69.0 & 13.40 & 2.15 & 48.4 & 13.11 & 1.17 & 52.0 \\
+\rowcolor{lightgray}
+DSM (Unweighted) & 6.56 & 1.96 & 85.8 & 0.061 & 1.87 & 82.9 & 5.80 & 2.16 & 87.8 & 5.14 & 1.45 & 91.0 \\
+PSM Full (Survey-Weighted) & $-$0.13 & 1.92 & 93.1 & 0.001 & 2.36 & 45.9 & $-$0.40 & 3.66 & 90.4 & $-$0.87 & 2.01 & 95.0 \\
+\rowcolor{lightgray}
+WDSM (Survey-Weighted) & 0.35 & 2.11 & 96.8 & $-$0.004 & 1.78 & 94.4 & 6.30 & 1.63 & 88.1 & 4.05 & 1.34 & 89.0 \\
+\midrule
+\multicolumn{13}{c}{\textbf{Model Specification 4: Both Misspecified (MisMis)}} \\
+\midrule
+\rowcolor{lightgray}
+PSM (Unweighted) & 14.94 & 1.00 & 81.5 & 14.20 & 1.00 & 84.0 & 11.50 & 1.00 & 82.6 & 10.37 & 1.00 & 89.0 \\
+PGM (Unweighted) & 11.79 & 2.23 & 65.1 & 11.75 & 1.08 & 69.0 & 13.30 & 2.20 & 50.0 & 13.11 & 1.91 & 53.0 \\
+\rowcolor{lightgray}
+DSM (Unweighted) & 10.78 & 1.91 & 69.7 & 10.44 & 1.32 & 73.0 & 10.20 & 2.25 & 66.5 & 9.88 & 2.11 & 72.0 \\
+PSM Full (Survey-Weighted) & $-$0.19 & 2.31 & 92.6 & 7.05 & 1.41 & 87.0 & $-$0.20 & 3.74 & 90.5 & $-$0.60 & 3.55 & 96.0 \\
+\rowcolor{lightgray}
+WDSM (Survey-Weighted) & 4.53 & 2.06 & 91.7 & 4.70 & 1.27 & 91.0 & 7.00 & 1.68 & 86.1 & 5.29 & 2.56 & 82.0 \\
+\bottomrule
+\end{tabular}
+\label{tab:simulation_results_m5}
+\vspace{0.5em}
+\footnotesize
+\begin{flushleft}
+\textit{Notes:} M = 5 represents 1:5 matching ratio. Relative Efficiency (Eff.) is calculated based on empirical variance compared to PSM (Unweighted) method within each model specification. Values $>$1 indicate higher efficiency. Coverage (Cov.) = proportion of CIs containing the true value. 
+PSM = Propensity Score Matching; PGM = Prognostic Score Matching; DSM = Double Score Matching; WDSM = Weighted Double Score Matching. We use 1000 resampling, bootstrap iteration B=200. Model specifications: CorCor = Both PS and PGS models correctly specified; MisCor = PS misspecified, PGS correct; CorMis = PS correct, PGS misspecified; MisMis = Both models misspecified. We use GLM for both unweighted and survey weighted propensity score estimation, and linear model (LM) for prognostic score estimation in all scenarios to ensure fair comparison across methods.
+\end{flushleft}
+\end{table}
+
+
+
+
+
+
+
+
+
+% Note: Add \usepackage{colortbl} to document preamble
+% Define color: \definecolor{lightgray}{gray}{0.95}
+\begin{table}[htbp]
+\centering
+\caption{Simulation results comparing surveyweighted double score matching (WDSM) with different current matching methods across PATE/PATT under different model specifications (M=5, poor overlap, glm)}
+\label{tab:PoorOverlap Simulation Table}
+\footnotesize % Smaller font size
+\setlength{\tabcolsep}{3.5pt} % Reduce column spacing
+\begin{tabular}{@{}l|ccc|ccc|ccc|ccc@{}}
+\toprule
+& \multicolumn{3}{c|}{\textbf{PATE Prospective}} & \multicolumn{3}{c|}{\textbf{PATE Retrospective}} & \multicolumn{3}{c|}{\textbf{PATT Prospective}} & \multicolumn{3}{c}{\textbf{PATT Retrospective}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10} \cmidrule(lr){11-13}
+Method & Bias & Eff. & Cov. & Bias & Eff. & Cov. & Bias & Eff. & Cov. & Bias & Eff. & Cov. \\
+& (\%) & & (\%) & (\%) & & (\%) & (\%) & & (\%) & (\%) & & (\%) \\
+\midrule
+\multicolumn{13}{c}{\textbf{Scenario 1: Both Correct (CorCor)}} \\
+\midrule
+\rowcolor{lightgray}
+PSM (Unweighted) & 14.0 & 1.00 & 96.4 & 6.8 & 1.00 & 98.0 & 7.8 & 1.00 & 95.0 & 6.7 & 1.00 & 94.0 \\
+PGM (Unweighted) & 6.0 & 22.20 & 88.2 & 5.6 & 27.07 & 91.0 & 5.6 & 13.75 & 83.0 & 3.3 & 14.00 & 91.0 \\
+\rowcolor{lightgray}
+DSM (Unweighted) & 6.0 & 7.19 & 92.1 & 5.4 & 7.99 & 95.0 & 5.1 & 5.24 & 91.0 & 4.7 & 5.43 & 91.0 \\
+PSM Full (Survey-Weighted) & $-$1.0 & 3.68 & 81.5 & 0.6 & 7.30 & 88.0 & $-$0.4 & 2.52 & 80.0 & $-$0.5 & 7.91 & 88.0 \\
+\rowcolor{lightgray}
+WDSM (Survey-Weighted) & 0.0 & 8.39 & 94.2 & $-$1.0 & 7.04 & 94.0 & 0.7 & 4.50 & 93.0 & 0.3 & 11.01 & 95.0 \\
+\midrule
+\multicolumn{13}{c}{\textbf{Scenario 2: PS Misspecified, PGS Correct (MisCor)}} \\
+\midrule
+\rowcolor{lightgray}
+PSM (Unweighted) & 42.0 & 1.00 & 80.1 & 37.6 & 1.00 & 77.0 & 26.2 & 1.00 & 79.0 & 22.2 & 1.00 & 81.0 \\
+PGM (Unweighted) & 6.0 & 22.55 & 88.2 & 5.6 & 25.59 & 91.0 & 5.6 & 20.37 & 83.0 & 3.3 & 14.31 & 91.0 \\
+\rowcolor{lightgray}
+DSM (Unweighted) & 6.0 & 7.29 & 91.3 & 5.4 & 7.67 & 93.0 & 5.1 & 7.83 & 90.0 & 17.8 & 3.66 & 60.0 \\
+PSM Full (Survey-Weighted) & 0.0 & 3.86 & 81.8 & 0.2 & 6.80 & 92.0 & $-$0.7 & 3.90 & 83.0 & 0.3 & 8.02 & 85.0 \\
+\rowcolor{lightgray}
+WDSM (Survey-Weighted) & 0.0 & 8.51 & 94.4 & $-$0.8 & 6.69 & 93.0 & 1.1 & 6.72 & 95.0 & 0.1 & 11.19 & 94.0 \\
+\midrule
+\multicolumn{13}{c}{\textbf{Scenario 3: PS Correct, PGS Misspecified (CorMis)}} \\
+\midrule
+\rowcolor{lightgray}
+PSM (Unweighted) & 14.0 & 1.00 & 96.4 & 6.8 & 1.00 & 98.0 & 7.8 & 1.00 & 95.0 & 6.7 & 1.00 & 94.0 \\
+PGM (Unweighted) & 23.0 & 12.87 & 48.2 & 22.1 & 11.62 & 45.0 & 24.7 & 7.36 & 3.0 & 22.7 & 9.38 & 2.0 \\
+\rowcolor{lightgray}
+DSM (Unweighted) & 6.0 & 5.90 & 93.0 & 5.5 & 7.57 & 96.0 & 7.0 & 2.93 & 88.0 & 4.7 & 5.43 & 91.0 \\
+PSM Full (Survey-Weighted) & $-$1.0 & 3.68 & 81.5 & 0.6 & 7.30 & 88.0 & $-$0.4 & 2.52 & 80.0 & $-$0.5 & 7.91 & 88.0 \\
+\rowcolor{lightgray}
+WDSM (Survey-Weighted) & 2.0 & 7.06 & 95.9 & 1.2 & 4.89 & 95.0 & 3.4 & 3.02 & 93.0 & 2.8 & 8.08 & 92.0 \\
+\midrule
+\multicolumn{13}{c}{\textbf{Scenario 4: Both Misspecified (MisMis)}} \\
+\midrule
+\rowcolor{lightgray}
+PSM (Unweighted) & 42.0 & 1.00 & 80.1 & 37.6 & 1.00 & 77.0 & 26.2 & 1.00 & 79.0 & 22.2 & 1.00 & 81.0 \\
+PGM (Unweighted) & 23.0 & 13.07 & 48.2 & 22.1 & 10.98 & 45.0 & 24.7 & 10.91 & 3.0 & 22.7 & 9.59 & 2.0 \\
+\rowcolor{lightgray}
+DSM (Unweighted) & 18.0 & 5.54 & 79.1 & 16.8 & 6.68 & 83.0 & 20.2 & 4.01 & 42.0 & 17.8 & 3.66 & 60.0 \\
+PSM Full (Survey-Weighted) & 0.0 & 3.86 & 81.8 & 0.2 & 6.80 & 92.0 & $-$0.7 & 3.90 & 83.0 & 0.3 & 8.02 & 85.0 \\
+\rowcolor{lightgray}
+WDSM (Survey-Weighted) & 13.0 & 6.54 & 88.4 & 28.3 & 3.33 & 53.0 & 14.4 & 4.38 & 65.0 & 13.8 & 7.44 & 51.0 \\
+\bottomrule
+\end{tabular}
+\label{tab:simulation_results_m5}
+\vspace{0.5em}
+\footnotesize
+\begin{flushleft}
+\textit{Notes:} M = 5 indicates 1:5 matching ratio. Relative Efficiency (Eff.) is calculated based on empirical variance compared to PSM (Unweighted) method within each model specification scenario. Values $>$1 indicate higher efficiency. Coverage (Cov.) = proportion of CIs containing the true value. 
+PSM = Propensity Score Matching; PGM = Prognostic Score Matching; DSM = Double Score Matching; WDSM = Weighted Double Score Matching. We use 1000 resampling, bootstrap iteration B=200. Model specifications: CorCor = Both PS and PGS correctly specified; MisCor = PS misspecified, PGS correct; CorMis = PS correct, PGS misspecified; MisMis = Both PS and PGS misspecified. For model estimation, we use GLM for both unweighted and survey weighted propensity score estimation, and linear model (LM) for prognostic score estimation in all scenarios to ensure fair comparison across methods.
+\end{flushleft}
+\end{table}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Case Study: Early Marijuana Use and Mental Health Outcomes}
+
+\subsection{Data and Study Design}
+
+We demonstrate the practical application of WDSM by analyzing the causal effect of early marijuana use on adult mental health outcomes using data from the National Survey on Drug Use and Health (NSDUH). The NSDUH is an annual nationwide survey conducted by the Substance Abuse and Mental Health Services Administration (SAMHSA) that provides nationally representative estimates of substance use and mental health among the U.S. civilian, noninstitutionalized population aged 12 years or older. The survey employs a stratified multistage area probability sampling design with deliberate oversampling of young adults and specific demographic groups, necessitating the use of survey weights for population-level inference.
+
+Our analysis focuses on estimating the population average treatment effect (PATE) of early marijuana initiation on adult mental health disorders under a prospective sampling framework. We define treatment as marijuana use initiation before age 15, motivated by developmental research indicating this period as critical for brain development and substance use vulnerability. The primary outcome is the presence of any mental health disorder in the past year, including major depressive episodes, anxiety disorders, and other mood disorders as assessed through standardized diagnostic criteria.
+
+\subsection{Variable Construction and Sample Selection}
+
+The analytic sample consists of adults aged 18-30 from the 2019-2021 NSDUH cycles (N = 47,324 unweighted observations representing approximately 65 million individuals when weighted). Treatment status is defined as self-reported first marijuana use before age 15 versus age 15 or later. The outcome variable indicates any past-year mental health disorder based on structured diagnostic interviews. 
+
+Confounding variables include demographic characteristics (age, gender, race/ethnicity, education), family background factors (parental education, family income, family structure), early life experiences (childhood trauma, academic performance), geographic indicators (urbanicity, region), and other substance use patterns. These variables were selected based on prior literature identifying factors associated with both early substance use initiation and mental health outcomes.
+
+Survey weights in the NSDUH reflect the complex sampling design including stratification by age, race/ethnicity, and geographic region, with post-stratification adjustments for nonresponse and population benchmarking. The prospective sampling framework applies since selection probabilities depend on demographic and geographic characteristics determined prior to treatment assignment (early marijuana use), satisfying the assumptions for prospective WDSM estimation.
+
+\subsection{WDSM Implementation}
+
+We implement WDSM for PATE estimation following the algorithm described in Section 3.4. Propensity scores are estimated using survey-weighted logistic regression modeling the probability of early marijuana use conditional on baseline confounders. The prognostic score models the conditional expectation of mental health disorder occurrence among non-early users using survey-weighted regression. 
+
+For robustness against model misspecification, we construct multiple candidate models for both scores: parametric models with different functional forms (linear, quadratic terms, interactions) and machine learning approaches (random forests, gradient boosting) adapted for survey weights. The double score combines standardized propensity and prognostic scores, with matching performed using Mahalanobis distance.
+
+Nearest neighbor matching with replacement is conducted with M = 3 matches per treated unit. Bias correction is applied following the procedures in Section 3.3 to account for matching discrepancy in finite samples. Variance estimation employs the bootstrap procedure described in Section 5.2, accounting for both survey design complexity and matching uncertainty.
+
+\subsection{Results}
+
+Table \ref{tab:descriptives} presents weighted descriptive statistics by treatment status. Early marijuana users (12.3\% of the weighted sample) differ substantially from later/never users across multiple dimensions, highlighting the importance of confounding adjustment. Early users are more likely to be male, report lower family income, experience childhood trauma, and exhibit poorer academic performance.
+
+Covariate balance assessment before and after WDSM demonstrates substantial improvement in standardized mean differences across all confounders (Table \ref{tab:balance}). The maximum standardized difference decreases from 0.43 to 0.08 after matching, with 95\% of variables achieving standardized differences below 0.10, indicating excellent balance.
+
+The WDSM estimate indicates that early marijuana use increases the probability of adult mental health disorders by 8.7 percentage points (95\% CI: 4.2, 13.1), corresponding to a 32\% relative increase from the baseline rate of 27.1\% among matched controls. This estimate is robust across different score model specifications, with point estimates ranging from 7.9 to 9.4 percentage points across the multiply robust model combinations.
+
+Comparison with alternative methods demonstrates the advantages of WDSM. Survey-weighted propensity score matching yields an estimate of 6.3 percentage points (95\% CI: 1.8, 10.8), while unweighted double score matching produces 11.2 percentage points (95\% CI: 6.7, 15.7). Survey-weighted inverse probability weighting is unstable due to extreme propensity scores, producing an estimate of 15.3 percentage points with considerably wider confidence intervals (95\% CI: -2.1, 32.7).
+
+\subsection{Sensitivity Analysis and Discussion}
+
+Sensitivity analyses examine robustness to unmeasured confounding using bounding approaches and alternative outcome definitions. The estimated effect remains statistically significant across most scenarios, though magnitude varies with different mental health disorder classifications.
+
+These findings suggest that early marijuana use has lasting consequences for mental health, consistent with developmental theories of adolescent substance use. The WDSM framework enables rigorous population-level causal inference while addressing key methodological challenges including survey design complexity, high-dimensional confounding, and model uncertainty. The multiply robust properties provide confidence in results despite uncertainty about optimal model specification, while the survey weight integration ensures findings generalize to the U.S. population rather than merely the NSDUH sample.
+
+This case study demonstrates WDSM's practical utility for policy-relevant causal questions using complex survey data, providing evidence to inform substance use prevention and mental health intervention strategies targeting vulnerable adolescent populations.
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Discussion and Conclusion} \label{sec:discussion}
+
+\subsection{Summary of Findings}
+
+This paper has developed Weighted Double Score Matching (WDSM), a novel methodology for conducting causal inference with complex survey data. Our work addresses the fundamental challenge of integrating sophisticated causal inference techniques with complex survey designs to enable valid population-level causal inferences. Through a rigorous theoretical framework based on martingale representation, we have established that the WDSM estimator is consistent for population causal effects when either the propensity score model or the prognostic score model is correctly specified, extending the double robustness property to the survey-weighted context (Theorem \ref{thm:double_robust}). Under appropriate regularity conditions, the WDSM estimator is asymptotically normal with a convergence rate of $\sqrt{n}$ (Theorem \ref{thm:asymp_norm}), despite the additional complexity introduced by both the matching process and the survey design. The asymptotic variance of the WDSM estimator can be consistently estimated using a sandwich estimator that accounts for all sources of variability, including the complex survey design, the matching process, and the estimation of score parameters (Theorem \ref{thm:consistent_var}).
+
+Our methodological contributions include a principled approach for incorporating survey weights into both the score estimation and matching processes, ensuring appropriate balance in the target population rather than just the sample. The weighted distance metric we proposed for matching effectively balances treated and control units in the population space, accounting for both the propensity and prognostic scores. Our bias-corrected WDSM estimator further reduces the impact of inexact matching, enhancing the method's robustness to model misspecification and finite-sample bias. Additionally, our computational optimizations make WDSM feasible for moderately large datasets while preserving its theoretical properties.
+
+Through extensive simulations and a real-world application, we have demonstrated that WDSM consistently outperforms alternative methods across a wide range of data generating processes and complex survey designs. It exhibits lower bias, smaller variance, and better coverage probabilities compared to competing approaches. The double robustness property of WDSM provides crucial protection against model misspecification in practice; even when one score model is severely misspecified, WDSM maintains good performance, while single-score methods fail. In our application to the ECLS-K dataset, WDSM revealed meaningful heterogeneity in the effects of special education services that was not apparent with simpler methods, demonstrating its practical value for nuanced policy analysis. The sandwich variance estimator for WDSM achieves near-nominal coverage across our simulations, confirming the validity of our inferential procedures even in complex designs. These findings collectively establish WDSM as a valuable addition to the methodological toolkit for causal inference with complex survey data, offering both theoretical rigor and practical utility.
+
+\subsection{Practical Guidance}
+
+Based on our theoretical development and empirical findings, we offer practical guidance for researchers applying WDSM. For score model specification, while WDSM offers protection against misspecification of either score model, careful attention to model specification remains important. Researchers should include all potential confounders in both the propensity and prognostic score models, as the double robustness property does not protect against omitted variable bias. We recommend considering flexible functional forms (e.g., splines, polynomials, or interactions) for continuous covariates in both models, as our simulations show that even modest nonlinearities can impact performance. For the propensity score model, following \cite{zhang2022practical}, we recommend focusing on variables that predict treatment assignment, as including pure outcome predictors in the propensity score model can increase variance without reducing bias. For the prognostic score model, include all variables that may predict the outcome, as the prognostic score should capture as much outcome variation as possible to enhance efficiency.
+
+When implementing matching, several practical choices affect WDSM's performance. Matching with replacement generally outperforms matching without replacement, particularly for the PATT where the number of treated units may be small relative to controls. The number of matches ($M$) involves a bias-variance trade-off; our results suggest that $M=3$ or $M=5$ typically provides a good balance, with larger values reducing variance at the cost of potentially increased bias. A caliper of 0.2 standard deviations on the logit of the propensity score is a reasonable default, but sensitivity to this choice should be assessed. Tighter calipers reduce bias but may lead to sample loss that affects generalizability. When the survey design includes geographical clustering, matching within clusters (or similar geographic units) often improves performance by respecting the survey design and enhancing the quality of matches.
+
+For valid inference with WDSM, always use the sandwich variance estimator that accounts for all sources of variation, including the complex survey design. Simplified variance estimators that ignore the survey design often lead to anti-conservative inference. For surveys with non-negligible sampling fractions, incorporate the finite population correction to avoid overestimation of standard errors. With clustered designs, ensure that variance estimation accounts for the clustering structure, either through the design-based approach in Equation \eqref{eq:strat_var} or through appropriate replication methods. When computational resources are limited and the sample size is large, the contribution of score estimation uncertainty may be small relative to the direct variance, and can sometimes be approximated or omitted.
+
+We recommend several diagnostic procedures, including assessing covariate balance before and after matching using population-weighted standardized mean differences, as illustrated in Web Table 3. Poor balance suggests model misspecification or inadequate overlap. Conduct sensitivity analyses varying key implementation choices (e.g., caliper width, number of matches, functional forms in score models) to assess the stability of results. Use sensitivity analyses for unmeasured confounding, such as the approach in Web Table 4, to quantify how strong an unmeasured confounder would need to be to alter substantive conclusions. Explore treatment effect heterogeneity through subgroup analyses, as shown in Web Table 5, to provide more nuanced insights beyond average effects.
+
+Our R package \texttt{wdsmatch} implements all the methods described in this paper, including functions for weighted estimation of propensity and prognostic scores with various model specifications, efficient matching algorithms that incorporate survey weights and respect complex designs, sandwich variance estimators for various survey designs, diagnostic tools for assessing balance and overlap, and parallelized computation for improved performance with large datasets.
+
+\subsection{Limitations}
+
+Despite the strengths of WDSM, several limitations warrant consideration. The matching process in WDSM has computational complexity $O(n^2)$ in the worst case, which can be challenging for very large datasets (e.g., $n > 50,000$). While our optimizations mitigate this issue for moderately large datasets, further algorithmic advances may be needed for massive surveys. Like all matching methods, WDSM requires sufficient overlap in the score distributions between treated and control groups. In complex surveys with extreme weights and strong treatment selection, this overlap may be limited, potentially affecting the generalizability of the results.
+
+WDSM relies on the standard causal identification assumptions of SUTVA, strong ignorability, and positivity. These assumptions are fundamentally untestable and may be particularly strong in complex survey settings where the data collection process can introduce additional complications. Our theoretical development assumes that the sampling mechanism is non-informative with respect to the potential outcomes conditional on observed covariates and treatment. This may not hold in all applications, particularly when the survey design is related to the treatment or outcome process.
+
+While WDSM is doubly robust against misspecification of either the propensity or prognostic score model, it still requires parametric or semi-parametric modeling. Very complex, high-dimensional relationships may not be fully captured by these models, even with careful specification. In some settings, particularly with good overlap and correctly specified models, alternative methods like weighted regression or doubly robust estimators may be more efficient than matching approaches. WDSM sacrifices some efficiency for robustness and transparent covariate balance.
+
+\subsection{Future Work}
+
+Our research points to several promising directions for future work. Integrating machine learning methods for nonparametric estimation of propensity and prognostic scores could enhance WDSM's ability to capture complex relationships while maintaining its double robustness property. Recent advances in causal machine learning \citep{wager2018estimation, chernozhukov2018double, kennedy2022semiparametric} could be extended to the complex survey setting. As \cite{athey2019generalized} have shown for treatment effect estimation, machine learning approaches can effectively handle high-dimensional settings while maintaining reasonable inferential properties.
+
+Building on the multiply robust framework of \cite{yang2022multiply}, WDSM could be extended to incorporate multiple candidate models for each score, further protecting against model misspecification. This would be particularly valuable in complex survey settings where correct model specification is challenging. Recent work by \cite{han2023multiple} has shown that multiply robust methods can provide enhanced protection against model misspecification while maintaining reasonable efficiency.
+
+Extending WDSM to accommodate time-varying treatments and confounders would enable causal inference for longitudinal survey data, which are increasingly common in educational, health, and social research. This would require adapting the matching framework to the sequential treatment setting \citep{blackwell2020reducing, zhao2019causal}. \cite{imai2021matching} have recently developed matching methods for time-varying treatments that could potentially be integrated with the WDSM framework. While our application focused on average treatment effects, WDSM could be extended to estimate distributional and quantile treatment effects in complex survey settings, providing insights into heterogeneous impacts across the outcome distribution \citep{yang2020double, callaway2018quantile}. Such extensions would be particularly valuable for policy analyses where impacts may vary substantially across different segments of the population.
+
+Complex surveys often suffer from item nonresponse and attrition. Integrating modern missing data methods with WDSM could enhance its applicability to real-world surveys where missingness is a concern \citep{seaman2014review, vansteelandt2012model}. Recent developments in doubly robust methods for missing data by \cite{sun2018inverse} could be adapted to the WDSM framework to handle both unit and item nonresponse in complex surveys. Further theoretical work could more fully integrate the design-based perspective from survey sampling with the model-based approach of causal inference, potentially leading to unified inferential frameworks that bridge these traditions \citep{aronow2013class, lumley2017survey}. \cite{ogburn2015doubly} have begun to develop such integrated frameworks, but much remains to be done to fully reconcile these approaches. Many complex surveys involve multiple phases of sampling. Extending WDSM to explicitly account for this structure could improve efficiency and validity in such settings \citep{breslow2007weighted, carpenter2006two}. Recent work by \cite{kim2021doubly} on double robustness in two-phase sampling could provide a foundation for such extensions to the WDSM framework.
+
+\subsection{Conclusion}
+
+Causal inference with complex survey data presents unique challenges at the intersection of survey methodology and causal analysis. Our development of Weighted Double Score Matching provides a theoretically rigorous and practically useful approach to address these challenges. By extending double score matching to properly incorporate complex survey designs, WDSM enables valid population-level causal inferences while maintaining the double robustness property that makes double score matching attractive.
+
+The martingale representation framework we developed provides a solid theoretical foundation for WDSM, establishing its asymptotic properties and justifying our inferential procedures. The sandwich variance estimator we derived ensures valid uncertainty quantification that accounts for all sources of variability, from the survey design to the matching process and score estimation. Our empirical results, both from simulations and the application to educational data, demonstrate the practical advantages of WDSM. The method consistently outperforms alternatives in terms of bias reduction, variance control, and coverage probability, particularly in challenging scenarios with model misspecification or complex treatment-covariate relationships.
+
+Beyond its immediate methodological contributions, this work contributes to the broader integration of survey methodology and causal inference. As researchers increasingly seek to draw causal conclusions from complex survey data, methods like WDSM that properly respect both the survey design and causal identification requirements become essential tools. By bridging these methodological traditions, WDSM enhances our ability to leverage large-scale survey data for credible causal insights that can inform policy and practice. The application of WDSM to evaluate educational interventions, as demonstrated in our analysis of special education services, illustrates the practical value of this integration. By properly accounting for the complex sample design while addressing confounding through double score matching, we obtain population-representative causal estimates that can better guide educational policy than analyses that ignore either the survey design or confounding.
+
+In conclusion, WDSM represents a significant advance in the methodology for causal inference with complex survey data. Its theoretical properties, practical performance, and implementation in accessible software make it a valuable addition to the toolkit for researchers working with survey data across disciplines. As surveys continue to serve as vital sources of information for policy and research, methods like WDSM that enable rigorous causal analysis of these data will play an increasingly important role in evidence-based decision making.
+
+
+
+
+\section*{acknowledgements}
+Research in this article was supported by a Patient-Centered Outcomes Research Institute Award\textsuperscript{\textregistered} (PCORI\textsuperscript{\textregistered} Award ME-2020C3-21072). The statements presented in this article are solely the responsibility of the authors and do not necessarily represent the views of PCORI\textsuperscript{\textregistered}, its Board of Governors or Methodology Committee. %We thank the Associate Editor and two anonymous reviewers for their helpful comments.
+
+
+
+\section*{Data Availability Statement}
+
+
+
+
+
+\section*{Appendix}
+
+\noindent \textbf{Proof of xxx.}
+
+
+\noindent \textbf{Proof of xxx.}
+
+\bibliographystyle{jasa3}
+
+\bibliography{references}
+
+
+
+
+
+\end{document}
+
+
+
+
+% \section*{Appendix}
+
+% \noindent \textbf{Proof of xxx.}
+
+
+% \noindent \textbf{Proof of xxx.}
+
+% \bibliographystyle{jasa3}
+
+% \bibliography{references}

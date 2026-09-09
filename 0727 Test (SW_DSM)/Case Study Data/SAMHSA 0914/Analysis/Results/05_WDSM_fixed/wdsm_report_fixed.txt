@@ -1,0 +1,28 @@
+WDSM Analysis Report (Fixed Version)
+=====================================
+Date: 2025-09-15 14:33:18 
+
+Data Summary:
+  Total observations: 17471 
+  Early marijuana users: 1877 
+  Controls: 15594 
+  Outcome prevalence (overall): 0.343 
+  Outcome prevalence (treated): 0.481 
+  Outcome prevalence (control): 0.326 
+
+WDSM Parameters:
+  Number of matches (M): 5 
+  Bootstrap samples: 500 
+  Interactions included: NO (appropriate for real data)
+
+Results:
+  WDSM estimate: 421.9519 
+  Standard error: 2451.407 
+  95% CI: [ -4382.717 , 5226.621 ]
+  P-value: 0.863 
+
+Comparison:
+  Simple weighted difference: 0.1469 
+  WDSM adjustment: 421.805 
+
+Note: Results appear unrealistic for binary outcome. Further investigation needed.

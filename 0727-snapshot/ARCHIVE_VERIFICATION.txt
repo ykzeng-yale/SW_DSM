@@ -1,0 +1,1 @@
+PASS: all 7736 archive entries match SOURCE_MANIFEST.json; every regular-file SHA-256 and symbolic-link target verified.

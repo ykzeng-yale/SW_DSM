@@ -1,0 +1,89 @@
+Warning message:
+'memory.limit()' is Windows-specific 
+
+================================================================
+Q1: GENDER → ALCOHOL FREQUENCY - FIXED VERSION
+================================================================
+
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4          ✔ readr     2.1.5     
+✔ forcats   1.0.0          ✔ stringr   1.5.1     
+✔ ggplot2   4.0.0.9000     ✔ tibble    3.3.0     
+✔ lubridate 1.9.4          ✔ tidyr     1.3.1     
+✔ purrr     1.0.4          
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Warning messages:
+1: package ‘tibble’ was built under R version 4.4.1 
+2: package ‘purrr’ was built under R version 4.4.1 
+3: package ‘lubridate’ was built under R version 4.4.1 
+Loading required package: grid
+Loading required package: Matrix
+
+Attaching package: ‘Matrix’
+
+The following objects are masked from ‘package:tidyr’:
+
+    expand, pack, unpack
+
+Loading required package: survival
+
+Attaching package: ‘survey’
+
+The following object is masked from ‘package:graphics’:
+
+    dotchart
+
+Warning messages:
+1: package ‘Matrix’ was built under R version 4.4.1 
+2: package ‘survival’ was built under R version 4.4.1 
+Warning message:
+package ‘MatchIt’ was built under R version 4.4.1 
+Warning message:
+package ‘marginaleffects’ was built under R version 4.4.1 
+Loading required package: MASS
+
+Attaching package: ‘MASS’
+
+The following object is masked from ‘package:dplyr’:
+
+    select
+
+## 
+##  Matching (Version 4.10-15, Build Date: 2024-10-14)
+##  See https://www.jsekhon.com for additional documentation.
+##  Please cite software as:
+##   Jasjeet S. Sekhon. 2011. ``Multivariate and Propensity Score Matching
+##   Software with Automated Balance Optimization: The Matching package for R.''
+##   Journal of Statistical Software, 42(7): 1-52. 
+##
+
+Warning messages:
+1: package ‘Matching’ was built under R version 4.4.1 
+2: package ‘MASS’ was built under R version 4.4.1 
+WDSM Flexible Version loaded successfully!
+This version accepts formula objects for PS and PGS models.
+Usage: wdsm_flexible(data, outcome_var, treatment_var, ps_formula, pgs_formula, weight_var, ...)
+Error in `slice_sample()`:
+! `n` must be a constant.
+Caused by error in `n()`:
+! Must only be used inside data-masking verbs like `mutate()`,
+  `filter()`, and `group_by()`.
+Backtrace:
+     ▆
+  1. ├─... %>% slice_sample(n = min(10000, n()))
+  2. ├─dplyr::slice_sample(., n = min(10000, n()))
+  3. ├─dplyr:::slice_sample.data.frame(., n = min(10000, n()))
+  4. │ └─dplyr:::get_slice_size(n = n, prop = prop, allow_outsize = replace)
+  5. │   └─dplyr:::check_slice_n_prop(n, prop, error_call = error_call)
+  6. │     └─dplyr:::check_constant(n, "n", error_call = error_call)
+  7. │       ├─base::withCallingHandlers(...)
+  8. │       └─base::force(x)
+  9. └─dplyr::n()
+ 10.   └─dplyr:::peek_mask()
+ 11.     └─dplyr:::context_peek(...)
+ 12.       ├─context_peek_bare(name) %||% ...
+ 13.       └─rlang::abort(glue("Must only be used inside {location}."), call = call)
+Execution halted

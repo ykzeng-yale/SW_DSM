@@ -1,0 +1,4 @@
+"Method","ACD Estimate","95% Confidence Interval"
+"Unweighted Double Score Matching (DSM)","0.0232","0.0022, 0.0443"
+"Survey-Weighted PS Full Matching","-0.0321","-0.0572, -0.0069"
+"Weighted Double Score Matching (WDSM)","0.0144","-0.0009, 0.0401"

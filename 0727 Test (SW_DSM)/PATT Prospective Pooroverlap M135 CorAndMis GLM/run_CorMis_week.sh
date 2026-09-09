@@ -1,0 +1,40 @@
+#!/bin/bash
+#SBATCH --job-name=week_CorMis_Poor
+#SBATCH --output=week_CorMis_Poor_%j.out
+#SBATCH --error=week_CorMis_Poor_%j.err
+#SBATCH --time=7-00:00:00
+#SBATCH --partition=week
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=32
+#SBATCH --mem-per-cpu=8G
+
+# Load R module
+module load R/4.3.0-foss-2022b
+
+echo "============================================================"
+echo "COMPREHENSIVE PATT COMPARISON: M=1,3,5, Model Spec: CorMis (POOR OVERLAP)"
+echo "WEEK PARTITION - 7 DAY TIMEOUT"
+echo "============================================================"
+echo "Job ID: $SLURM_JOB_ID"
+echo "Hostname: $(hostname)"
+echo "Start time: $(date)"
+echo "Working directory: $(pwd)"
+echo "CPUs requested: $SLURM_CPUS_PER_TASK"
+echo "Memory per CPU: 8GB"
+echo "============================================================"
+
+# Run R script
+echo "Starting PATT comparison for CorMis (Poor Overlap) at: $(date)"
+Rscript comprehensive_patt_comparison_CorMis.R
+
+# Check exit status
+if [ $? -eq 0 ]; then
+    echo "============================================================"
+    echo "Job completed successfully at: $(date)"
+    echo "============================================================"
+else
+    echo "============================================================"
+    echo "Job failed at: $(date)"
+    echo "============================================================"
+    exit 1
+fi

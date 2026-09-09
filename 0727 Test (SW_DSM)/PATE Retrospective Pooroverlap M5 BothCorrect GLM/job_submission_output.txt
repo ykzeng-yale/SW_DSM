@@ -1,0 +1,27 @@
+=== Submitting PATE Retrospective Poor Overlap Comparison (1000 replicates, 20 cores) ===
+Creating remote directory: /gpfs/gibbs/project/tong/yz2324/pate_retro_pooroverlap_20250805_1056
+
+Uploading files to /gpfs/gibbs/project/tong/yz2324/pate_retro_pooroverlap_20250805_1056 ...
+  1. Uploading main comparison script...
+  2. Uploading WDSM functions...
+  3. Uploading population data...
+  4. Uploading dsmatch-master directory...
+  5. Uploading submission script...
+
+Submitting job...
+
+✅ PATE Retrospective comparison submitted successfully!
+============================================================
+Job ID: 57117031
+Remote directory: /gpfs/gibbs/project/tong/yz2324/pate_retro_pooroverlap_20250805_1056
+
+Configuration:
+  - 22 CPUs requested (20 for R + overhead)
+  - 8GB per CPU (~176GB total)
+  - FORK cluster type
+  - 1000 replicates (FULL RUN)
+  - 5000 sample size (retrospective)
+  - 200 bootstrap iterations
+  - 5 methods being compared
+  - Expected runtime: 1.5-2 hours (based on 8.84 min for 100 reps)
+============================================================

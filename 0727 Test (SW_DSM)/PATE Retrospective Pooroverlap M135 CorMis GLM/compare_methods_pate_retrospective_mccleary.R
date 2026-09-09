@@ -1,0 +1,645 @@
+##############################################################################
+# Comprehensive Comparison: Baseline vs Survey-Weighted Matching Methods
+# For PATE under Retrospective Sampling - McCleary HPC Version
+# All methods estimate Population Average Treatment Effect (PATE)
+# VARYING M = 1, 3, 5 (number of matches per unit)
+# 
+# MODEL MISSPECIFICATION SCENARIOS:
+# - CorCor: Both PS and PGS are correct (include X1:X2 interaction)
+# - MisCor: PS misspecified (no X1:X2), PGS correct (has X1:X2)
+# - CorMis: PS correct (has X1:X2), PGS misspecified (no X1:X2)
+# - MisMis: Both PS and PGS misspecified (no X1:X2)
+#
+# Comparing:
+# 1. Unweighted DSM (dsmatch-master with bootstrap)
+# 2. Unweighted PG matching (dsmatch-master with bootstrap) 
+# 3. Unweighted PS matching (dsmatch-master with bootstrap)
+# 4. Survey-weighted PS full matching (MatchIt with design-based inference)
+# 5. WDSM with Multinomial Bootstrap for retrospective sampling
+##############################################################################
+
+# ============================================================================
+# Setup and Libraries
+# ============================================================================
+cat("\n============================================================\n")
+cat("Loading required packages...\n")
+cat("============================================================\n")
+
+# Load required libraries
+library(survey)
+library(sampling)
+library(MASS)
+library(nnet)
+library(MatchIt)
+library(parallel)
+library(doParallel)
+library(foreach)
+library(boot)
+library(marginaleffects)
+library(R.utils)  # For withTimeout
+
+# Source required functions
+cat("Sourcing custom functions...\n")
+
+# Source ALL necessary dsmatch functions
+cat("Sourcing dsmatch functions...\n")
+dsmatch_files <- c(
+  "dsmatch-master/R/bisect.R",
+  "dsmatch-master/R/is.lp.R",
+  "dsmatch-master/R/is.ps.R", 
+  "dsmatch-master/R/is.pg.R",
+  "dsmatch-master/R/estforboot_dsATE.R",
+  "dsmatch-master/R/estforboot_psATE.R",
+  "dsmatch-master/R/estforboot_pgATE.R",
+  "dsmatch-master/R/estforboot_covATE.R",
+  "dsmatch-master/R/dsmatchATE.R"
+)
+
+for (file in dsmatch_files) {
+  source(file)
+}
+
+# Source WDSM functions
+source("wdsm_method2_multinomial_bootstrap.R")
+source("wdsm_ci_functions.R")
+
+# ============================================================================
+# Function to run a single replicate (now loops over M values and scenarios)
+# ============================================================================
+run_single_replicate <- function(i.rep, population, true_pate, n_sample, M_values, B, alpha, scenarios) {
+  
+  # Set timeout for this replicate (5 minutes per M value * 4 scenarios = 60 minutes total)
+  setTimeLimit(cpu = 3600, elapsed = 3600)
+  
+  tryCatch({
+    # Source dsmatch functions inside the worker (for parallel execution)
+    dsmatch_files <- c(
+      "dsmatch-master/R/bisect.R",
+      "dsmatch-master/R/is.lp.R",
+      "dsmatch-master/R/is.ps.R", 
+      "dsmatch-master/R/is.pg.R",
+      "dsmatch-master/R/estforboot_dsATE.R",
+      "dsmatch-master/R/estforboot_psATE.R",
+      "dsmatch-master/R/estforboot_pgATE.R",
+      "dsmatch-master/R/estforboot_covATE.R",
+      "dsmatch-master/R/dsmatchATE.R"
+    )
+    
+    for (file in dsmatch_files) {
+      source(file)
+    }
+    
+    # Also source WDSM functions inside worker
+    source("wdsm_method2_multinomial_bootstrap.R")
+    source("wdsm_ci_functions.R")
+    
+    # Retrospective sampling (done once per replicate)
+    sample <- retrospective_sample(population, n_sample = n_sample)
+    
+    # Extract variables
+    Y <- sample$Y
+    X <- as.matrix(sample[, c("X1", "X2", "X3", "X4", "X5", "X6")])
+    A <- sample$A
+    
+    # Extract survey weights
+    w_raw <- sample$survey_weight
+    # Normalized weights for PS Full (required for proper variance estimation)
+    w_normalized <- w_raw * length(w_raw) / sum(w_raw)
+    
+    # Initialize results for all M values and scenarios
+    replicate_results <- list()
+    
+    # Loop over different model specification scenarios
+    for (scenario in scenarios) {
+      
+      # Determine which models to use based on scenario
+      use_interaction_ps <- (scenario == "CorCor" || scenario == "CorMis")
+      use_interaction_pg <- (scenario == "CorCor" || scenario == "MisCor")
+      
+      # Create X matrices for PS and PG models based on scenario
+      if (use_interaction_ps) {
+        X_ps <- cbind(X, X[,1] * X[,2])
+        colnames(X_ps) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x1_x2")
+      } else {
+        X_ps <- X
+        colnames(X_ps) <- c("x1", "x2", "x3", "x4", "x5", "x6")
+      }
+      
+      if (use_interaction_pg) {
+        X_pg <- cbind(X, X[,1] * X[,2])
+        colnames(X_pg) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x1_x2")
+      } else {
+        X_pg <- X
+        colnames(X_pg) <- c("x1", "x2", "x3", "x4", "x5", "x6")
+      }
+    
+    # Loop over different M values
+    for (M in M_values) {
+      
+        # Initialize results for this M value and scenario
+      m_results <- list()
+      
+      # ============================================================
+      # METHOD 1: UNWEIGHTED DOUBLE SCORE MATCHING (dsmatch-master)
+      # ============================================================
+      tryCatch({
+          # Use scenario-specific X matrices for DSM
+          X_dsm <- if (use_interaction_ps && use_interaction_pg) {
+            cbind(X, X[,1] * X[,2])
+          } else {
+            X  # DSM will handle PS and PG models separately
+          }
+          
+          if (ncol(X_dsm) == 7) {
+      colnames(X_dsm) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x1_x2")
+          } else {
+            colnames(X_dsm) <- c("x1", "x2", "x3", "x4", "x5", "x6")
+          }
+      
+      # Run DSM with bootstrap
+      dsm_result <- dsmatchATE(
+        Y = Y,
+            X = X_dsm,
+        A = A,
+        method = "dsm",
+            model.ps = if (use_interaction_ps) "linpred" else "logit",
+            lp.ps = if (use_interaction_ps) X_ps else NULL,
+            model.pg = "linpred",
+            lp.pg = X_pg,
+        cov.balance = FALSE,
+        varest = TRUE,
+        boots = B,
+            mc = FALSE,
+        ncpus = 1
+      )
+      
+      m_results$dsm_unweighted <- list(
+        estimate = dsm_result$est.ds,
+        se = sqrt(dsm_result$bootvar[1,1]),
+        ci_lower = dsm_result$est.ds - qnorm(1 - alpha/2) * sqrt(dsm_result$bootvar[1,1]),
+        ci_upper = dsm_result$est.ds + qnorm(1 - alpha/2) * sqrt(dsm_result$bootvar[1,1])
+      )
+      
+    }, error = function(e) {
+          cat("DSM Unweighted Error in replicate", i.rep, ", scenario", scenario, ", M=", M, ":", e$message, "\n")
+      m_results$dsm_unweighted <- list(
+        estimate = NA,
+        se = NA,
+        ci_lower = NA,
+        ci_upper = NA
+      )
+    })
+    
+    # ============================================================
+    # METHOD 2: UNWEIGHTED PROGNOSTIC SCORE MATCHING (dsmatch-master)
+    # ============================================================
+    tryCatch({
+      # Run PG matching with bootstrap
+      pg_result <- dsmatchATE(
+        Y = Y,
+        X = X_pg,
+        A = A,
+        method = "pg",
+            model.pg = "linpred",
+            lp.pg = X_pg,
+        cov.balance = FALSE,
+        varest = TRUE,
+        boots = B,
+        mc = FALSE,
+        ncpus = 1
+      )
+      
+      m_results$pg_unweighted <- list(
+        estimate = pg_result$est.pg,
+        se = sqrt(pg_result$bootvar[1,1]),
+        ci_lower = pg_result$est.pg - qnorm(1 - alpha/2) * sqrt(pg_result$bootvar[1,1]),
+        ci_upper = pg_result$est.pg + qnorm(1 - alpha/2) * sqrt(pg_result$bootvar[1,1])
+      )
+      
+    }, error = function(e) {
+      m_results$pg_unweighted <- list(
+        estimate = NA,
+        se = NA,
+        ci_lower = NA,
+        ci_upper = NA
+      )
+    })
+    
+    # ============================================================
+    # METHOD 3: UNWEIGHTED PROPENSITY SCORE MATCHING (dsmatch-master)
+    # ============================================================
+    tryCatch({
+      # Run PS matching with bootstrap using dsmatch-master
+      ps_result <- dsmatchATE(
+        Y = Y,
+            X = X_ps,
+            A = A,
+            method = "ps",
+            model.ps = if (use_interaction_ps) "linpred" else "logit",
+            lp.ps = if (use_interaction_ps) X_ps else NULL,
+        cov.balance = FALSE,
+        varest = TRUE,
+        boots = B,
+            mc = FALSE,
+        ncpus = 1
+      )
+      
+      m_results$ps_unweighted <- list(
+        estimate = ps_result$est.ps,
+        se = sqrt(ps_result$bootvar[1,1]),
+        ci_lower = ps_result$est.ps - qnorm(1 - alpha/2) * sqrt(ps_result$bootvar[1,1]),
+        ci_upper = ps_result$est.ps + qnorm(1 - alpha/2) * sqrt(ps_result$bootvar[1,1])
+      )
+      
+    }, error = function(e) {
+      m_results$ps_unweighted <- list(
+        estimate = NA,
+        se = NA,
+        ci_lower = NA,
+        ci_upper = NA
+      )
+    })
+    
+    # ============================================================
+    # METHOD 4: SURVEY-WEIGHTED PROPENSITY SCORE MATCHING (MatchIt)
+    # ============================================================
+    tryCatch({
+      # Create data frame with normalized survey weights
+      match_data_sw <- data.frame(
+        Y = Y,
+        A = A,
+        X1 = X[,1],
+        X2 = X[,2],
+        X3 = X[,3],
+        X4 = X[,4],
+        X5 = X[,5],
+        X6 = X[,6],
+            sw = w_normalized
+          )
+          
+          # PS formula based on scenario
+          ps_formula <- if (use_interaction_ps) {
+            A ~ X1 + X2 + X3 + X4 + X5 + X6 + X1:X2
+          } else {
+            A ~ X1 + X2 + X3 + X4 + X5 + X6
+          }
+      
+      # Run survey-weighted propensity score matching using full matching for ATE
+      m_ps_sw <- matchit(
+            ps_formula,
+        data = match_data_sw,
+            method = "full",
+            distance = "glm",
+        link = "logit",
+            s.weights = ~ sw,
+            estimand = "ATE"
+      )
+      
+      # Extract matched data with combined weights
+      md_sw <- match.data(m_ps_sw)
+          
+          # Outcome model formula based on PGS scenario
+          outcome_formula <- if (use_interaction_pg) {
+            Y ~ A * (X1 + X2 + X3 + X4 + X5 + X6 + X1:X2)
+          } else {
+            Y ~ A * (X1 + X2 + X3 + X4 + X5 + X6)
+          }
+      
+      # Fit outcome model with product weights
+          fit_sw <- lm(outcome_formula,
+                   data = md_sw,
+                       weights = weights)
+      
+      # Estimate marginal ATE using g-computation
+      ate_result <- avg_comparisons(
+        fit_sw,
+        variables = "A",
+            vcov = ~subclass,
+            wts = md_sw$sw
+      )
+      
+      # Extract results
+      m_results$ps_weighted <- list(
+        estimate = ate_result$estimate,
+        se = ate_result$std.error,
+        ci_lower = ate_result$conf.low,
+        ci_upper = ate_result$conf.high
+      )
+      
+    }, error = function(e) {
+          cat("PS Survey-Weighted Error in replicate", i.rep, ", scenario", scenario, ":", e$message, "\n")
+      m_results$ps_weighted <- list(
+        estimate = NA,
+        se = NA,
+        ci_lower = NA,
+        ci_upper = NA
+      )
+    })
+    
+    # ============================================================
+    # METHOD 5: WDSM with Multinomial Bootstrap
+    # ============================================================
+    tryCatch({
+          # WDSM always uses the scenario-specific covariate sets
+          # Pass the appropriate X matrix for the scenario
+      ci_results <- compute_wdsm_method2_ci(
+            Y = Y, 
+            A = A, 
+            X = X,  # Base X without interaction
+            weights = w_raw,
+        M = M,
+        n_bootstrap = B,
+        alpha = alpha,
+        use_bias_correction = TRUE,
+            return_samples = FALSE,
+            use_interaction_ps = use_interaction_ps,
+            use_interaction_pg = use_interaction_pg
+      )
+      
+      m_results$wdsm_multinomial <- list(
+        estimate = ci_results$estimate,
+        se = ci_results$se,
+        ci_lower = ci_results$ci_lower,
+        ci_upper = ci_results$ci_upper
+      )
+      
+    }, error = function(e) {
+          cat("WDSM Multinomial Bootstrap Error in replicate", i.rep, ", scenario", scenario, ":", e$message, "\n")
+      m_results$wdsm_multinomial <- list(
+        estimate = NA,
+        se = NA,
+        ci_lower = NA,
+        ci_upper = NA
+      )
+    })
+    
+        # Store results for this M value and scenario
+        replicate_results[[paste0(scenario, "_M", M)]] <- m_results
+      
+    } # End of M loop
+    } # End of scenario loop
+    
+    # Remove time limit
+    setTimeLimit(cpu = Inf, elapsed = Inf)
+    
+    return(replicate_results)
+    
+  }, error = function(e) {
+    setTimeLimit(cpu = Inf, elapsed = Inf)
+    return(list(error = paste("Replicate", i.rep, "failed:", e$message)))
+  })
+}
+
+# ============================================================================
+# Load Population Data
+# ============================================================================
+cat("\n============================================================\n")
+cat("Loading population data...\n")
+cat("============================================================\n")
+
+load("SuperPopGen_PoorOverlap_AllinOne_0118_2025.RData")
+data_sets <- SuperPopGen_PoorOverlap_AllinOne_0118_2025
+
+# Extract first dataset and rename columns to match our convention
+population <- data_sets[[1]]
+names(population)[names(population) == "z"] <- "A"
+names(population)[names(population) == "y"] <- "Y"
+names(population)[names(population) == "y0"] <- "Y0"
+names(population)[names(population) == "y1"] <- "Y1"
+for (i in 1:6) {
+  names(population)[names(population) == paste0("x", i)] <- paste0("X", i)
+}
+
+# Parameters
+n_reps <- 1000    # Number of simulation replicates
+n_sample <- 5000  # Sample size for retrospective sampling
+M_values <- c(1, 3, 5)  # Number of matches per unit (varying)
+B <- 200          # Bootstrap iterations
+alpha <- 0.05     # Significance level
+scenarios <- c("CorMis")  # Model specification scenarios
+
+# Calculate true population PATE
+true_pate <- mean(population$Y1 - population$Y0)
+cat("\nTrue Population PATE:", round(true_pate, 4), "\n")
+
+# ============================================================================
+# Main Simulation Loop with FORK Cluster
+# ============================================================================
+start_time <- Sys.time()
+
+cat("\n============================================================\n")
+cat("Running PATE Retrospective Sampling Comparison\n")
+cat("With Model Misspecification Scenarios\n")
+cat("============================================================\n")
+cat("\nSample size:", n_sample, "\n")
+cat("Number of replicates:", n_reps, "\n")
+cat("Number of matches (M values):", paste(M_values, collapse=", "), "\n")
+cat("Bootstrap iterations:", B, "\n")
+cat("Significance level:", alpha, "\n")
+cat("Model scenarios:", paste(scenarios, collapse=", "), "\n")
+
+# Set up parallel backend with FORK cluster for better stability
+n_cores <- 30  # Using 30 cores for McCleary
+cat("\n============================================================\n")
+cat("Setting up parallel backend with", n_cores, "cores (FORK cluster)...\n")
+cat("============================================================\n")
+
+cl <- makeCluster(n_cores, type = "FORK", outfile = "parallel_log.txt")
+registerDoParallel(cl)
+
+# Run simulation with larger batch size
+batch_size <- 100  # Process in batches to prevent memory issues
+
+cat("\nRunning simulation in batches of", batch_size, "replicates each...\n")
+cat("============================================================\n")
+
+# Run replicates in parallel with timeout protection
+all_results <- foreach(i.rep = 1:n_reps,
+                      .combine = 'c',
+                      .multicombine = TRUE,
+                      .maxcombine = batch_size,
+                      .inorder = FALSE,
+                      .errorhandling = 'pass',
+                      .packages = c("survey", "sampling", "MatchIt", "MASS", 
+                                   "boot", "nnet", "marginaleffects", "R.utils"),
+                      .export = c("run_single_replicate", "population", "true_pate",
+                                 "n_sample", "M_values", "B", "alpha", "scenarios",
+                                 "retrospective_sample", "wdsm_point_estimate",
+                                 "method2_multinomial_bootstrap_ci",
+                                 "expit", "weighted_distance", "find_weighted_neighbors",
+                                 "calculate_weighted_reuse_counts", "compute_wdsm_method2_ci")) %dopar% {
+  
+  # Progress tracking
+  if (i.rep %% 50 == 0) {
+    cat("Starting replicate", i.rep, "of", n_reps, "\n")
+  }
+  
+  # Set random seed for this replicate
+  set.seed(20250127 + i.rep)
+  
+  # Run with memory management
+  gc()  # Garbage collection before starting
+  
+  # Run single replicate with timeout protection
+  result <- R.utils::withTimeout({
+    run_single_replicate(i.rep, population, true_pate, n_sample, M_values, B, alpha, scenarios)
+  }, timeout = 3600, onTimeout = "error")
+  
+  gc()  # Garbage collection after completion
+  
+  list(result)  # Wrap in list for combine
+}
+
+# Clean up parallel cluster
+stopCluster(cl)
+
+end_time <- Sys.time()
+total_time <- difftime(end_time, start_time, units = "mins")
+
+cat("\n============================================================\n")
+cat("Simulation completed in", round(total_time, 2), "minutes\n")
+cat("============================================================\n")
+
+# ============================================================================
+# Process Results
+# ============================================================================
+cat("\n============================================================\n")
+cat("Processing simulation results...\n")
+cat("============================================================\n")
+
+# Count successful runs
+successful_runs <- sum(sapply(all_results, function(x) !is.null(x) && !inherits(x, "error") && !"error" %in% names(x)))
+cat("\nSuccessful runs:", successful_runs, "out of", n_reps, "\n")
+
+# Filter out failed runs
+valid_results <- all_results[sapply(all_results, function(x) !is.null(x) && !inherits(x, "error") && !"error" %in% names(x))]
+
+if (length(valid_results) == 0) {
+  stop("No successful simulation runs!")
+}
+
+# Initialize storage for processed results
+results_by_scenario_m <- list()
+
+# Process results for each scenario and M combination
+for (scenario in scenarios) {
+  for (M in M_values) {
+    key <- paste0(scenario, "_M", M)
+    
+    # Extract results for this scenario and M
+    scenario_m_results <- lapply(valid_results, function(x) x[[key]])
+    
+    # Remove NULL results
+    scenario_m_results <- scenario_m_results[!sapply(scenario_m_results, is.null)]
+    
+    if (length(scenario_m_results) > 0) {
+      # Calculate metrics for each method
+      methods <- c("dsm_unweighted", "pg_unweighted", "ps_unweighted", "ps_weighted", "wdsm_multinomial")
+      
+      method_stats <- list()
+      for (method in methods) {
+        estimates <- sapply(scenario_m_results, function(x) x[[method]]$estimate)
+        ses <- sapply(scenario_m_results, function(x) x[[method]]$se)
+        ci_lowers <- sapply(scenario_m_results, function(x) x[[method]]$ci_lower)
+        ci_uppers <- sapply(scenario_m_results, function(x) x[[method]]$ci_upper)
+        
+        # Remove NAs
+        valid_idx <- !is.na(estimates)
+        estimates <- estimates[valid_idx]
+        ses <- ses[valid_idx]
+        ci_lowers <- ci_lowers[valid_idx]
+        ci_uppers <- ci_uppers[valid_idx]
+        
+        if (length(estimates) > 0) {
+          method_stats[[method]] <- list(
+            n_valid = length(estimates),
+            mean_estimate = mean(estimates),
+            bias = mean(estimates) - true_pate,
+            rel_bias = (mean(estimates) - true_pate) / abs(true_pate),
+            empirical_se = sd(estimates),
+            mean_se = mean(ses),
+            se_ratio = mean(ses) / sd(estimates),
+            coverage = mean(ci_lowers <= true_pate & ci_uppers >= true_pate),
+            rmse = sqrt(mean((estimates - true_pate)^2))
+          )
+        }
+      }
+      
+      results_by_scenario_m[[key]] <- method_stats
+    }
+  }
+}
+
+# ============================================================================
+# Create Summary Tables
+# ============================================================================
+cat("\n============================================================\n")
+cat("Creating summary tables...\n")
+cat("============================================================\n")
+
+# Create comprehensive summary table
+summary_data <- data.frame()
+
+for (scenario in scenarios) {
+  for (M in M_values) {
+    key <- paste0(scenario, "_M", M)
+    if (key %in% names(results_by_scenario_m)) {
+      scenario_m_stats <- results_by_scenario_m[[key]]
+      
+      for (method_name in names(scenario_m_stats)) {
+        stats <- scenario_m_stats[[method_name]]
+        
+        summary_data <- rbind(summary_data, data.frame(
+          Scenario = scenario,
+          M = M,
+          Method = method_name,
+          N_Valid = stats$n_valid,
+          Mean_Estimate = round(stats$mean_estimate, 4),
+          Bias = round(stats$bias, 4),
+          Rel_Bias = round(stats$rel_bias * 100, 2),
+          Empirical_SE = round(stats$empirical_se, 4),
+          Mean_SE = round(stats$mean_se, 4),
+          SE_Ratio = round(stats$se_ratio, 3),
+          Coverage = round(stats$coverage * 100, 1),
+          RMSE = round(stats$rmse, 4)
+        ))
+      }
+    }
+  }
+}
+
+# Save results
+write.csv(summary_data, "pate_retrospective_pooroverlap_comparison_table_CorMis.csv", row.names = FALSE)
+
+# Print summary
+cat("\n============================================================\n")
+cat("SUMMARY RESULTS (Model Misspecification Analysis)\n")
+cat("============================================================\n")
+cat("\nTrue PATE:", round(true_pate, 4), "\n")
+
+for (scenario in scenarios) {
+  cat("\n------------------------------------------------------------\n")
+  cat("Scenario:", scenario, "\n")
+  cat("  CorCor: Both PS and PGS correct (with X1:X2)\n")
+  cat("  MisCor: PS misspecified (no X1:X2), PGS correct\n")
+  cat("  CorMis: PS correct, PGS misspecified (no X1:X2)\n")
+  cat("  MisMis: Both PS and PGS misspecified (no X1:X2)\n")
+  cat("------------------------------------------------------------\n")
+  
+  scenario_data <- summary_data[summary_data$Scenario == scenario,]
+  print(scenario_data[, c("M", "Method", "Bias", "Rel_Bias", "Coverage", "SE_Ratio")])
+}
+
+# Save all results
+cat("\n============================================================\n")
+cat("Saving complete results...\n")
+cat("============================================================\n")
+
+save(all_results, valid_results, results_by_scenario_m, summary_data, true_pate,
+     file = "pate_retrospective_pooroverlap_comparison_results_CorMis.RData")
+
+cat("\nResults saved to:\n")
+cat("  - pate_retrospective_pooroverlap_comparison_table_CorMis.csv\n")
+cat("  - pate_retrospective_pooroverlap_comparison_results_CorMis.RData\n")
+cat("\nSimulation complete!\n")
+cat("============================================================\n")

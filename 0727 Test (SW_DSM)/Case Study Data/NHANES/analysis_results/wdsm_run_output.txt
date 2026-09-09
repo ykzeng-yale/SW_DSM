@@ -1,0 +1,233 @@
+
+R version 4.4.0 (2024-04-24) -- "Puppy Cup"
+Copyright (C) 2024 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+Warning message:
+'memory.limit()' is Windows-specific 
+> ################################################################################
+> # WDSM Analysis for NHANES Telomere Length Data - EXECUTABLE VERSION
+> # Using Actual NHANES Variables with Proper Survey Weight Implementation
+> # Research Question: Race Effect on Telomere Length After SES Adjustment
+> ################################################################################
+> 
+> # Clear workspace
+> rm(list = ls())
+> gc()
+         used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
+Ncells 298454   16     697237 37.3         NA   487554 26.1
+Vcells 519565    4    8388608 64.0      65536  1957843 15.0
+> 
+> # ==============================================================================
+> # Set Working Directory and Load Libraries
+> # ==============================================================================
+> cat("\n================================================================================\n")
+
+================================================================================
+> cat("    WDSM ANALYSIS FOR NHANES TELOMERE LENGTH DATA\n")
+    WDSM ANALYSIS FOR NHANES TELOMERE LENGTH DATA
+> cat("================================================================================\n\n")
+================================================================================
+
+> 
+> # Set working directory
+> setwd("/Users/yukang/Desktop/Yale Causal Inference Biostat Research (0318-)/PSM:DSM_SW/Case Study Data/NHANES")
+> 
+> cat("=== Loading Required Libraries ===\n")
+=== Loading Required Libraries ===
+> suppressPackageStartupMessages({
++   library(MASS)
++   library(mvtnorm)
++   library(nnet)
++   library(dplyr)
++   library(tidyr)
++   library(purrr)
++   library(matrixStats)
++   library(survey)
++   library(sampling)
++ })
+Warning messages:
+1: package ‘MASS’ was built under R version 4.4.1 
+2: package ‘mvtnorm’ was built under R version 4.4.1 
+3: package ‘nnet’ was built under R version 4.4.1 
+4: package ‘purrr’ was built under R version 4.4.1 
+5: package ‘matrixStats’ was built under R version 4.4.1 
+6: package ‘Matrix’ was built under R version 4.4.1 
+7: package ‘survival’ was built under R version 4.4.1 
+8: package ‘sampling’ was built under R version 4.4.1 
+> 
+> # Source WDSM functions
+> cat("\n=== Sourcing WDSM Functions ===\n")
+
+=== Sourcing WDSM Functions ===
+> source("WDSM PATE Retrospective.R")
+> cat("  ✓ WDSM functions loaded successfully\n")
+  ✓ WDSM functions loaded successfully
+> 
+> # ==============================================================================
+> # Load and Prepare NHANES Data
+> # ==============================================================================
+> cat("\n=== Loading NHANES Data ===\n")
+
+=== Loading NHANES Data ===
+> 
+> # Load complete cases dataset
+> nhanes_data <- readRDS("data/nhanes_complete_cases.rds")
+> cat("  ✓ Data loaded: n =", nrow(nhanes_data), "\n")
+  ✓ Data loaded: n = 5270 
+> 
+> # Check variable names
+> cat("\n=== Verifying Required Variables ===\n")
+
+=== Verifying Required Variables ===
+> required_vars <- c("lTELOMEAN", "RACE_2CAT", "WTMEC4YR", 
++                    "EDUC_3CAT", "MARTL_3CAT", "PIR_3CAT", "EMPSTAT_4CAT",
++                    "OCC_5CAT", "HHSIZE_5CAT", "HHINC_5CAT", "HIQ_2CAT",
++                    "WIC_2CAT", "FDSEC_3CAT", "HOD_4CAT", "OWNHOME_2CAT",
++                    "AGE", "SEX", "LBXWBCSI", "LBXLYPCT", "LBXMOPCT",
++                    "LBXNEPCT", "LBXEOPCT", "LBXBAPCT")
+> 
+> missing_vars <- setdiff(required_vars, names(nhanes_data))
+> if(length(missing_vars) > 0) {
++   cat("  ✗ Missing variables:", paste(missing_vars, collapse=", "), "\n")
++   stop("Required variables not found in dataset")
++ } else {
++   cat("  ✓ All required variables present\n")
++ }
+  ✓ All required variables present
+> 
+> # Create analysis dataset
+> cat("\n=== Preparing Analysis Dataset ===\n")
+
+=== Preparing Analysis Dataset ===
+> 
+> # First, let's handle factor variables properly
+> # Convert factors to model matrix for numerical analysis
+> create_design_matrix <- function(data) {
++   # Create formula for all covariates
++   covariate_formula <- ~ EDUC_3CAT + MARTL_3CAT + PIR_3CAT + EMPSTAT_4CAT + 
++                          OCC_5CAT + HHSIZE_5CAT + HHINC_5CAT + HIQ_2CAT + 
++                          WIC_2CAT + FDSEC_3CAT + HOD_4CAT + OWNHOME_2CAT + 
++                          AGE + SEX + 
++                          LBXWBCSI + LBXLYPCT + LBXMOPCT + 
++                          LBXNEPCT + LBXEOPCT + LBXBAPCT
++   
++   # Create design matrix (remove intercept)
++   X_matrix <- model.matrix(covariate_formula, data = data)[, -1]
++   
++   return(X_matrix)
++ }
+> 
+> # Create the X matrix for WDSM
+> X_matrix <- create_design_matrix(nhanes_data)
+> cat("  ✓ Design matrix created:", ncol(X_matrix), "columns\n")
+  ✓ Design matrix created: 50 columns
+> 
+> # Create simplified dataset for WDSM functions
+> wdsm_data <- data.frame(
++   Y = nhanes_data$lTELOMEAN,
++   A = nhanes_data$RACE_2CAT,
++   survey_weight = nhanes_data$WTMEC4YR
++ )
+> 
+> # Add X matrix columns with simplified names for matching
+> for(i in 1:ncol(X_matrix)) {
++   wdsm_data[[paste0("X", i)]] <- X_matrix[, i]
++ }
+> 
+> cat("  ✓ WDSM dataset prepared: ", nrow(wdsm_data), " rows × ", ncol(wdsm_data), " columns\n", sep="")
+  ✓ WDSM dataset prepared: 5270 rows × 53 columns
+> 
+> # Summary statistics
+> cat("\n=== Data Summary ===\n")
+
+=== Data Summary ===
+> cat("  Total n:", nrow(wdsm_data), "\n")
+  Total n: 5270 
+> cat("  Treated (Black):", sum(wdsm_data$A == 1), 
++     "(", round(100 * mean(wdsm_data$A == 1), 1), "%)\n", sep="")
+  Treated (Black):1324(25.1%)
+> cat("  Control (White):", sum(wdsm_data$A == 0),
++     "(", round(100 * mean(wdsm_data$A == 0), 1), "%)\n", sep="")
+  Control (White):3946(74.9%)
+> cat("  Survey weight range:", round(min(wdsm_data$survey_weight)), "-",
++     round(max(wdsm_data$survey_weight)), "\n")
+  Survey weight range: 1926 - 103831 
+> cat("  Outcome range:", round(min(wdsm_data$Y), 3), "-", 
++     round(max(wdsm_data$Y), 3), "\n")
+  Outcome range: -0.943 - 1.199 
+> 
+> # ==============================================================================
+> # Run WDSM Point Estimation
+> # ==============================================================================
+> cat("\n================================================================================\n")
+
+================================================================================
+> cat("    WDSM POINT ESTIMATION (M = 5)\n")
+    WDSM POINT ESTIMATION (M = 5)
+> cat("================================================================================\n\n")
+================================================================================
+
+> 
+> # Use the wdsm_point_estimate function from WDSM PATE Retrospective.R
+> # But we need to adapt our data structure
+> cat("=== Running WDSM Point Estimation ===\n")
+=== Running WDSM Point Estimation ===
+> 
+> # The wdsm_point_estimate function expects specific column names
+> # Let's create a compatible dataset
+> wdsm_input <- wdsm_data
+> 
+> # Rename X columns to match expected format (X1, X2, ..., X6 for main covariates)
+> # We'll use the first 6 principal components or most important variables
+> # For now, let's use the first 6 X variables as main predictors
+> names(wdsm_input)[4:9] <- c("X1", "X2", "X3", "X4", "X5", "X6")
+> 
+> # Keep only necessary columns for the function
+> wdsm_input <- wdsm_input[, c("Y", "A", "survey_weight", "X1", "X2", "X3", "X4", "X5", "X6")]
+> 
+> cat("  Estimating propensity and prognostic scores...\n")
+  Estimating propensity and prognostic scores...
+> 
+> # Call the WDSM point estimate function
+> tryCatch({
++   point_estimate <- wdsm_point_estimate(
++     data = wdsm_input,
++     M = 5,
++     use_bias_correction = TRUE
++   )
++   
++   cat("\n=== WDSM Point Estimate Results ===\n")
++   cat("  E[Y(1)] - Black telomere:", round(point_estimate$mu1, 4), "\n")
++   cat("  E[Y(0)] - White telomere:", round(point_estimate$mu0, 4), "\n")
++   cat("  PATE (τ_WDSM):", round(point_estimate$tau_hat, 4), "\n")
++   
++ }, error = function(e) {
++   cat("\n✗ Error in point estimation:", e$message, "\n")
++   cat("  Debugging information:\n")
++   cat("  - Data dimensions:", dim(wdsm_input), "\n")
++   cat("  - Column names:", paste(names(wdsm_input), collapse=", "), "\n")
++   stop("Point estimation failed")
++ })
+
+✗ Error in point estimation: could not find function "wdsm_point_estimate" 
+  Debugging information:
+  - Data dimensions: 5270 9 
+  - Column names: Y, A, survey_weight, X1, X2, X3, X4, X5, X6 
+Error in value[[3L]](cond) : Point estimation failed
+Calls: tryCatch -> tryCatchList -> tryCatchOne -> <Anonymous>
+Execution halted

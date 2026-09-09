@@ -1,0 +1,2 @@
+"Scenario","M","Method","N_Valid","Mean_Estimate","Bias","Rel_Bias","Empirical_SE","Mean_SE","SE_Ratio","Coverage","RMSE"
+"CorCor",5,"ps_weighted",100,0.8734,0.007,0.0081,0.1606,0.1127,0.7019,0.81,0.16

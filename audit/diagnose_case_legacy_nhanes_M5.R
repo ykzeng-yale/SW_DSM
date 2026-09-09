@@ -1,0 +1,37 @@
+# Bounded same-runtime comparison with the exact3356769 pre-safeguard source.
+# Inputs/results remain outside GitHub; output contains no fitted model/data rows.
+options(warn=2)
+case_root<-Sys.getenv('CASE_ROOT')
+stopifnot(nzchar(case_root))
+source_path<-file.path(case_root,'diagnostic_legacy335','WDSM_adaptive.R')
+new_result<-readRDS(file.path(case_root,'results','NHANES_HbA1c_M5.rds'))
+stopifnot(identical(new_result$status,'complete'))
+legacy<-new.env(parent=globalenv());sys.source(source_path,legacy)
+saved<-new.env(parent=emptyenv())
+input<-file.path(case_root,'inputs','WDSM_M1_M3_M5_ANALYSIS_10.rda')
+stopifnot(unname(tools::md5sum(input))==new_result$manifest$input_md5)
+load(input,saved)
+d<-as.data.frame(saved$data_prep);d$Y<-d$lbxgh;d$A<-as.numeric(d$sld012<7);d$survey_weight<-d$wtmec2yr
+vars<-new_result$manifest$config$nhanes_input$variables
+stopifnot(nrow(d)==3793L,all(complete.cases(d[,c('Y','A','survey_weight',vars)])))
+do.call(RNGkind,as.list(new_result$manifest$config$RNGkind))
+.Random.seed<-new_result$manifest$seed_start
+fit<-legacy$bootstrap_adaptive_wdsm(d,reformulate(vars,'A'),reformulate(vars),
+ M=5,n_bootstrap=200,seed=NULL,sampling_design='retrospective')
+stopifnot(fit$n_valid==200L,all(is.finite(fit$bootstrap_estimates)),
+ identical(.Random.seed,new_result$manifest$seed_end))
+old_summary<-c(estimate=fit$point_estimate$tau,SE=fit$se,lower=fit$ci_lower,upper=fit$ci_upper)
+new_summary<-unlist(new_result$summary[c('estimate','SE','lower','upper')])
+published<-unlist(new_result$previous_published_result[c('estimate','SE','lower','upper')])
+answer<-list(baseline_commit='3356769fc3d0805678d7fd927108d4b00c069980',
+ baseline_source_sha256='f7e614f1fe09e833f3717d1cca5d94e505bd9036c7570a234ce18bb7baccc18e',
+ baseline_source_md5=unname(tools::md5sum(source_path)),
+ new_commit=new_result$manifest$commit,input_md5=new_result$manifest$input_md5,
+ task='NHANES_HbA1c_M5',R_version=R.version.string,legacy=old_summary,new=new_summary,
+ previous_published=published,legacy_minus_new=old_summary-new_summary,
+ legacy_minus_published=old_summary-published,
+ max_draw_difference=max(abs(fit$bootstrap_estimates-new_result$bootstrap_samples)),
+ legacy_draws=fit$bootstrap_estimates,RNG_start_and_end_identical=TRUE,
+ finished_utc=format(Sys.time(),tz='UTC',usetz=TRUE))
+saveRDS(answer,file.path(case_root,'diagnostic_legacy335','NHANES_M5_legacy_comparison.rds'))
+print(answer[c('legacy','new','previous_published','legacy_minus_new','legacy_minus_published','max_draw_difference')],digits=15)

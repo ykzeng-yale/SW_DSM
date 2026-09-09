@@ -1,0 +1,83 @@
+{
+  "status": "completed_all_five_verified",
+  "job": "25692950",
+  "code_commit": "8444359ef29b51790a6464fed7ffcb1b3aba7849",
+  "cluster_root": "/nfs/roberts/project/pi_gt353/yz2324/WDSM_Case_Numerics_20260909",
+  "code_directory": "code_8444359",
+  "output": "results",
+  "array_tasks": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "B": 200,
+  "account": "pi_gt353",
+  "partition": "day",
+  "cpus_per_task": 1,
+  "memory_per_task": "8G",
+  "time_limit": "04:00:00",
+  "R_module": "R/4.4.2-gfbf-2024a-bare",
+  "source_archive_sha256": "7148fcdf60d3638546ce64b5fe691561ef9f4cdeff10caee2afb018cd02472b6",
+  "all_7_code_hashes_verified": true,
+  "both_input_sha256_verified": true,
+  "submitted_utc": "2026-09-09T15:05:03.312293+00:00",
+  "cases": [
+    "NHANES_HbA1c_M1",
+    "NHANES_HbA1c_M3",
+    "NHANES_HbA1c_M5",
+    "NSDUH_AMIPY_M5",
+    "NSDUH_SMIPY_M5"
+  ],
+  "input_protection": "Original participant inputs in private cluster directory, excluded from GitHub; saved results omit participant records and fitted models.",
+  "finished_utc": "2026-09-09T15:15:56.767824+00:00",
+  "exit_codes": "0:0 for all five array tasks",
+  "elapsed_seconds": [
+    39,
+    52,
+    44,
+    68,
+    62
+  ],
+  "finite_bootstrap_draws": 1000,
+  "checked_propensity_fits": 1005,
+  "max_normalized_propensity_score": 3.98793958552419e-11,
+  "RNG_start_end_match_local_R_4_4_0_and_cluster_R_4_4_2": true,
+  "case_figure_visually_checked": true,
+  "max_change_from_previous_point_estimate": 4.50891962655575e-11,
+  "max_change_from_previous_CI_endpoint": 2.45482800105001e-05,
+  "historical_SE_delta_attribution": "Exact3356769 NHANES M5 source at identical input/RNG/R4.4.2 matches new SE within1.06e-12 but differs from prior CSV by1.25249e-5. This cell discrepancy predates safeguards; undocumented historical cause unresolved.",
+  "numeric_exports": "CaseStudy/verification_20260909",
+  "figure_outputs": [
+    "CaseStudy/Figures/CaseStudy_Combined_WDSM.png",
+    "CaseStudy/Figures/CaseStudy_Combined_WDSM.pdf",
+    "CaseStudy/Figures/CaseStudy_Combined_WDSM.svg"
+  ],
+  "numeric_file_sha256": {
+    "CaseStudy/verification_20260909/checks.csv": "7a7ae12f9c34a71f31a62dc8aeba72ccbd037c7515225d7ff7c28ec7fd5c9424",
+    "CaseStudy/verification_20260909/diagnostics.csv": "899239ea14699a62473c7c57f0638de1c9bc87871ef4775dff492cefa2a738ad",
+    "CaseStudy/verification_20260909/draws.csv": "991c670f98fb7e08a6060a60e3e4cd6ba652b8f9b079f5e80e73f93d791a384f",
+    "CaseStudy/verification_20260909/legacy_NHANES_M5_comparison.csv": "b9c5375c8aadf2beae29a7255bc376aa41d8302b293c04c91a135331e11f88ac",
+    "CaseStudy/verification_20260909/legacy_NHANES_M5_draws.csv": "aeaf2d4211476de1bc5e0d63d79edb8b400607077e253f5fab8a3aa02cbf483b",
+    "CaseStudy/verification_20260909/nhanes_M5_PS_initialization_comparison.csv": "3b468c63423c1ef0205fb152d75fc9e78253212947e35cff12d69a947b0a4e1d",
+    "CaseStudy/verification_20260909/previous_results_3356769.csv": "511f1cd167e02c02052119248fe7a496c8f95ab5f6fb68e65e12c9eb0522eb35",
+    "CaseStudy/verification_20260909/summaries.csv": "b8a6f34e6b8c0475bfc697f5448a258c0ba9291c0b3a127090de3de943858e8f"
+  },
+  "legacy_diagnostic": {
+    "job": "25694755",
+    "status": "completed",
+    "exit_code": "0:0",
+    "elapsed_seconds": 36,
+    "case": "NHANES_HbA1c_M5",
+    "baseline_commit": "3356769fc3d0805678d7fd927108d4b00c069980",
+    "diagnostic_frozen_commit": "e0d724bc5d85ba8052c8e0ed1072727cd669122c",
+    "driver_sha256": "27198ed415ff9757b7d6a4a3c8cb903e065e172ae931d6cee6bc757df043376e",
+    "max_absolute_draw_difference": 1.48708718950008e-10,
+    "legacy_minus_new_SE": -1.050250164613686e-12,
+    "legacy_minus_previous_SE": -1.252484276680413e-05,
+    "cpus": 1,
+    "memory_mb": 2048,
+    "time_limit": "00:03:00"
+  }
+}

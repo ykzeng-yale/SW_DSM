@@ -1,12 +1,42 @@
-# Weighted Double Score Matching (WDSM) Simulation Study
+# Weighted Double Score Matching (WDSM)
 
-## PATE bootstrap correction (2026-09-09)
+## Full inference and implementation correction — September 9, 2026
 
-The [provenance and inference audit](audit/PATE_bootstrap_audit_20260909.md) links the paper's saved results to the local publication files and Tong's Bouchet production runs. Those PATE intervals used a bootstrap with an omitted residual correction and percentile endpoints. The original results are retained as the comparison baseline.
+The paper’s original simulation tables have been traced to the saved 0727 publication results and Tong’s Bouchet production runs. The original PATE bootstrap omitted residual reuse contributions and used percentile intervals. Retrospective propensity fits also failed numerically in both PATE and PATT. The full audit additionally identified a discrepancy between the old simulation score/bias-correction implementation and the probability-score, own-arm construction used by the manuscript and corrected case studies.
 
-Use `Simulations/rerun_pate_wald.R` and `Simulations/submit_pate_wald.sbatch` for the corrected PATE rerun. They explicitly select retrospective/prospective score weighting, freeze original weighted reuse, use B-divisor replication variance and Wald intervals, and save full bootstrap draws and provenance. Run a pilot first in a separate output directory. `Rscript Simulations/rerun_pate_wald.R --help` lists the options.
+**Status: the full corrected pilot passed and the 1,000-replication production run is running on Bouchet (job 25694783). Final simulation results are not yet available.** Historical numbers in `Results/`, `Tables/All_12_Simulation_Tables.txt`, and existing simulation images remain the original baseline. Do not use them as corrected results. See [run status](audit/full_rerun_execution.json), [result lineage](audit/paper_result_lineage.md), and [case-study comparison](audit/case_study_fix_comparison_20260909.md).
 
-The older per-scenario scripts and plotting/table scripts retain historical deployment paths and are preserved for provenance; they are not the new rerun entrypoint. This correction retains the mathematical point estimator and joint ten-term sieve, with a stable propensity-model initialization that repairs observed failures in the original numerical fits. Point estimates can consequently change. See the audit for the remaining manuscript-specification and theoretical-validation boundaries. New numerical results must not be claimed complete until the cluster output checks pass.
+## Current implementation
+
+- `R/wdsm_core_final.R`: one checked PATE/PATT implementation for both designs and all M values. It uses probability propensity scores, own-arm prognostic scores, original fixed weighted reuse, the correct estimand-specific denominator, all B requested replication draws, B-divisor variance, and centered normal Wald intervals. It fails explicitly on invalid nuisance fits or draws.
+- `R/comparators_final.R`: the original PSM/PGM/DSM nearest-neighbor algorithms (M=1) and survey-weighted optimal full matching, with additional checks and saved diagnostics. Nearest-neighbor comparator variance retains the vendor’s B−1 convention; SW-PSM uses its subclass-cluster sandwich variance. All reported intervals are normal Wald intervals. These are different variance estimators, not one shared bootstrap formula.
+- `Simulations/rerun_wdsm_final.R`: reproducible 32-setting rerun (PATE/PATT × retrospective/prospective × good/poor overlap × four model specifications). Every sample is analyzed with WDSM M=1/3/5 and all four comparators. It saves samples’ population IDs, full bootstrap draws, convergence diagnostics, deterministic seeds, and code/data/runtime hashes.
+- `Simulations/submit_wdsm_final.sbatch`: array indices 0–31, pilot by default. Production requires an explicitly selected separate output directory and 1,000 replications per setting after the complete pilot passes.
+
+The original sampling seed remains `2025 + replication`. Bootstrap streams are separately recorded new deterministic streams. The prospective WDSM propensity model uses unweighted point fits and multiplicity-weighted replicate fits; the retrospective version uses survey weights and multiplicity-times-survey weights. Prognostic fits do not use survey weights; bias-correction fits do.
+
+The concrete pooled component standardization and complete quadratic bias-correction basis match the corrected case studies. These finite-dimensional implementation choices do not themselves establish the asymptotic sieve conditions or validate an iid replication scheme for every multistage sampling design. Numerical validation and theoretical justification remain distinct.
+
+## Running the corrected analysis
+
+```sh
+Rscript --vanilla Simulations/rerun_wdsm_final.R --help
+Rscript --vanilla tests/test_wdsm_core_final.R
+```
+
+Provide `--repo`, `--data-dir` (or `--data-file`), `--output`, `--estimand`, `--design`, `--overlap`, and `--scenario`. Use `--pilot` for the initial five-sample check; `--reps 1000 --B 200` selects the full simulation. Outputs never default to historical results. Resume checks code, data, runtime, and configuration identity.
+
+For Bouchet, set `WDSM_REPO`, `WDSM_DATA_DIR`, `WDSM_OUTPUT_DIR`, and the available R module, then submit the array with the authorized account and partition. The recorded current run uses R 4.4.2 and the `day` partition. Set BLAS/OpenMP threads to one; allocated workers provide parallelism.
+
+Canonical per-scenario R and shell entry points now route to this same driver. The public `compute_wdsm_method2_ci()` and `compute_wdsm_patt_ci()` compatibility functions call the finalized core. Separate historical point/bootstrap objects and the earlier PATE-only driver are retired because their score objects and configuration do not match the final implementation. Diagnostic versions are preserved under `R/legacy_pre_alignment_20260909/` and in Git history.
+
+## Validation and outputs
+
+The final-core suite has 318 independent numerical checks, including unequal survey weights, both estimands/designs, M=1/3/5, nuisance fitting weights, fixed-reuse identities, failure handling, and synthetic parity with corrected NHANES/NSDUH functions. Comparator validation matches the untouched vendor estimates and variance exactly across all model specifications.
+
+The actual pilot passed all 32 settings, 160 sampled data sets, 1,120 method results and 192,000 bootstrap draws without warnings or failures.
+
+A complete production run contains 32,000 sampled data sets, 224,000 method results, and 38.4 million WDSM/vendor bootstrap draws. Publication tables and figures must come from the strict complete-run summary; failed or missing records cannot be dropped independently from estimates and intervals. Every replacement artifact must link to that run’s manifest. Participant-level case-study data are not published to GitHub.
 
 ## Full 0727 experiment folder
 
@@ -16,102 +46,5 @@ The older per-scenario scripts and plotting/table scripts retain historical depl
 
 The browsable copy contains code and files up to 10 MB. The release archive preserves every original file, symbolic link, and subdirectory.
 
-Reproducibility package for the simulation study comparing WDSM against standard matching methods under survey-weighted observational data.
 
-## Directory Structure
-
-```
-Publication_Package/
-├── R/                          # Core estimator functions
-│   ├── wdsm_ci_functions.R               # PATE WDSM: point estimate + Method 1 bootstrap
-│   ├── wdsm_method2_multinomial_bootstrap.R  # PATE WDSM: Method 2 multinomial bootstrap
-│   ├── wdsm_patt_ci_functions.R          # PATT WDSM: point estimate + bootstrap (10-term sieve)
-│   └── dsmatch/                          # Unweighted matching package (DSM, PSM, PGM)
-│       ├── dsmatchATE.R                  # ATE double score matching
-│       ├── dsmatchATT.R                  # ATT double score matching
-│       └── ...                           # Bootstrap helpers
-│
-├── Data/                       # Super-population data (symlinks)
-│   ├── SuperPopGen_GoodOverlap_AllinOne_0118_2025.RData  (delta_z = 0.6)
-│   └── SuperPopGen_PoorOverlap_AllinOne_0118_2025.RData  (delta_z = 2.0)
-│
-├── Simulations/                # Per-scenario simulation scripts
-│   ├── compare_methods_pate.R            # PATE comparison driver (all methods)
-│   ├── Retrospective/
-│   │   ├── PATE/
-│   │   │   ├── GoodOverlap/
-│   │   │   │   ├── CorCor/              # Both PS and PGS correctly specified
-│   │   │   │   │   ├── run_m135.sh      # SLURM submission script
-│   │   │   │   │   └── preprocess_and_run.R
-│   │   │   │   ├── CorMis/              # PS correct, PGS misspecified
-│   │   │   │   ├── MisCor/              # PS misspecified, PGS correct
-│   │   │   │   └── MisMis/              # Both misspecified
-│   │   │   └── PoorOverlap/
-│   │   │       └── {CorCor,CorMis,MisCor,MisMis}/
-│   │   └── PATT/
-│   │       ├── GoodOverlap/{...}/
-│   │       └── PoorOverlap/{...}/
-│   └── Prospective/
-│       ├── PATE/{...}/
-│       └── PATT/{...}/
-│
-├── Results/                    # Simulation output (symlinks to .RData)
-│   ├── PATE/                   # 16 files: {Retro,Prosp}_{Good,Poor}_{4 scenarios}
-│   └── PATT/                   # 16 files: same structure (10-term sieve)
-│
-├── Tables/
-│   ├── All_12_Simulation_Tables.txt      # LaTeX tables (4 tables x PATE+PATT)
-│   └── generate_tables.R                # R script to regenerate tables from results
-│
-└── Figures/
-    ├── generate_figures.R                # Vertical layout figure generator
-    ├── generate_figures_transposed.R     # Horizontal layout figure generator
-    ├── Retrospective/
-    │   ├── horizontal/{png,pdf}/         # 3 rows (metrics) x 4 cols (estimand/overlap)
-    │   │   ├── lines.{png,pdf}
-    │   │   ├── dots_solid.{png,pdf}
-    │   │   └── dots_hollow.{png,pdf}     # Faded for unaffected method-scenarios
-    │   └── vertical/{png,pdf}/           # 4 rows (estimand/overlap) x 3 cols (metrics)
-    └── Prospective/
-        ├── horizontal/{png,pdf}/
-        └── vertical/{png,pdf}/
-```
-
-## Methods Compared
-
-| Method | Abbreviation | Score(s) Used | Survey Weights |
-|--------|-------------|---------------|----------------|
-| Propensity Score Matching | PSM | PS only | No |
-| Prognostic Score Matching | PGM | PGS only | No |
-| Double Score Matching | DSM | PS + PGS | No |
-| Survey-Weighted PS Full Matching | SW-PSM | PS | Yes (MatchIt) |
-| **Weighted Double Score Matching** | **WDSM** | **PS + PGS** | **Yes** |
-
-## Simulation Design
-
-- **Estimands**: PATE (population average treatment effect), PATT (population average treatment effect on the treated)
-- **Sampling**: Retrospective (treatment-dependent), Prospective (multi-stage)
-- **Overlap**: Good (delta_z = 0.6), Poor (delta_z = 2.0)
-- **Model specification**: 4 patterns (Cor|Cor, Mis|Cor, Cor|Mis, Mis|Mis)
-- **Matching ratios**: M = 1, 3, 5 for WDSM
-- **Replications**: 1,000
-- **Bootstrap**: B = 200 (multinomial, linearization-based)
-- **Sieve**: 10-term polynomial basis for PATE; 10-term for PATT
-- **Total scenarios**: 2 sampling x 2 overlap x 2 estimand x 4 misspec = 32
-
-## HPC Configuration
-
-Simulations run on Yale Bouchet HPC cluster:
-- Partition: `day_amd`
-- CPUs: 64 per job
-- Memory: 5G per CPU
-- R version: 4.4.2-gfbf-2024a
-- Account: `pi_gt353`
-
-## Reproducing Results
-
-1. Place population data in each scenario folder (or adjust paths in `preprocess_and_run.R`)
-2. Copy R functions to each scenario folder (or adjust `source()` paths)
-3. Submit SLURM jobs: `sbatch run_m135.sh`
-4. After completion, collect `raw_results_*.RData` files into `Results/`
-5. Run `generate_tables.R` and `generate_figures.R` from the `Tables/` and `Figures/` directories
+Final summaries use `Tables/summarize_wdsm_final.R`. Render four publication tables with `Tables/generate_wdsm_final_tables.R` and all figure variants/M values with `Figures/generate_wdsm_final_figures.R`; both take explicit `--summary` and `--output` directories and verify the complete-summary checksum. Pilot rendering requires `--pilot-preview` and is visibly labeled. `Simulations/finalize_wdsm.sbatch` runs these sequentially after a successful production array.

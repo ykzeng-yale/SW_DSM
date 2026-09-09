@@ -1,3 +1,4 @@
+# Historical diagnostic regression tests; final-core tests are test_wdsm_core_final.R.
 # Run from the repository root: Rscript --vanilla tests/test_pate_replication.R
 # These tests need only base R/stats. Load function definitions in isolated
 # environments so unrelated simulation-package startup code is not executed.
@@ -18,8 +19,8 @@ read_baseline <- function(path) {
   if (!is.null(attr(result, "status"))) stop("Cannot read preserved baseline ", path)
   result
 }
-production <- load_definitions(c(readLines("R/wdsm_ci_functions.R"),
-                                 readLines("R/wdsm_method2_multinomial_bootstrap.R")))
+production <- load_definitions(c(readLines("R/legacy_pre_alignment_20260909/wdsm_ci_functions.R"),
+                                 readLines("R/legacy_pre_alignment_20260909/wdsm_method2_multinomial_bootstrap.R")))
 baseline_retro <- load_definitions(read_baseline("R/wdsm_ci_functions.R"))
 baseline_prospective <- load_definitions(read_baseline("R/wdsm_ci_functions_PROSPECTIVE.R"))
 

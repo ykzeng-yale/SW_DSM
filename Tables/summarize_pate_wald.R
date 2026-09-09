@@ -1,3 +1,5 @@
+# Retired diagnostic entry point. Historical source remains below and in Git1bc5fff.
+stop("Use Tables/summarize_wdsm_final.R for all PATE/PATT cells; the initial PATE-only run was superseded.", call. = FALSE)
 #!/usr/bin/env Rscript
 # Audit and summarize corrected PATE reruns without changing historical results.
 main <- function() {

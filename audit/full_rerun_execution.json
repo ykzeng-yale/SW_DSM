@@ -1,0 +1,69 @@
+{
+  "updated_at": "2026-09-09T11:25:58.510938-04:00",
+  "status": "production_submitted",
+  "repository": "ykzeng-yale/SW_DSM",
+  "branch": "fix/pate-wald-replication-20260909",
+  "source_commit": "f29994650568a6c74098234035420985de97b9ad",
+  "cluster_host": "bouchet",
+  "cluster_root": "/nfs/roberts/project/pi_gt353/yz2324/WDSM_Final_Aligned_20260909",
+  "source_directory": "code_f299946",
+  "pilot_job_id": "25692667",
+  "pilot_output": "pilot_f299946",
+  "pilot": {
+    "settings": 32,
+    "replications_per_setting": 5,
+    "bootstrap_draws": 200,
+    "method_keys": [
+      "WDSM_M1",
+      "WDSM_M3",
+      "WDSM_M5",
+      "DSM_M1",
+      "PGM_M1",
+      "PSM_M1",
+      "SWPSM_full"
+    ]
+  },
+  "production_job_id": "25694783",
+  "production_output": "production_f299946",
+  "superseded_jobs_canceled": [
+    "25689737",
+    "25690059"
+  ],
+  "production_gate": "Require all pilot cells and requested fits/draws, finite checked nuisance fits, correct divisors and Wald intervals, and strict summary PASS before submitting production.",
+  "finalization_gate": "Require32settings x1000sample records x7methodresults with verified provenance; generate tables and all figures from this exact complete run. Retain failures and do not drop them from coverage. Preserve original0727/paper results. No participantdata in GitHub.",
+  "previous_pilots": [
+    {
+      "job_id": "25692324",
+      "source_commit": "162b22a",
+      "output": "pilot_162b22a",
+      "status": "compatibility_diagnostic",
+      "issue": "SWPSM called MatchIt::match_data which is unavailable in cluster MatchIt4.6; corrected to original supported MatchIt::match.data. All first80PATE records had successful WDSM/DSM/PGM/PSM and no warnings."
+    }
+  ],
+  "local_checkout": "/Users/yukang/.codex/workspaces/WDSM_final_20260909",
+  "production": {
+    "settings": 32,
+    "replications_per_setting": 1000,
+    "bootstrap_draws": 200,
+    "method_results": 224000,
+    "bootstrap_draws_total": 38400000,
+    "account": "pi_gt353",
+    "partition": "day",
+    "array": "0-31%16",
+    "cpus_per_task": 16,
+    "memory_per_task": "48G",
+    "walltime": "12:00:00"
+  },
+  "pilot_verified": {
+    "status": "PASS",
+    "summary": "audit/full_pilot_f299946_strict_summary/wdsm_final_summary.md",
+    "sample_data_sets": 160,
+    "method_results": 1120,
+    "finite_bootstrap_draws": 192000,
+    "failures": 0,
+    "warnings": 0,
+    "code_tests": 318,
+    "summary_tests": 85
+  },
+  "artifact_job_id": null
+}

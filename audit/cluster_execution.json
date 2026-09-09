@@ -1,0 +1,50 @@
+{
+  "base_commit": "3356769fc3d0805678d7fd927108d4b00c069980",
+  "cluster_root": "/nfs/roberts/project/pi_gt353/yz2324/PATE_Wald_Replication_20260909",
+  "pilot_cells": 16,
+  "B": 200,
+  "M": [
+    1,
+    3,
+    5
+  ],
+  "account": "pi_gt353",
+  "partition": "day",
+  "status": "production_submitted",
+  "initial_correction_commit": "e666e9937586dbb0391558710082ec01c9531793",
+  "correction_commit": "f1e4d831c71106b9e5d1b3a49f8fd500329ad819",
+  "pilot_runs": [
+    {
+      "job": "25688712",
+      "output": "pilot",
+      "reps_per_cell": 2,
+      "status": "completed_with_numerical_failures",
+      "successful_sample_records": 24,
+      "failed_sample_records": 8,
+      "finding": "Default raw-weight propensity initialization diverges in retrospective good overlap."
+    },
+    {
+      "job": "25689465",
+      "output": "pilot_stable",
+      "reps_per_cell": 5,
+      "status": "passed_complete",
+      "code_directory": "code_f1e4d83",
+      "successful_sample_records": 80,
+      "successful_method_estimates": 240,
+      "finite_bootstrap_draws": 48000,
+      "warnings": 0,
+      "summary": "audit/pilot_stable_summary/pate_wald_summary.md"
+    }
+  ],
+  "production": {
+    "job": "25689737",
+    "output": "production",
+    "code_directory": "code_f1e4d83",
+    "reps_per_cell": 1000,
+    "cells": 16,
+    "cpus_per_cell": 32,
+    "memory_per_cell": "64G",
+    "time_limit": "12:00:00",
+    "status": "submitted"
+  }
+}

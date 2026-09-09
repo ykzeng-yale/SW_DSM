@@ -1,0 +1,45 @@
+         used (Mb) gc trigger  (Mb) limit (Mb) max used  (Mb)
+Ncells 300924 16.1     700397  37.5         NA   486249  26.0
+Vcells 574947  4.4   13694033 104.5      32768 14688563 112.1
+Original point M5 start 2026-09-09 10:05:30 
+Warning messages:
+1: glm.fit: algorithm did not converge 
+2: In predict.lm(bc1_fit, newdata = data.frame(sieve_x)) :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
+Stable point M5 start 2026-09-09 10:05:49 
+$sample
+[1] 1
+
+$design
+[1] "Retrospective_GoodOverlap_CorCor"
+
+$M
+[1] 5
+
+$old
+[1] 0.9015108
+
+$stable
+[1] 0.8944403
+
+$paper
+[1] 0.9015108
+
+$old_paper_difference
+[1] -1.110223e-16
+
+$stable_old_difference
+[1] -0.007070478
+
+$stable_old_relative_change
+[1] -0.7842921
+
+$max_ps_difference
+[1] 0.9752988
+
+$changed_matches_0
+[1] 1608
+
+$changed_matches_1
+[1] 3276
+

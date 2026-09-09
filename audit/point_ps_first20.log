@@ -1,0 +1,340 @@
+First sample IDs exact pilot match: TRUE 
+     overlap        design replicate           PS converged iter nearBoundary
+ GoodOverlap retrospective         1      correct     FALSE   25         4884
+ GoodOverlap retrospective         1 misspecified     FALSE   25         4884
+ GoodOverlap retrospective         2      correct     FALSE   25         4809
+ GoodOverlap retrospective         2 misspecified     FALSE   25         4809
+ GoodOverlap retrospective         3      correct     FALSE   25         4958
+ GoodOverlap retrospective         3 misspecified     FALSE   25         4958
+ GoodOverlap retrospective         4      correct     FALSE   25         4932
+ GoodOverlap retrospective         4 misspecified     FALSE   25         4932
+ GoodOverlap retrospective         5      correct     FALSE   25         4814
+ GoodOverlap retrospective         5 misspecified     FALSE   25         4814
+ GoodOverlap retrospective         6      correct     FALSE   25         4804
+ GoodOverlap retrospective         6 misspecified     FALSE   25         4804
+ GoodOverlap retrospective         7      correct     FALSE   25         4829
+ GoodOverlap retrospective         7 misspecified     FALSE   25         4829
+ GoodOverlap retrospective         8      correct     FALSE   25         4853
+ GoodOverlap retrospective         8 misspecified     FALSE   25         4853
+ GoodOverlap retrospective         9      correct     FALSE   25         4847
+ GoodOverlap retrospective         9 misspecified     FALSE   25         4847
+ GoodOverlap retrospective        10      correct     FALSE   25         4953
+ GoodOverlap retrospective        10 misspecified     FALSE   25         4953
+ GoodOverlap retrospective        11      correct     FALSE   25         4867
+ GoodOverlap retrospective        11 misspecified     FALSE   25         4867
+ GoodOverlap retrospective        12      correct     FALSE   25         4906
+ GoodOverlap retrospective        12 misspecified     FALSE   25         4906
+ GoodOverlap retrospective        13      correct     FALSE   25         4958
+ GoodOverlap retrospective        13 misspecified     FALSE   25         4958
+ GoodOverlap retrospective        14      correct     FALSE   25         4842
+ GoodOverlap retrospective        14 misspecified     FALSE   25         4842
+ GoodOverlap retrospective        15      correct     FALSE   25         4785
+ GoodOverlap retrospective        15 misspecified     FALSE   25         4785
+ GoodOverlap retrospective        16      correct     FALSE   25         4935
+ GoodOverlap retrospective        16 misspecified     FALSE   25         4935
+ GoodOverlap retrospective        17      correct     FALSE   25         4928
+ GoodOverlap retrospective        17 misspecified     FALSE   25         4928
+ GoodOverlap retrospective        18      correct     FALSE   25         4799
+ GoodOverlap retrospective        18 misspecified     FALSE   25         4799
+ GoodOverlap retrospective        19      correct     FALSE   25         4897
+ GoodOverlap retrospective        19 misspecified     FALSE   25         4897
+ GoodOverlap retrospective        20      correct     FALSE   25         4936
+ GoodOverlap retrospective        20 misspecified     FALSE   25         4936
+ GoodOverlap   prospective         1      correct      TRUE    4            0
+ GoodOverlap   prospective         1 misspecified      TRUE    4            0
+ GoodOverlap   prospective         2      correct      TRUE    4            0
+ GoodOverlap   prospective         2 misspecified      TRUE    4            0
+ GoodOverlap   prospective         3      correct      TRUE    4            0
+ GoodOverlap   prospective         3 misspecified      TRUE    4            0
+ GoodOverlap   prospective         4      correct      TRUE    4            0
+ GoodOverlap   prospective         4 misspecified      TRUE    4            0
+ GoodOverlap   prospective         5      correct      TRUE    4            0
+ GoodOverlap   prospective         5 misspecified      TRUE    4            0
+ GoodOverlap   prospective         6      correct      TRUE    4            0
+ GoodOverlap   prospective         6 misspecified      TRUE    4            0
+ GoodOverlap   prospective         7      correct      TRUE    4            0
+ GoodOverlap   prospective         7 misspecified      TRUE    4            0
+ GoodOverlap   prospective         8      correct      TRUE    4            0
+ GoodOverlap   prospective         8 misspecified      TRUE    4            0
+ GoodOverlap   prospective         9      correct      TRUE    4            0
+ GoodOverlap   prospective         9 misspecified      TRUE    4            0
+ GoodOverlap   prospective        10      correct      TRUE    4            0
+ GoodOverlap   prospective        10 misspecified      TRUE    4            0
+ GoodOverlap   prospective        11      correct      TRUE    4            0
+ GoodOverlap   prospective        11 misspecified      TRUE    4            0
+ GoodOverlap   prospective        12      correct      TRUE    4            0
+ GoodOverlap   prospective        12 misspecified      TRUE    4            0
+ GoodOverlap   prospective        13      correct      TRUE    4            0
+ GoodOverlap   prospective        13 misspecified      TRUE    4            0
+ GoodOverlap   prospective        14      correct      TRUE    4            0
+ GoodOverlap   prospective        14 misspecified      TRUE    4            0
+ GoodOverlap   prospective        15      correct      TRUE    4            0
+ GoodOverlap   prospective        15 misspecified      TRUE    4            0
+ GoodOverlap   prospective        16      correct      TRUE    4            0
+ GoodOverlap   prospective        16 misspecified      TRUE    4            0
+ GoodOverlap   prospective        17      correct      TRUE    4            0
+ GoodOverlap   prospective        17 misspecified      TRUE    4            0
+ GoodOverlap   prospective        18      correct      TRUE    4            0
+ GoodOverlap   prospective        18 misspecified      TRUE    4            0
+ GoodOverlap   prospective        19      correct      TRUE    4            0
+ GoodOverlap   prospective        19 misspecified      TRUE    4            0
+ GoodOverlap   prospective        20      correct      TRUE    4            0
+ GoodOverlap   prospective        20 misspecified      TRUE    4            0
+ PoorOverlap retrospective         1      correct      TRUE    7            0
+ PoorOverlap retrospective         1 misspecified      TRUE    7            0
+ PoorOverlap retrospective         2      correct      TRUE    7            0
+ PoorOverlap retrospective         2 misspecified      TRUE    7            0
+ PoorOverlap retrospective         3      correct      TRUE    7            0
+ PoorOverlap retrospective         3 misspecified      TRUE    7            0
+ PoorOverlap retrospective         4      correct      TRUE    7            0
+ PoorOverlap retrospective         4 misspecified      TRUE    7            0
+ PoorOverlap retrospective         5      correct      TRUE    7            0
+ PoorOverlap retrospective         5 misspecified      TRUE    8            0
+ PoorOverlap retrospective         6      correct      TRUE    7            0
+ PoorOverlap retrospective         6 misspecified      TRUE    8            0
+ PoorOverlap retrospective         7      correct      TRUE    7            0
+ PoorOverlap retrospective         7 misspecified      TRUE    8            0
+ PoorOverlap retrospective         8      correct      TRUE    7            0
+ PoorOverlap retrospective         8 misspecified      TRUE    7            0
+ PoorOverlap retrospective         9      correct      TRUE    7            0
+ PoorOverlap retrospective         9 misspecified      TRUE    7            0
+ PoorOverlap retrospective        10      correct      TRUE    7            0
+ PoorOverlap retrospective        10 misspecified      TRUE    7            0
+ PoorOverlap retrospective        11      correct      TRUE    7            0
+ PoorOverlap retrospective        11 misspecified      TRUE    7            0
+ PoorOverlap retrospective        12      correct      TRUE    7            0
+ PoorOverlap retrospective        12 misspecified      TRUE    7            0
+ PoorOverlap retrospective        13      correct      TRUE    7            0
+ PoorOverlap retrospective        13 misspecified      TRUE    8            0
+ PoorOverlap retrospective        14      correct      TRUE    7            0
+ PoorOverlap retrospective        14 misspecified      TRUE    7            0
+ PoorOverlap retrospective        15      correct      TRUE    8            0
+ PoorOverlap retrospective        15 misspecified      TRUE    8            0
+ PoorOverlap retrospective        16      correct      TRUE    8            0
+ PoorOverlap retrospective        16 misspecified      TRUE    8            0
+ PoorOverlap retrospective        17      correct      TRUE    8            0
+ PoorOverlap retrospective        17 misspecified      TRUE    8            0
+ PoorOverlap retrospective        18      correct      TRUE    7            0
+ PoorOverlap retrospective        18 misspecified      TRUE    7            0
+ PoorOverlap retrospective        19      correct      TRUE    7            0
+ PoorOverlap retrospective        19 misspecified      TRUE    7            0
+ PoorOverlap retrospective        20      correct      TRUE    7            0
+ PoorOverlap retrospective        20 misspecified      TRUE    8            0
+ PoorOverlap   prospective         1      correct      TRUE    6            0
+ PoorOverlap   prospective         1 misspecified      TRUE    6            0
+ PoorOverlap   prospective         2      correct      TRUE    6            0
+ PoorOverlap   prospective         2 misspecified      TRUE    6            0
+ PoorOverlap   prospective         3      correct      TRUE    6            0
+ PoorOverlap   prospective         3 misspecified      TRUE    6            0
+ PoorOverlap   prospective         4      correct      TRUE    6            0
+ PoorOverlap   prospective         4 misspecified      TRUE    6            0
+ PoorOverlap   prospective         5      correct      TRUE    6            0
+ PoorOverlap   prospective         5 misspecified      TRUE    6            0
+ PoorOverlap   prospective         6      correct      TRUE    6            0
+ PoorOverlap   prospective         6 misspecified      TRUE    6            0
+ PoorOverlap   prospective         7      correct      TRUE    6            0
+ PoorOverlap   prospective         7 misspecified      TRUE    6            0
+ PoorOverlap   prospective         8      correct      TRUE    6            0
+ PoorOverlap   prospective         8 misspecified      TRUE    6            0
+ PoorOverlap   prospective         9      correct      TRUE    6            0
+ PoorOverlap   prospective         9 misspecified      TRUE    6            0
+ PoorOverlap   prospective        10      correct      TRUE    6            0
+ PoorOverlap   prospective        10 misspecified      TRUE    6            0
+ PoorOverlap   prospective        11      correct      TRUE    6            0
+ PoorOverlap   prospective        11 misspecified      TRUE    6            0
+ PoorOverlap   prospective        12      correct      TRUE    6            0
+ PoorOverlap   prospective        12 misspecified      TRUE    6            0
+ PoorOverlap   prospective        13      correct      TRUE    6            0
+ PoorOverlap   prospective        13 misspecified      TRUE    6            0
+ PoorOverlap   prospective        14      correct      TRUE    6            0
+ PoorOverlap   prospective        14 misspecified      TRUE    6            0
+ PoorOverlap   prospective        15      correct      TRUE    6            0
+ PoorOverlap   prospective        15 misspecified      TRUE    6            0
+ PoorOverlap   prospective        16      correct      TRUE    6            0
+ PoorOverlap   prospective        16 misspecified      TRUE    6            0
+ PoorOverlap   prospective        17      correct      TRUE    6            0
+ PoorOverlap   prospective        17 misspecified      TRUE    6            0
+ PoorOverlap   prospective        18      correct      TRUE    6            0
+ PoorOverlap   prospective        18 misspecified      TRUE    6            0
+ PoorOverlap   prospective        19      correct      TRUE    6            0
+ PoorOverlap   prospective        19 misspecified      TRUE    6            0
+ PoorOverlap   prospective        20      correct      TRUE    6            0
+ PoorOverlap   prospective        20 misspecified      TRUE    6            0
+   maxabsbeta weightedLogLik     maxScore maxProbabilityDiff
+ 6.718624e+14  -2.506249e+14 3.148475e-01       9.752988e-01
+ 2.973124e+14  -9.916831e+13 1.027773e-01       6.092767e-01
+ 6.904119e+14  -2.228220e+14 3.159380e-01       9.050231e-01
+ 2.978274e+14  -9.965979e+13 1.273994e-01       7.065486e-01
+ 1.791748e+15  -4.538261e+14 2.383318e-01       8.766355e-01
+ 2.900132e+14  -8.555306e+13 1.121159e-01       6.255347e-01
+ 2.298516e+14  -1.394769e+14 2.923630e-01       8.735094e-01
+ 8.740860e+14  -2.548587e+14 1.377030e-01       6.721675e-01
+ 1.412160e+15  -4.950253e+14 3.289117e-01       9.025126e-01
+ 8.749872e+14  -3.347735e+14 3.166236e-01       9.817854e-01
+ 2.592816e+15  -7.049184e+14 3.169269e-01       8.639273e-01
+ 8.378124e+14  -2.216407e+14 1.297635e-01       5.399334e-01
+ 1.804193e+15  -5.312477e+14 3.182011e-01       9.661629e-01
+ 8.790640e+14  -3.237344e+14 3.167164e-01       9.815859e-01
+ 7.922331e+14  -3.121538e+14 2.753042e-01       9.826631e-01
+ 1.385648e+15  -3.936398e+14 3.155607e-01       9.696243e-01
+ 7.374477e+14  -2.271812e+14 3.312911e-01       9.030705e-01
+ 8.156510e+14  -2.454776e+14 3.312911e-01       8.924815e-01
+ 1.001576e+15  -3.551344e+14 1.570257e-01       7.707921e-01
+ 9.283178e+14  -2.874863e+14 3.221496e-01       9.092481e-01
+ 1.538135e+15  -4.379847e+14 3.130477e-01       9.036942e-01
+ 2.611108e+14  -1.130041e+14 2.477570e-01       7.798237e-01
+ 5.159899e+14  -1.976113e+14 2.304184e-01       7.414300e-01
+ 5.327241e+14  -1.517726e+14 3.188220e-01       8.601384e-01
+ 1.444931e+15  -4.322152e+14 3.236311e-01       9.209375e-01
+ 1.384650e+15  -4.714272e+14 3.236311e-01       9.167452e-01
+ 2.197485e+15  -6.207347e+14 3.225763e-01       8.722385e-01
+ 1.010991e+15  -3.077604e+14 1.574162e-01       6.933724e-01
+ 8.565262e+14  -1.969606e+14 2.655361e-01       7.233719e-01
+ 2.697308e+14  -2.219187e+14 3.252061e-01       9.933073e-01
+ 6.279649e+14  -3.586220e+14 4.219137e-01       8.366304e-01
+ 3.537390e+14  -2.583518e+14 3.333679e-01       9.891190e-01
+ 4.467505e+14  -1.362761e+14 1.664782e-01       7.314414e-01
+ 8.504752e+14  -2.914988e+14 3.222418e-01       9.455077e-01
+ 1.151707e+15  -3.531314e+14 3.166334e-01       9.381740e-01
+ 1.107296e+15  -3.508380e+14 3.166334e-01       9.345619e-01
+ 8.359988e+14  -2.056128e+14 2.256243e-01       5.870112e-01
+ 4.477401e+14  -1.232107e+14 1.677194e-01       6.473278e-01
+ 1.274128e+15  -4.145586e+14 3.131852e-01       9.331222e-01
+ 5.729035e+14  -2.959974e+14 3.462279e-01       7.980934e-01
+ 8.121138e-01  -5.609801e-01 1.656440e-14       6.861178e-14
+ 8.072342e-01  -5.615436e-01 1.274457e-14       4.873879e-14
+ 8.437821e-01  -5.548363e-01 1.113378e-13       3.965717e-13
+ 8.418044e-01  -5.549143e-01 1.115351e-13       3.899103e-13
+ 8.291038e-01  -5.555216e-01 8.309712e-14       2.994271e-13
+ 8.236539e-01  -5.562507e-01 6.575930e-14       2.416956e-13
+ 8.209996e-01  -5.625042e-01 2.575726e-14       9.914292e-14
+ 8.127004e-01  -5.630220e-01 1.852122e-14       6.261658e-14
+ 7.893123e-01  -5.642877e-01 4.133266e-15       1.787459e-14
+ 7.842592e-01  -5.647534e-01 3.105298e-15       1.498801e-14
+ 8.860172e-01  -5.499008e-01 3.693955e-13       1.301181e-12
+ 8.752364e-01  -5.513037e-01 2.693287e-13       9.353629e-13
+ 8.427218e-01  -5.514360e-01 3.673068e-13       1.289080e-12
+ 8.401723e-01  -5.516791e-01 3.658694e-13       1.251554e-12
+ 7.676315e-01  -5.632491e-01 9.659946e-15       3.574918e-14
+ 7.592325e-01  -5.639266e-01 8.348923e-15       3.164136e-14
+ 8.518561e-01  -5.587950e-01 9.379153e-15       4.218847e-14
+ 8.433068e-01  -5.592853e-01 9.305080e-15       4.118927e-14
+ 7.978953e-01  -5.587542e-01 2.227955e-14       8.826273e-14
+ 7.933289e-01  -5.590923e-01 2.233042e-14       8.570922e-14
+ 8.878015e-01  -5.431773e-01 2.678222e-12       1.192657e-11
+ 8.836721e-01  -5.434623e-01 2.387262e-12       1.049449e-11
+ 8.439986e-01  -5.597861e-01 1.354148e-14       5.373479e-14
+ 8.415736e-01  -5.599374e-01 1.360457e-14       5.262457e-14
+ 8.778409e-01  -5.491389e-01 2.041341e-13       9.647838e-13
+ 8.723193e-01  -5.497288e-01 1.991035e-13       8.961720e-13
+ 8.437876e-01  -5.543368e-01 2.100420e-13       8.189005e-13
+ 8.404399e-01  -5.544935e-01 2.189715e-13       7.588374e-13
+ 8.360231e-01  -5.586229e-01 5.753380e-14       2.129408e-13
+ 8.309534e-01  -5.594762e-01 5.057983e-14       1.824096e-13
+ 7.736483e-01  -5.690626e-01 3.802755e-15       1.532108e-14
+ 7.674064e-01  -5.700145e-01 1.879012e-15       7.327472e-15
+ 7.672941e-01  -5.669814e-01 2.399347e-15       7.216450e-15
+ 7.552129e-01  -5.684905e-01 8.335481e-16       3.552714e-15
+ 8.237337e-01  -5.556980e-01 1.452605e-13       5.744294e-13
+ 8.223121e-01  -5.557557e-01 1.451125e-13       5.775380e-13
+ 8.504350e-01  -5.587885e-01 2.431933e-14       8.804069e-14
+ 8.479955e-01  -5.588971e-01 2.373552e-14       8.903989e-14
+ 8.259762e-01  -5.559310e-01 1.320949e-13       5.165868e-13
+ 8.213104e-01  -5.564327e-01 1.171311e-13       4.584111e-13
+ 1.883467e+00  -3.312077e-01 1.667228e-11       9.900092e-11
+ 1.853662e+00  -3.351593e-01 1.001713e-10       5.282138e-10
+ 1.881712e+00  -3.307571e-01 1.877671e-11       1.145622e-10
+ 1.849540e+00  -3.345569e-01 8.860484e-11       5.129116e-10
+ 1.931881e+00  -3.192285e-01 4.828046e-12       2.900913e-11
+ 1.918445e+00  -3.223771e-01 1.959638e-11       1.149572e-10
+ 1.862593e+00  -3.311065e-01 2.804094e-11       1.461826e-10
+ 1.858943e+00  -3.329250e-01 5.633202e-11       2.795688e-10
+ 1.822019e+00  -3.452721e-01 1.171913e-09       6.767406e-09
+ 1.808513e+00  -3.483802e-01 7.710988e-16       3.885781e-15
+ 1.764732e+00  -3.421248e-01 1.351897e-09       6.561945e-09
+ 1.754392e+00  -3.432141e-01 3.509307e-16       6.161738e-15
+ 1.795392e+00  -3.363422e-01 7.247387e-10       3.978437e-09
+ 1.772494e+00  -3.390283e-01 3.731451e-16       5.440093e-15
+ 1.799680e+00  -3.356101e-01 2.256432e-10       1.176005e-09
+ 1.778292e+00  -3.399305e-01 1.032860e-09       5.350945e-09
+ 1.808946e+00  -3.314494e-01 1.006856e-10       5.674823e-10
+ 1.776631e+00  -3.354611e-01 5.774465e-10       3.129792e-09
+ 1.848754e+00  -3.431150e-01 8.210427e-11       4.187995e-10
+ 1.838883e+00  -3.447495e-01 1.543730e-10       7.402186e-10
+ 1.881216e+00  -3.214593e-01 4.436749e-12       2.548906e-11
+ 1.836717e+00  -3.268816e-01 4.682053e-11       2.601932e-10
+ 1.901470e+00  -3.284298e-01 6.480733e-13       4.024336e-12
+ 1.872896e+00  -3.317271e-01 2.858984e-12       1.806974e-11
+ 1.833594e+00  -3.375876e-01 6.663626e-10       4.090939e-09
+ 1.810144e+00  -3.406476e-01 3.624962e-16       4.496403e-15
+ 1.869633e+00  -3.333337e-01 2.689774e-10       1.555447e-09
+ 1.854165e+00  -3.359981e-01 5.375948e-10       2.919458e-09
+ 1.861825e+00  -3.330575e-01 5.897597e-16       6.439294e-15
+ 1.849175e+00  -3.347681e-01 4.829661e-16       4.662937e-15
+ 1.747824e+00  -3.384246e-01 1.452853e-15       1.032507e-14
+ 1.735468e+00  -3.408950e-01 6.022792e-15       3.419487e-14
+ 1.816766e+00  -3.478590e-01 9.409983e-16       8.770762e-15
+ 1.799772e+00  -3.502750e-01 2.549507e-15       1.609823e-14
+ 1.843968e+00  -3.397720e-01 2.591309e-10       1.439415e-09
+ 1.830360e+00  -3.419479e-01 4.638321e-10       2.651780e-09
+ 1.936538e+00  -3.349674e-01 1.433390e-10       7.912985e-10
+ 1.918238e+00  -3.379411e-01 3.944793e-10       2.028449e-09
+ 1.909118e+00  -3.355824e-01 4.765753e-10       2.478198e-09
+ 1.880941e+00  -3.399321e-01 4.541231e-16       6.772360e-15
+ 1.847940e+00  -3.316178e-01 1.360920e-12       8.721468e-12
+ 1.827301e+00  -3.349206e-01 8.013036e-13       4.603651e-12
+ 1.923440e+00  -3.175982e-01 1.371679e-11       9.125001e-11
+ 1.906934e+00  -3.199845e-01 1.025757e-11       6.460033e-11
+ 1.794431e+00  -3.317896e-01 1.728384e-12       1.043679e-11
+ 1.772123e+00  -3.350890e-01 1.128007e-12       6.584733e-12
+ 1.836687e+00  -3.457872e-01 7.217652e-13       4.301670e-12
+ 1.804100e+00  -3.496689e-01 3.447720e-13       1.931122e-12
+ 1.769551e+00  -3.386010e-01 5.841496e-13       3.610778e-12
+ 1.758050e+00  -3.401822e-01 4.328387e-13       2.470579e-12
+ 1.771760e+00  -3.394014e-01 5.282110e-13       2.896905e-12
+ 1.746151e+00  -3.431296e-01 3.106085e-13       1.609823e-12
+ 1.860629e+00  -3.299150e-01 2.764464e-12       1.622746e-11
+ 1.853084e+00  -3.333316e-01 1.943086e-12       1.080580e-11
+ 1.719146e+00  -3.469807e-01 1.707128e-13       9.771073e-13
+ 1.706237e+00  -3.507382e-01 1.025610e-13       5.790923e-13
+ 1.908876e+00  -3.248990e-01 6.469465e-12       4.009126e-11
+ 1.900046e+00  -3.261168e-01 5.495917e-12       3.428546e-11
+ 1.862588e+00  -3.243108e-01 3.726581e-12       2.354750e-11
+ 1.829903e+00  -3.296462e-01 2.000023e-12       1.246769e-11
+ 1.886722e+00  -3.285535e-01 4.900018e-12       4.248502e-11
+ 1.852603e+00  -3.323797e-01 2.324553e-12       1.471101e-11
+ 1.847435e+00  -3.419438e-01 3.136095e-13       1.846745e-12
+ 1.840116e+00  -3.439607e-01 2.545856e-13       1.532774e-12
+ 1.840959e+00  -3.274727e-01 4.238744e-12       2.588940e-11
+ 1.814961e+00  -3.312661e-01 2.875234e-12       1.686762e-11
+ 1.973696e+00  -3.215296e-01 8.319625e-12       5.016498e-11
+ 1.965575e+00  -3.239409e-01 6.698679e-12       3.889744e-11
+ 1.768819e+00  -3.487409e-01 2.076753e-13       1.259104e-12
+ 1.752974e+00  -3.523236e-01 1.415489e-13       8.377743e-13
+ 1.845167e+00  -3.404405e-01 8.610724e-13       5.449752e-12
+ 1.819533e+00  -3.429235e-01 4.889841e-13       2.595146e-12
+ 1.772394e+00  -3.418397e-01 2.737471e-13       1.672440e-12
+ 1.738667e+00  -3.486141e-01 7.865758e-14       4.127809e-13
+ 1.818932e+00  -3.413558e-01 6.370696e-13       4.238165e-12
+ 1.808761e+00  -3.424918e-01 5.235154e-13       3.440914e-12
+ 1.860773e+00  -3.259249e-01 4.473645e-12       2.665224e-11
+ 1.828703e+00  -3.299069e-01 2.482234e-12       1.400946e-11
+ 1.881549e+00  -3.287583e-01 6.080328e-12       3.707745e-11
+ 1.860426e+00  -3.311983e-01 4.280058e-12       2.715694e-11
+     overlap        design           PS                solver converged
+ GoodOverlap   prospective      correct    historical_default        20
+ PoorOverlap   prospective      correct    historical_default        20
+ GoodOverlap retrospective      correct    historical_default         0
+ PoorOverlap retrospective      correct    historical_default        20
+ GoodOverlap   prospective misspecified    historical_default        20
+ PoorOverlap   prospective misspecified    historical_default        20
+ GoodOverlap retrospective misspecified    historical_default         0
+ PoorOverlap retrospective misspecified    historical_default        20
+ GoodOverlap   prospective      correct normalized_zero_start        20
+ PoorOverlap   prospective      correct normalized_zero_start        20
+ GoodOverlap retrospective      correct normalized_zero_start        20
+ PoorOverlap retrospective      correct normalized_zero_start        20
+ GoodOverlap   prospective misspecified normalized_zero_start        20
+ PoorOverlap   prospective misspecified normalized_zero_start        20
+ GoodOverlap retrospective misspecified normalized_zero_start        20
+ PoorOverlap retrospective misspecified normalized_zero_start        20

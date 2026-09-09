@@ -1,0 +1,37 @@
+First sample IDs exact pilot match: TRUE 
+     overlap        design replicate           PS converged iter nearBoundary
+ GoodOverlap retrospective         1      correct     FALSE   25         4884
+ GoodOverlap retrospective         1 misspecified     FALSE   25         4884
+ GoodOverlap retrospective         2      correct     FALSE   25         4809
+ GoodOverlap retrospective         2 misspecified     FALSE   25         4809
+ GoodOverlap   prospective         1      correct      TRUE    4            0
+ GoodOverlap   prospective         1 misspecified      TRUE    4            0
+ GoodOverlap   prospective         2      correct      TRUE    4            0
+ GoodOverlap   prospective         2 misspecified      TRUE    4            0
+ PoorOverlap retrospective         1      correct      TRUE    7            0
+ PoorOverlap retrospective         1 misspecified      TRUE    7            0
+ PoorOverlap retrospective         2      correct      TRUE    7            0
+ PoorOverlap retrospective         2 misspecified      TRUE    7            0
+ PoorOverlap   prospective         1      correct      TRUE    6            0
+ PoorOverlap   prospective         1 misspecified      TRUE    6            0
+ PoorOverlap   prospective         2      correct      TRUE    6            0
+ PoorOverlap   prospective         2 misspecified      TRUE    6            0
+   maxabsbeta weightedLogLik     maxScore maxProbabilityDiff
+ 6.718624e+14  -2.506249e+14 3.148475e-01       9.752988e-01
+ 2.973124e+14  -9.916831e+13 1.027773e-01       6.092767e-01
+ 6.904119e+14  -2.228220e+14 3.159380e-01       9.050231e-01
+ 2.978274e+14  -9.965979e+13 1.273994e-01       7.065486e-01
+ 8.121138e-01  -5.609801e-01 1.656440e-14       6.861178e-14
+ 8.072342e-01  -5.615436e-01 1.274457e-14       4.873879e-14
+ 8.437821e-01  -5.548363e-01 1.113378e-13       3.965717e-13
+ 8.418044e-01  -5.549143e-01 1.115351e-13       3.899103e-13
+ 1.883467e+00  -3.312077e-01 1.667228e-11       9.900092e-11
+ 1.853662e+00  -3.351593e-01 1.001713e-10       5.282138e-10
+ 1.881712e+00  -3.307571e-01 1.877671e-11       1.145622e-10
+ 1.849540e+00  -3.345569e-01 8.860484e-11       5.129116e-10
+ 1.847940e+00  -3.316178e-01 1.360920e-12       8.721468e-12
+ 1.827301e+00  -3.349206e-01 8.013036e-13       4.603651e-12
+ 1.923440e+00  -3.175982e-01 1.371679e-11       9.125001e-11
+ 1.906934e+00  -3.199845e-01 1.025757e-11       6.460033e-11
+Zero-start raw vs normalized max coef diffs= 1.24345e-14 
+Normalized default vs normalized zero max coef diffs= 7.86371e-13 

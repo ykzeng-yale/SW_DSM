@@ -1,0 +1,932 @@
+{
+  "schema": "stabilized-wdsm-paired-point-simulation-protocol-v1",
+  "frozen_date": "2026-09-09",
+  "source_main_commit": "abee4c17f29f4db2340f926dc6a25b5e38a717f0",
+  "objective": "Determine whether conditional stabilization reduces absolute relative bias compared with the corrected original self-normalized WDSM on identical sampled records, scores, fits and matches.",
+  "scope": {
+    "new_estimator_only": true,
+    "causal_standard_errors": false,
+    "causal_confidence_intervals": false,
+    "coverage": false,
+    "original_WDSM_rerun_jobs_modified": false,
+    "archive_modified": false,
+    "cells": 32,
+    "M_values": [
+      1,
+      3,
+      5
+    ],
+    "production_sample_datasets": 32000,
+    "production_new_point_estimates_requested": 96000,
+    "pilot_sample_datasets": 160,
+    "pilot_new_point_estimates_requested": 480
+  },
+  "source_sha256": {
+    "R/wdsm_core_final.R": "cfc520662596c44b221a53a810254436ef36ae633a466b42e8c2109876c9c15f",
+    "Simulations/rerun_wdsm_final.R": "5ab88e0931759336776e5f753036bda534126b069057ba081656a5ed6534a78d",
+    "StabilizedWDSM/wdsm_stabilized.R": "ce6807194ecff15bdc68b8fbaaa9f50185f6685df448eacaf2fca545a444b15a"
+  },
+  "population": {
+    "generation": "Use the existing frozen million-unit populations; do not generate new superpopulations.",
+    "rows": 1000000,
+    "strata": 10,
+    "rows_per_stratum": 100000,
+    "object": {
+      "GoodOverlap": "SuperPopGen_GoodOverlap_AllinOne_0118_2025",
+      "PoorOverlap": "SuperPopGen_PoorOverlap_AllinOne_0118_2025"
+    },
+    "object_index": 1,
+    "file_extension": ".RData",
+    "hpc_directory": "/nfs/roberts/project/pi_gt353/yz2324/WDSM_Final_Aligned_20260909/data",
+    "sha256": {
+      "GoodOverlap": "f31b8094adccd6328f147308c8ef4de6df8f95ae19d49d3067ad2e0fabe17133",
+      "PoorOverlap": "05651582c7e84792182b9cc44c6e02e12fff292b02e2bd0234794ffaf1964b4e"
+    },
+    "raw_columns": {
+      "X1": "x1",
+      "X2": "x2",
+      "X3": "x3",
+      "X4": "x4",
+      "X5": "x5",
+      "X6": "x6",
+      "A": "z",
+      "Y_0": "y0",
+      "Y_1": "y1",
+      "Y_obs": "y",
+      "Cluster": "Cluster",
+      "Strata": "Strata"
+    },
+    "S_initial_value": 1
+  },
+  "randomness": {
+    "RNGkind": [
+      "Mersenne-Twister",
+      "Inversion",
+      "Rejection"
+    ],
+    "sample_seed_base": 2025,
+    "sample_seed_rule": "2025 + replication",
+    "replication_indices": [
+      1,
+      1000
+    ],
+    "shared_sample_identity": "For fixed overlap, design and replication, ordered population IDs and weights must match across estimands, scenarios and all M values.",
+    "stabilized_estimator_random_draws": 0,
+    "stabilized_bootstrap_seed": null,
+    "baseline_sampling_runtime_reference": {
+      "R": "4.4.2",
+      "platform": "x86_64-pc-linux-gnu",
+      "sampling": "2.10"
+    },
+    "record_actual_runtime_versions": true
+  },
+  "sampling": {
+    "nominal_sample_size": 5000,
+    "retrospective": {
+      "type": "independent Bernoulli informative sampling",
+      "intercept": "log((5000/N)/(1-5000/N))",
+      "linear_predictor_additions": {
+        "A": "log(0.9)",
+        "X1": "log(1.05)",
+        "X2": "log(1.10)",
+        "X3": "log(1.15)",
+        "X4": "log(1.10)",
+        "X5": "log(1.05)",
+        "X6": "log(1.10)"
+      },
+      "probability_arithmetic": "exp(lp)/(1+exp(lp))",
+      "draw": "rbinom(N,1,probability)==1",
+      "row_order": "original population order",
+      "survey_weight": "1/probability[selected]",
+      "sample_size": "random; no fixed-size replacement or discarded samples"
+    },
+    "prospective": {
+      "function": "sampling::mstage then sampling::getdata(...)[[3]]",
+      "stage": [
+        "stratified",
+        "cluster",
+        ""
+      ],
+      "varnames": [
+        "Strata",
+        "Cluster",
+        "ones"
+      ],
+      "size_stage1": [
+        100000,
+        100000,
+        100000,
+        100000,
+        100000,
+        100000,
+        100000,
+        100000,
+        100000,
+        100000
+      ],
+      "size_stage2": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "size_stage3": [
+        170,
+        170,
+        170,
+        170,
+        170,
+        150,
+        150,
+        150,
+        150,
+        150,
+        140,
+        140,
+        140,
+        140,
+        140,
+        130,
+        130,
+        130,
+        130,
+        130,
+        120,
+        120,
+        120,
+        120,
+        120,
+        80,
+        80,
+        80,
+        80,
+        80,
+        70,
+        70,
+        70,
+        70,
+        70,
+        60,
+        60,
+        60,
+        60,
+        60,
+        50,
+        50,
+        50,
+        50,
+        50,
+        30,
+        30,
+        30,
+        30,
+        30
+      ],
+      "method": [
+        "",
+        "srswor",
+        "srswor"
+      ],
+      "ones_value": 1,
+      "id": "seq_len(N)",
+      "row_order": "unchanged getdata third-stage order",
+      "survey_weight": "1/Prob",
+      "sample_size": 5000
+    }
+  },
+  "truth": {
+    "PATE": "mean(population$Y_1)-mean(population$Y_0)",
+    "PATT": "mean(population$Y_1[population$A==1])-mean(population$Y_0[population$A==1])",
+    "same_truth_across_design_scenario_M_for_given_estimand_overlap": true
+  },
+  "score_specifications": {
+    "main_effects": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5",
+      "X6"
+    ],
+    "correct_addition": "X1:X2",
+    "PS_response": "A",
+    "PG_response": "Y",
+    "Y": "sample$Y_obs",
+    "scenarios": {
+      "CorCor": {
+        "PS_correct": true,
+        "PG_correct": true
+      },
+      "MisCor": {
+        "PS_correct": false,
+        "PG_correct": true
+      },
+      "CorMis": {
+        "PS_correct": true,
+        "PG_correct": false
+      },
+      "MisMis": {
+        "PS_correct": false,
+        "PG_correct": false
+      }
+    },
+    "PS_fitting": {
+      "retrospective": "survey weighted",
+      "prospective": "unweighted"
+    },
+    "PG_fitting": "unweighted within arm",
+    "outcome_bias_correction": "survey-weighted complete quadratic in each own-arm standardized double score",
+    "matching": "probability PS plus own-arm PG; pooled unweighted standardization; squared Euclidean distance; stable radix donor order; replacement; no random jitter",
+    "nuisance_arms": {
+      "PATE": [
+        0,
+        1
+      ],
+      "PATT": [
+        0
+      ]
+    }
+  },
+  "original_point_adapter": {
+    "call": "wdsm_final(..., B=2, bootstrap_counts=matrix(1,n,2), keep_point=TRUE)",
+    "purpose": "Expose the official original point fit and match sets only.",
+    "counts": "two deterministic all-one identity vectors, not multinomial draws",
+    "retain": "original estimate, original point fit/matches, identity and PS diagnostics",
+    "discard": [
+      "artificial variance",
+      "artificial SE",
+      "artificial confidence limits",
+      "artificial bootstrap estimates"
+    ],
+    "then_call": "wdsm_stabilized_from_fit(original,data=data,M=M,estimand=estimand,rho_degree=2)",
+    "same_fit_self_normalized_tolerance": "1e-10*(1+abs(original_estimate))",
+    "completed_baseline_comparison": "Check ordered sample IDs, population identity and the saved original WDSM point estimate separately; record actual numerical tolerance and difference. Never pair by row number alone."
+  },
+  "conditional_weight": {
+    "rho_degree": 2,
+    "basis": [
+      "1",
+      "psi",
+      "psi^2",
+      "p",
+      "p^2",
+      "p*psi"
+    ],
+    "regression": "unweighted least squares within each required observed arm",
+    "response": "survey_weight/mean(all_sample_survey_weights)",
+    "undo_response_scaling": true,
+    "constant_arm_weights": "exact constant conditional-weight submodel",
+    "required_prediction_domain": "all observations of each required observed arm, even if not selected as a donor",
+    "acceptance": "finite and strictly positive predictions; full-rank finite coefficients",
+    "implicit_positive_link": false,
+    "clipping": false,
+    "trimming": false,
+    "fallback": false,
+    "tuning_after_inspecting_bias": false,
+    "theoretical_status": "Fixed quadratic is the frozen practical working model; it is not the shrinking-bandwidth kernel construction in the feasible-consistency theorem."
+  },
+  "stabilized_formula": {
+    "missing_Yz": "m_z(D_i)+(1/M)*sum_j_in_Jz(i)[W_j/rho_z(D_j)*(Y_j-m_z(D_j))]",
+    "rho_evaluation": "matched donor j, not target i",
+    "residual": "entire residual is multiplied",
+    "within_match_renormalization": false,
+    "observed_outcomes": "unchanged",
+    "outer_PATE": "weighted mean of imputed Y1-Y0 over all sampled observations",
+    "outer_PATT": "weighted mean of Y-treated minus imputed Y0 over treated sampled observations"
+  },
+  "diagnostics": {
+    "required_record_identity": [
+      "cell",
+      "replication",
+      "M",
+      "ordered_population_ids",
+      "sample_seed",
+      "truth",
+      "population_sha256",
+      "code_sha256",
+      "runtime",
+      "original_estimate",
+      "stabilized_status",
+      "failure_reason"
+    ],
+    "rho_before_rejection": [
+      "arm",
+      "n_arm",
+      "rank_or_rank_failure",
+      "n_nonfinite",
+      "n_nonpositive",
+      "min",
+      "max",
+      "quantiles_0_1_5_50_95_99_100_percent"
+    ],
+    "rho_success": [
+      "W_over_rho_quantiles_and_max",
+      "local_stabilizer_mass_quantiles_and_mean",
+      "identity_error",
+      "same_fit_original_difference"
+    ],
+    "recommended": [
+      "rho_coefficients",
+      "rho_response_scale",
+      "normalized_rho_min",
+      "sample_weight_range",
+      "sample_target_weight_total"
+    ],
+    "rejection_reporting": "Report both per-cell/M requests and unique sampled-data/specification failures. Rho fitting does not depend on M; control-rho failures are shared across PATE/PATT on the same data/specification."
+  },
+  "failure_policy": {
+    "preserve_original_if_rho_fails": true,
+    "expected_estimator_failure": [
+      "nonpositive_conditional_weight_prediction",
+      "rank_deficient_conditional_weight_model"
+    ],
+    "unplanned_errors": "retain separately as infrastructure, source, baseline-pairing, or unexpected estimator errors; do not count them as evidence about the intended estimator",
+    "resample_failed_datasets": false,
+    "drop_failed_runs_from_denominator": false,
+    "primary_full_performance_requires": 1000,
+    "conditional_success_metrics": "optional separate explicitly labeled diagnostics with the paired sample count; never substitute for unconditional 1000-run relative bias",
+    "rejection_frequency_status": "To be measured by the full five-replication-per-cell pilot and 1000-replication run; no rate inferred from positivity of observed weights."
+  },
+  "primary_performance": {
+    "signed_relative_bias_percent": "100*(mean(estimate)-truth)/abs(truth)",
+    "absolute_relative_bias_percent": "abs(signed_relative_bias_percent), not mean absolute replicate error",
+    "absolute_relative_bias_reduction_pp": "absolute_relative_bias_original - absolute_relative_bias_stabilized; positive favors stabilization",
+    "signed_relative_bias_difference_pp": "signed_relative_bias_stabilized - signed_relative_bias_original",
+    "paired_signed_difference_mcse_pp": "100*sd(estimate_stabilized-estimate_original)/sqrt(N)/abs(truth)",
+    "requires_complete_paired_run": true,
+    "N": 1000
+  },
+  "mc_precision_for_absolute_bias_reduction": {
+    "scope": "Monte Carlo precision of the simulation comparison, not causal-effect inference for an individual data set",
+    "nominal_level": 0.95,
+    "construction": "Bonferroni simultaneous t intervals for original and stabilized signed relative biases, then bound abs(original_bias)-abs(stabilized_bias)",
+    "per_signed_bias_t_quantile": 0.9875,
+    "degrees_of_freedom": "N-1",
+    "signed_bias_mcse": "100*sd(estimate)/sqrt(N)/abs(truth)",
+    "absolute_interval_transform": "min_abs([l,u])=0 if l<=0<=u, else min(abs(l),abs(u)); max_abs=max(abs(l),abs(u))",
+    "reduction_lower": "min_abs(original signed-bias interval)-max_abs(stabilized signed-bias interval)",
+    "reduction_upper": "max_abs(original signed-bias interval)-min_abs(stabilized signed-bias interval)",
+    "interpretation": "conservative approximate Monte Carlo interval; avoids differentiating abs() at zero; not a Wald/percentile CI for stabilized treatment effects"
+  },
+  "secondary_performance": [
+    "failure_rate_over_all_requested_samples",
+    "Monte_Carlo_SD",
+    "RMSE",
+    "paired_mean_point_difference",
+    "same_fit_original_reproduction_error",
+    "W_over_rho_tail_diagnostics",
+    "local_stabilizer_mass_diagnostics"
+  ],
+  "grid": [
+    {
+      "array_index": 0,
+      "cell": "PATE_Retrospective_GoodOverlap_CorCor",
+      "estimand": "PATE",
+      "design": "retrospective",
+      "overlap": "GoodOverlap",
+      "scenario": "CorCor",
+      "PS_correct": true,
+      "PG_correct": true,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 1,
+      "cell": "PATE_Retrospective_GoodOverlap_MisCor",
+      "estimand": "PATE",
+      "design": "retrospective",
+      "overlap": "GoodOverlap",
+      "scenario": "MisCor",
+      "PS_correct": false,
+      "PG_correct": true,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 2,
+      "cell": "PATE_Retrospective_GoodOverlap_CorMis",
+      "estimand": "PATE",
+      "design": "retrospective",
+      "overlap": "GoodOverlap",
+      "scenario": "CorMis",
+      "PS_correct": true,
+      "PG_correct": false,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 3,
+      "cell": "PATE_Retrospective_GoodOverlap_MisMis",
+      "estimand": "PATE",
+      "design": "retrospective",
+      "overlap": "GoodOverlap",
+      "scenario": "MisMis",
+      "PS_correct": false,
+      "PG_correct": false,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 4,
+      "cell": "PATE_Retrospective_PoorOverlap_CorCor",
+      "estimand": "PATE",
+      "design": "retrospective",
+      "overlap": "PoorOverlap",
+      "scenario": "CorCor",
+      "PS_correct": true,
+      "PG_correct": true,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 5,
+      "cell": "PATE_Retrospective_PoorOverlap_MisCor",
+      "estimand": "PATE",
+      "design": "retrospective",
+      "overlap": "PoorOverlap",
+      "scenario": "MisCor",
+      "PS_correct": false,
+      "PG_correct": true,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 6,
+      "cell": "PATE_Retrospective_PoorOverlap_CorMis",
+      "estimand": "PATE",
+      "design": "retrospective",
+      "overlap": "PoorOverlap",
+      "scenario": "CorMis",
+      "PS_correct": true,
+      "PG_correct": false,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 7,
+      "cell": "PATE_Retrospective_PoorOverlap_MisMis",
+      "estimand": "PATE",
+      "design": "retrospective",
+      "overlap": "PoorOverlap",
+      "scenario": "MisMis",
+      "PS_correct": false,
+      "PG_correct": false,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 8,
+      "cell": "PATE_Prospective_GoodOverlap_CorCor",
+      "estimand": "PATE",
+      "design": "prospective",
+      "overlap": "GoodOverlap",
+      "scenario": "CorCor",
+      "PS_correct": true,
+      "PG_correct": true,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 9,
+      "cell": "PATE_Prospective_GoodOverlap_MisCor",
+      "estimand": "PATE",
+      "design": "prospective",
+      "overlap": "GoodOverlap",
+      "scenario": "MisCor",
+      "PS_correct": false,
+      "PG_correct": true,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 10,
+      "cell": "PATE_Prospective_GoodOverlap_CorMis",
+      "estimand": "PATE",
+      "design": "prospective",
+      "overlap": "GoodOverlap",
+      "scenario": "CorMis",
+      "PS_correct": true,
+      "PG_correct": false,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 11,
+      "cell": "PATE_Prospective_GoodOverlap_MisMis",
+      "estimand": "PATE",
+      "design": "prospective",
+      "overlap": "GoodOverlap",
+      "scenario": "MisMis",
+      "PS_correct": false,
+      "PG_correct": false,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 12,
+      "cell": "PATE_Prospective_PoorOverlap_CorCor",
+      "estimand": "PATE",
+      "design": "prospective",
+      "overlap": "PoorOverlap",
+      "scenario": "CorCor",
+      "PS_correct": true,
+      "PG_correct": true,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 13,
+      "cell": "PATE_Prospective_PoorOverlap_MisCor",
+      "estimand": "PATE",
+      "design": "prospective",
+      "overlap": "PoorOverlap",
+      "scenario": "MisCor",
+      "PS_correct": false,
+      "PG_correct": true,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 14,
+      "cell": "PATE_Prospective_PoorOverlap_CorMis",
+      "estimand": "PATE",
+      "design": "prospective",
+      "overlap": "PoorOverlap",
+      "scenario": "CorMis",
+      "PS_correct": true,
+      "PG_correct": false,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 15,
+      "cell": "PATE_Prospective_PoorOverlap_MisMis",
+      "estimand": "PATE",
+      "design": "prospective",
+      "overlap": "PoorOverlap",
+      "scenario": "MisMis",
+      "PS_correct": false,
+      "PG_correct": false,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 16,
+      "cell": "PATT_Retrospective_GoodOverlap_CorCor",
+      "estimand": "PATT",
+      "design": "retrospective",
+      "overlap": "GoodOverlap",
+      "scenario": "CorCor",
+      "PS_correct": true,
+      "PG_correct": true,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 17,
+      "cell": "PATT_Retrospective_GoodOverlap_MisCor",
+      "estimand": "PATT",
+      "design": "retrospective",
+      "overlap": "GoodOverlap",
+      "scenario": "MisCor",
+      "PS_correct": false,
+      "PG_correct": true,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 18,
+      "cell": "PATT_Retrospective_GoodOverlap_CorMis",
+      "estimand": "PATT",
+      "design": "retrospective",
+      "overlap": "GoodOverlap",
+      "scenario": "CorMis",
+      "PS_correct": true,
+      "PG_correct": false,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 19,
+      "cell": "PATT_Retrospective_GoodOverlap_MisMis",
+      "estimand": "PATT",
+      "design": "retrospective",
+      "overlap": "GoodOverlap",
+      "scenario": "MisMis",
+      "PS_correct": false,
+      "PG_correct": false,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 20,
+      "cell": "PATT_Retrospective_PoorOverlap_CorCor",
+      "estimand": "PATT",
+      "design": "retrospective",
+      "overlap": "PoorOverlap",
+      "scenario": "CorCor",
+      "PS_correct": true,
+      "PG_correct": true,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 21,
+      "cell": "PATT_Retrospective_PoorOverlap_MisCor",
+      "estimand": "PATT",
+      "design": "retrospective",
+      "overlap": "PoorOverlap",
+      "scenario": "MisCor",
+      "PS_correct": false,
+      "PG_correct": true,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 22,
+      "cell": "PATT_Retrospective_PoorOverlap_CorMis",
+      "estimand": "PATT",
+      "design": "retrospective",
+      "overlap": "PoorOverlap",
+      "scenario": "CorMis",
+      "PS_correct": true,
+      "PG_correct": false,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 23,
+      "cell": "PATT_Retrospective_PoorOverlap_MisMis",
+      "estimand": "PATT",
+      "design": "retrospective",
+      "overlap": "PoorOverlap",
+      "scenario": "MisMis",
+      "PS_correct": false,
+      "PG_correct": false,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 24,
+      "cell": "PATT_Prospective_GoodOverlap_CorCor",
+      "estimand": "PATT",
+      "design": "prospective",
+      "overlap": "GoodOverlap",
+      "scenario": "CorCor",
+      "PS_correct": true,
+      "PG_correct": true,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 25,
+      "cell": "PATT_Prospective_GoodOverlap_MisCor",
+      "estimand": "PATT",
+      "design": "prospective",
+      "overlap": "GoodOverlap",
+      "scenario": "MisCor",
+      "PS_correct": false,
+      "PG_correct": true,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 26,
+      "cell": "PATT_Prospective_GoodOverlap_CorMis",
+      "estimand": "PATT",
+      "design": "prospective",
+      "overlap": "GoodOverlap",
+      "scenario": "CorMis",
+      "PS_correct": true,
+      "PG_correct": false,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 27,
+      "cell": "PATT_Prospective_GoodOverlap_MisMis",
+      "estimand": "PATT",
+      "design": "prospective",
+      "overlap": "GoodOverlap",
+      "scenario": "MisMis",
+      "PS_correct": false,
+      "PG_correct": false,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 28,
+      "cell": "PATT_Prospective_PoorOverlap_CorCor",
+      "estimand": "PATT",
+      "design": "prospective",
+      "overlap": "PoorOverlap",
+      "scenario": "CorCor",
+      "PS_correct": true,
+      "PG_correct": true,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 29,
+      "cell": "PATT_Prospective_PoorOverlap_MisCor",
+      "estimand": "PATT",
+      "design": "prospective",
+      "overlap": "PoorOverlap",
+      "scenario": "MisCor",
+      "PS_correct": false,
+      "PG_correct": true,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 30,
+      "cell": "PATT_Prospective_PoorOverlap_CorMis",
+      "estimand": "PATT",
+      "design": "prospective",
+      "overlap": "PoorOverlap",
+      "scenario": "CorMis",
+      "PS_correct": true,
+      "PG_correct": false,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    },
+    {
+      "array_index": 31,
+      "cell": "PATT_Prospective_PoorOverlap_MisMis",
+      "estimand": "PATT",
+      "design": "prospective",
+      "overlap": "PoorOverlap",
+      "scenario": "MisMis",
+      "PS_correct": false,
+      "PG_correct": false,
+      "M_values": [
+        1,
+        3,
+        5
+      ],
+      "production_replicates": 1000,
+      "pilot_replicates": 5
+    }
+  ]
+}

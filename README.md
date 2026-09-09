@@ -6,6 +6,8 @@ The paper’s original simulation tables have been traced to the saved 0727 publ
 
 **Status: the full corrected pilot passed and the 1,000-replication production run is submitted to Bouchet (job 25694783). Final simulation results are not yet available. The dependent strict-audit/table/figure job is 25694919.** Historical numbers in `Results/`, `Tables/All_12_Simulation_Tables.txt`, and existing simulation images remain the original baseline. Do not use them as corrected results. See [run status](audit/full_rerun_execution.json), [result lineage](audit/paper_result_lineage.md), and [case-study comparison](audit/case_study_fix_comparison_20260909.md).
 
+A separate [conditionally stabilized point-estimator experiment](StabilizedWDSM/README.md) tests whether the Section 3.3 extension reduces relative bias. It uses the same 32 settings, 1,000 replications per setting, and M=1/3/5, with identical original samples, fits, and matches. Its [protocol](StabilizedWDSM/simulation_protocol.md) and [execution record](StabilizedWDSM/audit/execution.json) distinguish pilot checks from production results. No stabilized causal-effect SEs, confidence intervals, or coverage are being developed in this experiment.
+
 ## Current implementation
 
 - `R/wdsm_core_final.R`: one checked PATE/PATT implementation for both designs and all M values. It uses probability propensity scores, own-arm prognostic scores, original fixed weighted reuse, the correct estimand-specific denominator, all B requested replication draws, B-divisor variance, and centered normal Wald intervals. It fails explicitly on invalid nuisance fits or draws.

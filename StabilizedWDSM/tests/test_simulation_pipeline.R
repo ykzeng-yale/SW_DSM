@@ -163,6 +163,38 @@ invisible(point(d, A ~ X1 + X2 + X3, Y ~ X1 + X2 + X3, M = 1L, core_file = core_
 assert(!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE), "Point call does not initialize an absent RNG stream")
 assign(".Random.seed", saved_seed, envir = .GlobalEnv)
 
+# The driver preserves the exact main-run sampling body, including historical
+# exp(lp)/(1+exp(lp)) arithmetic and multistage sampling arguments. Parse/source
+# the guarded drivers without invoking their million-unit CLI entry points.
+top_assignment <- function(path, name) {
+  definitions <- Filter(function(x) is.call(x) && identical(x[[1L]], as.name("<-")) &&
+    identical(x[[2L]], as.name("main")), as.list(parse(path)))
+  if (length(definitions) != 1L) stop("Expected one main function definition")
+  main_function <- eval(definitions[[1L]][[3L]])
+  expressions <- as.list(body(main_function))[-1L]
+  hit <- Filter(function(x) is.call(x) && identical(x[[1L]], as.name("<-")) &&
+    identical(x[[2L]], as.name(name)), expressions)
+  if (length(hit) != 1L) stop("Expected exactly one top-level assignment: ", name)
+  hit[[1L]][[3L]]
+}
+new_driver <- file.path(repo, "StabilizedWDSM", "Simulations", "rerun_stabilized.R")
+main_driver <- file.path(repo, "Simulations", "rerun_wdsm_final.R")
+sample_new <- top_assignment(new_driver, "draw_sample")
+sample_main <- top_assignment(main_driver, "draw_sample")
+assert(identical(sample_new, sample_main), "New driver preserves exact main-run sampling AST")
+sampling_env <- new.env(parent = globalenv())
+sampling_env$population <- d[rep(seq_len(n), 10), , drop = FALSE]
+sampling_env$config <- list(sample_seed_base = 2025L, n_sample = 300L)
+sampling_env$design <- "retrospective"
+new_sampler <- eval(sample_new, sampling_env); old_sampler <- eval(sample_main, sampling_env)
+for (replicate in c(1L, 2L, 5L)) {
+  new_sample <- new_sampler(replicate); new_rng <- .Random.seed
+  old_sample <- old_sampler(replicate)
+  assert(identical(new_sample, old_sample), "Independent driver samplers return identical IDs, weights, and order")
+  assert(identical(new_rng, .Random.seed), "Independent driver samplers leave identical RNG state")
+  assert(identical(new_sample, new_sampler(replicate)), "Sampling replicate index is deterministic")
+}
+
 # Inject a precomputed valid point structure only to exercise the adapter's
 # failure-record path with the deterministic negative-rho lattice above. The
 # numerical core itself is tested against real synthetic fits in the loop.
@@ -200,4 +232,148 @@ for (estimand in c("PATE", "PATT")) {
   equal(failed_rank$reference$estimate, official_fixture$estimate, paste(estimand, "reference survives rank rejection"))
 }
 
-cat(sprintf("PASS: %d independent stabilized point/pipeline checks; synthetic data only, no inference claims.\n", checks))
+# Full32-cell output-schema fixtures. These synthetic records are not estimates
+# from any scientific data and deliberately require no population-file loading.
+summary_script <- file.path(repo, "StabilizedWDSM", "Tables", "summarize_stabilized.R")
+fixture_root <- tempfile("stabilized_pipeline_fixture_"); dir.create(fixture_root)
+run_root <- file.path(fixture_root, "run"); base_root <- file.path(fixture_root, "baseline")
+dir.create(run_root); dir.create(base_root)
+sha <- Sys.which("sha256sum"); sha_args <- character()
+if (!nzchar(sha)) { sha <- Sys.which("shasum"); sha_args <- c("-a", "256") }
+hash <- function(path) strsplit(system2(sha, c(sha_args, shQuote(path)), stdout = TRUE), "[[:space:]]+")[[1L]][[1L]]
+object_hash <- function(x) {
+  path <- tempfile(); saveRDS(x, path, version = 2L, compress = FALSE)
+  value <- hash(path); unlink(path); value
+}
+runtime <- list(R = R.version, RNG = RNGkind(), packages = c(stats = as.character(packageVersion("stats"))))
+new_code <- setNames(vapply(letters[1:5], function(x) strrep(x, 64), character(1L)),
+  c("driver", "wdsm_core", "stabilized", "paired_adapter", "sampling_reference"))
+old_code <- c(driver = new_code[["sampling_reference"]], wdsm_core = new_code[["wdsm_core"]],
+  comparators = strrep("f", 64), "vendor/test.R" = strrep("1", 64))
+grid <- expand.grid(scenario = c("CorCor", "MisCor", "CorMis", "MisMis"), overlap = c("GoodOverlap", "PoorOverlap"),
+  design = c("Retrospective", "Prospective"), estimand = c("PATE", "PATT"), stringsAsFactors = FALSE)
+ps_diag <- list(converged = TRUE, initialization = "zero_coefficients_raw_weights",
+  normalized_score_max = 1e-12, normalized_score_tolerance = 1e-7)
+rho_diag <- list(status = "fitted", n_arm = 2500L, n_nonpositive = 0L, n_nonfinite = 0L,
+  rho_min = 1, rho_max = 3, multiplier_min = .8, multiplier_max = 1.2)
+for (j in seq_len(nrow(grid))) {
+  g <- grid[j, ]
+  env <- list2env(list(estimand = g$estimand, design = tolower(g$design), overlap = g$overlap, scenario = g$scenario,
+    n_reps = 5L, pilot = TRUE, B = 200L, population_object = paste0("SuperPopGen_", g$overlap, "_AllinOne_0118_2025")),
+    parent = globalenv())
+  cfg <- eval(top_assignment(new_driver, "config"), env)
+  pcfg <- eval(top_assignment(main_driver, "config"), env)
+  data_hash <- strrep(if (g$overlap == "GoodOverlap") "5" else "6", 64)
+  ident <- list(code_sha256 = new_code, config_sha256 = object_hash(cfg), data_sha256 = data_hash,
+    runtime_sha256 = object_hash(runtime))
+  pident <- list(code_sha256 = old_code, config_sha256 = object_hash(pcfg), data_sha256 = data_hash,
+    runtime_sha256 = object_hash(runtime))
+  cell <- paste(g$estimand, g$design, g$overlap, g$scenario, sep = "_")
+  folder <- file.path(run_root, cell); pfolder <- file.path(base_root, cell)
+  dir.create(folder); dir.create(pfolder)
+  saveRDS(list(config = cfg, identity = ident, runtime = runtime), file.path(folder, "manifest.rds"))
+  saveRDS(list(config = pcfg, identity = pident, runtime = runtime), file.path(pfolder, "manifest.rds"))
+  for (r in 1:5) {
+    truth <- if (g$estimand == "PATE") 1 else 2
+    rec <- list(identity = ident, config = cfg, replicate = r, sample_seed = 2025L + r,
+      truth = truth, status = "complete", sampling_warnings = character(), sample_size = 5000L,
+      sample_treated = 2500L, sample_ids = seq_len(5000L) + r * 6000L, methods = list())
+    prior <- rec; prior$identity <- pident; prior$config <- pcfg; prior$status <- "success"
+    for (M in c(1L, 3L, 5L)) {
+      key <- paste0("M", M)
+      old_estimate <- truth + (r - 3) * .01 + M / 100
+      new_estimate <- truth + (r - 3) * .005 + M / 1000
+      rho <- if (g$estimand == "PATE") list("0" = rho_diag, "1" = rho_diag) else list("0" = rho_diag)
+      result <- list(reference = list(estimate = old_estimate, identity_error = 0, ps_diagnostics = ps_diag),
+        stabilized = list(status = "success", estimate = new_estimate, self_normalized_estimate = old_estimate,
+          paired_difference = new_estimate - old_estimate, identity_error = 0,
+          local_mass_quantiles = setNames(seq(.8, 1.2, length.out = 7L), as.character(1:7)), local_mass_mean = 1),
+        rho_diagnostics = rho, estimand = g$estimand, sampling_design = tolower(g$design), M = M,
+        rho_degree = 2L, inference = "point_estimates_only", random_draws_consumed = 0L,
+        baseline_check = list(status = "pending", path = ""))
+      rec$methods[[key]] <- list(status = "completed", result = result, M = M, warnings = character())
+      prior$methods[[paste0("WDSM_", key)]] <- list(status = "success", result = list(estimate = old_estimate,
+        estimand = g$estimand, sampling_design = tolower(g$design), point_ps_diagnostics = ps_diag))
+    }
+    saveRDS(rec, file.path(folder, sprintf("rep_%04d.rds", r)))
+    saveRDS(prior, file.path(pfolder, sprintf("rep_%04d.rds", r)))
+  }
+}
+summarize <- function(name, complete, use_baseline = TRUE, strict = TRUE) {
+  out <- file.path(fixture_root, name); log <- file.path(fixture_root, paste0(name, ".log"))
+  args <- c("--vanilla", shQuote(summary_script), "--input", shQuote(run_root), "--output", shQuote(out),
+    "--strict", if (strict) "true" else "false")
+  if (use_baseline) args <- c(args, "--baseline-root", shQuote(base_root))
+  status <- system2(file.path(R.home("bin"), "Rscript"), args, stdout = log, stderr = log)
+  assert(identical(status == 0L, complete || !strict), paste("Summary exit", name, paste(readLines(log), collapse = "\n")))
+  man <- readRDS(file.path(out, "stabilized_point_summary_manifest.rds"))
+  assert(identical(man$complete, complete), paste(name, "complete flag"))
+  assert(identical(file.exists(file.path(out, "stabilized_point_metrics.csv")), complete), paste(name, "metrics publication gate"))
+  for (file in names(man$output_sha256)) assert(identical(hash(file.path(out, file)), man$output_sha256[[file]]), paste(name, "bound output", file))
+  out
+}
+out <- summarize("complete", TRUE)
+metrics <- read.csv(file.path(out, "stabilized_point_metrics.csv"))
+assert(nrow(metrics) == 96L && all(metrics$completed == 5L) && all(metrics$paired_success_n == 5L), "Full96-row/480-pair denominator")
+assert(all(abs(metrics$relative_efficiency - 4) < 1e-10), "Known fixture paired relative efficiency")
+equal(metrics$reference_signed_bias, metrics$M / 100, "Known original signed bias")
+equal(metrics$stabilized_signed_bias, metrics$M / 1000, "Known stabilized signed bias")
+equal(metrics$absolute_relative_bias_reduction_pp, 100 * .009 * metrics$M / metrics$truth, "Absolute relative-bias reduction sign and units")
+equal(metrics$signed_relative_bias_difference_pp, -metrics$absolute_relative_bias_reduction_pp, "Signed relative-bias difference sign")
+assert(all(metrics$absolute_relative_bias_reduction_mc_lower_pp <= metrics$absolute_relative_bias_reduction_pp) &&
+  all(metrics$absolute_relative_bias_reduction_mc_upper_pp >= metrics$absolute_relative_bias_reduction_pp), "MC bounds contain known point reductions")
+path <- file.path(run_root, "PATT_Prospective_GoodOverlap_MisMis", "rep_0002.rds")
+original <- readRDS(path)
+expected_failure <- original
+expected_failure$status <- "complete_with_estimator_failure"
+for (key in names(expected_failure$methods)) {
+  expected_failure$methods[[key]]$result$stabilized <- list(status = "estimator_failure", error = "rho predictions must be positive and finite",
+    failure_reason = "nonpositive_conditional_weight_prediction")
+  expected_failure$methods[[key]]$result$rho_diagnostics[["0"]]$n_nonpositive <- 1L
+  expected_failure$methods[[key]]$result$rho_diagnostics[["0"]]$rho_min <- -.1
+}
+saveRDS(expected_failure, path)
+out <- summarize("expected_failure", TRUE)
+metrics <- read.csv(file.path(out, "stabilized_point_metrics.csv"))
+affected <- metrics$cell == "PATT_Prospective_GoodOverlap_MisMis"
+assert(all(metrics$stabilized_failure[affected] == 1L) && all(metrics$failure_rate[affected] == .2), "Expected rho failure retained in N5 denominator")
+assert(all(metrics$reference_success[affected] == 5L) && all(metrics$paired_success_n[affected] == 4L), "Reference survives and conditional pairing is N4")
+assert(all(is.na(metrics$stabilized_mean_estimate[affected])) && all(is.na(metrics$absolute_relative_bias_reduction_pp[affected])), "Primary performance withheld after any rho failure")
+assert(all(is.finite(metrics$conditional_stabilized_mean_estimate[affected])) && all(is.finite(metrics$conditional_reference_mean_estimate[affected])), "Conditional metrics name the same surviving paired subset")
+assert(!readRDS(file.path(out, "stabilized_point_summary_manifest.rds"))$all_estimators_successful, "Complete audit distinguishes estimator failure")
+failure_manifest <- readRDS(file.path(out, "stabilized_point_summary_manifest.rds"))
+assert(identical(failure_manifest$rejection_counts, list(unique_samples = 1L, unique_sample_specifications = 1L,
+  unique_estimand_sample_specifications = 1L, estimator_pairs = 3L)), "M-independent unique sampled-data failure counts")
+assert(failure_manifest$expected_unique_samples == 20L && failure_manifest$expected_record_count == 160L,
+  "Distinct samples separated from repeated estimand/specification records")
+saveRDS(original, path)
+mutate <- function(name, fun) {
+  saveRDS(fun(original), path); out <- summarize(name, FALSE)
+  ledger <- read.csv(file.path(out, "stabilized_point_ledger.csv"))
+  assert(any(ledger$blocking), paste(name, "blocking ledger retained"))
+  saveRDS(original, path); invisible(out)
+}
+mutate("sample_order", function(x) { x$sample_ids <- rev(x$sample_ids); x })
+mutate("original_point", function(x) { x$methods$M1$result$reference$estimate <- x$methods$M1$result$reference$estimate + .1; x })
+mutate("unknown_warning", function(x) { x$methods$M1$warnings <- "unreviewed"; x })
+mutate("borrowed_se", function(x) { x$methods$M1$result$stabilized$se <- .1; x })
+mutate("rng_draw", function(x) { x$methods$M1$result$random_draws_consumed <- 1L; x })
+mutate("unknown_error", function(x) {
+  x$status <- "complete_with_estimator_failure"
+  x$methods$M1$result$stabilized <- list(status = "estimator_failure", error = "unexpected implementation error", failure_reason = "unexpected_estimator_error")
+  x
+})
+unlink(path)
+out <- summarize("missing_record", FALSE)
+audit <- read.csv(file.path(out, "stabilized_point_audit.csv"))
+assert(sum(audit$missing) == 3L && sum(audit$completed) == 477L, "Missing record preserves requested denominator")
+saveRDS(original, path)
+prior_path <- file.path(base_root, "PATT_Prospective_GoodOverlap_MisMis", "rep_0002.rds")
+prior <- readRDS(prior_path); changed <- prior
+changed$methods$WDSM_M1$result$estimate <- changed$methods$WDSM_M1$result$estimate + .1
+saveRDS(changed, prior_path)
+summarize("baseline_point", FALSE)
+saveRDS(prior, prior_path)
+out <- summarize("baseline_pending", FALSE, use_baseline = FALSE, strict = FALSE)
+assert(!readRDS(file.path(out, "stabilized_point_summary_manifest.rds"))$baseline_pairing_complete, "Progress audit explicitly declares pending pairing")
+cat(sprintf("PASS: %d independent stabilized point/pipeline checks; synthetic data only, no causal-inference claims.\n", checks))

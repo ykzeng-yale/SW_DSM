@@ -10,7 +10,7 @@
   ],
   "account": "pi_gt353",
   "partition": "day",
-  "status": "production_and_summary_queued",
+  "status": "production_in_progress",
   "initial_correction_commit": "e666e9937586dbb0391558710082ec01c9531793",
   "correction_commit": "f1e4d831c71106b9e5d1b3a49f8fd500329ad819",
   "pilot_runs": [
@@ -45,7 +45,7 @@
     "cpus_per_cell": 32,
     "memory_per_cell": "64G",
     "time_limit": "12:00:00",
-    "status": "queued_priority"
+    "status": "partly_running_other_cells_waiting_for_resources"
   },
   "summary_job": {
     "job": "25690059",
@@ -56,5 +56,18 @@
     "strict_complete": true
   },
   "github_pr": "https://github.com/ykzeng-yale/SW_DSM/pull/1",
-  "follow_up_automation": "finish-bouchet-pate-rerun-audit"
+  "follow_up_automation": "finish-bouchet-pate-rerun-audit",
+  "latest_progress": {
+    "checked_utc": "2026-09-09T14:36:52.663685+00:00",
+    "cell_saved_counts": {
+      "Retrospective_GoodOverlap_CorCor": 227,
+      "Retrospective_GoodOverlap_CorMis": 177,
+      "Retrospective_GoodOverlap_MisCor": 192,
+      "Retrospective_GoodOverlap_MisMis": 192,
+      "Retrospective_PoorOverlap_CorCor": 64
+    },
+    "total_saved": 852,
+    "reported_failures": 0,
+    "scheduler_snapshot": "             JOBID     STATE       TIME               NODELIST(REASON)\n25689737_[5-15%16]   PENDING       0:00                    (Resources)\n          25690059   PENDING       0:00                   (Dependency)\n        25689737_4   RUNNING       4:01                    a1114u21n01\n        25689737_1   RUNNING       9:33                    a1114u30n01\n        25689737_2   RUNNING       9:33                    a1114u30n01\n        25689737_3   RUNNING       9:33                    a1114u20n01\n        25689737_0   RUNNING      12:16                    a1114u22n01\n"
+  }
 }

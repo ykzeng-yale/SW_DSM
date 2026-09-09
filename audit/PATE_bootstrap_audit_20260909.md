@@ -1,0 +1,47 @@
+# PATE bootstrap correction and rerun audit — 2026-09-09
+
+Baseline GitHub commit: `3356769fc3d0805678d7fd927108d4b00c069980`.
+Manuscript reference: user-supplied `main (8).tex`; the file has not been edited.
+
+## Which results are in the paper?
+
+The local `0727 Test (SW_DSM)/Doc/generate_tables.R` reproduces the complete saved table text byte-for-byte from `Doc/Results` and `Doc/Results_PATT`. The table, result inputs, and corresponding canonical GitHub copies match. Active manuscript values match these tables. See [paper result lineage](paper_result_lineage.md) and its comparison CSVs.
+
+All 32 result-file hashes match files in the user's Tong storage, `/nfs/roberts/project/pi_gt353/yz2324`:
+
+| Paper input | Cluster family | Result dates (EDT) |
+|---|---|---|
+| Retrospective PATE, 8 files | `PATE_Retrospective_*_ALLFIXED/*_M135_1000rep` | 2026-04-10 |
+| Prospective PATE, 8 files | `PATE_Prospective_*_ALLFIXED/*_M135_1000rep` | 2026-04-13 |
+| Retrospective/prospective PATT, 16 files | `PATT_*_10TERM/*_M135_1000rep` | 2026-04-08 |
+
+The Fan Li project area, `/nfs/roberts/project/pi_fl426/yz2324`, contains an earlier `pate_test_20260404` folder, not these production result files. No files were present in the two inspected user scratch areas. All source and result inspections were read-only.
+
+The 32 point/bootstrap PATE core files beside the matching production outputs have the same SHA-256 hashes as their corresponding canonical GitHub source at the baseline commit. Their modification times precede the matching run logs. Example jobs: retrospective good CorCor 7801742 ran April 9 23:33–April 10 01:16; prospective good CorCor 8170654 ran April 13 21:00–22:38. Historical `sacct` returned no records for those jobs; file/log/source evidence is retained instead of inventing scheduler provenance.
+
+The newer `wdsmatch_validation_1000rep` outputs date to April 14. They are not the joint source of the paper's tables. All 96 WDSM point-estimate vectors match the paper inputs, but prospective PATE and PATT intervals differ. The newer prospective PATE bootstrap SEs and endpoints exactly match the older local April 10 ` 2.RData` alternatives, while its point estimates match the April 13 version. The saved cluster package `wdsmatch_0.1.0.tar.gz` retains the reversed match-list bootstrap bug and always uses survey-weighted propensity replication, including when its `sampling` argument is prospective. Installed package version at the historical execution time was not recorded, so the saved package is corroborating source evidence, not a recovered runtime lockfile.
+
+## Confirmed inference issues
+
+1. In the paper-linked PATE code, `matches_0` exists for treated recipients only and `matches_1` for controls only. The old bootstrap reads these at the opposite indices. Every residual-correction branch skips. The draws reduce to the weighted replicated sieve mean difference. This is more than an interval-endpoint issue.
+2. All 48,000 saved PATE WDSM intervals are non-Wald; all 48,000 paper-linked PATT WDSM intervals match estimate ± normal critical value × stored SE. The table/plot scripts use saved bounds directly.
+3. Old PATE uses percentile quantiles and `sd()` (B−1 divisor). Manuscript lines 1044 and 1047 specify B-divisor replication variance and Wald intervals. B versus B−1 is a finite Monte Carlo convention; at B=200 the SE difference is about 0.25%, much smaller than the omitted residual issue.
+4. Historical result objects do not retain bootstrap draws, source hashes, successful B counts, or RNG states. Reconstructing Wald from their old SE is only an endpoint diagnostic, not a corrected-bootstrap result.
+
+## Implemented correction
+
+Compute raw original weighted reuse K once from the original matches. For each multinomial vector m, refit propensity/prognostic and bias-correction models and calculate
+
+`sum(m*w*(q1-q0) + m*(2*A-1)*(w+K)*(Y-qA)) / sum(m*w)`.
+
+Retrospective propensity replication uses m*w; prospective uses m. Both prognostic regressions use m, and bias-correction regressions use m*w. No matching is repeated and no replicate-specific donor denominator is formed. Variance is the mean squared deviation of all B draws from their mean. The CI is the original BC point estimate ± qnorm(0.975)×SE. Failed bootstrap draws stop that estimate and are recorded explicitly by the rerun driver.
+
+The focused correction preserves the existing point estimator and joint 10-term sieve. Affine standardization of its coordinates preserves the fitted span with an intercept. That joint sieve uses both prognostic scores, whereas the manuscript describes arm-specific q_z(D_z); this preexisting specification difference remains a separate scientific/documentation issue. The current correction must not be described as proving all manuscript assumptions or all complex-survey design validity.
+
+## Validation and execution
+
+`tests/test_pate_replication.R` passed 134 independent checks under R 4.4.0: hand-calculated unequal-weight reuse and replicate formulas; all-ones replication identity; weight-scaling invariance; unweighted reduction; B-divisor Wald arithmetic; preserved original point estimates/matches in both designs and all four model specifications; affine sieve invariance; finite reproducible actual bootstraps; flags/design fitting weights; explicit failure without a CI.
+
+The new PATE-only driver retains sample seeds 2025+i and uses separately declared bootstrap seeds 1000000+10*i+M. These produce the same sampled datasets but are new bootstrap draws: old comparators consumed an unrecorded shared RNG stream. The driver saves every draw, sampled unit IDs, code/data/config/runtime hashes, session information, and per-estimate failures. Resume requires matching provenance. Historical comparator outputs and all original source/results remain separate.
+
+Production target: 16 design/overlap/model cells × 1000 sample replications × M={1,3,5} × B=200. Cluster pilot and production completion are tracked separately; code validation alone is not a completed or validated simulation result.

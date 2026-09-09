@@ -117,7 +117,9 @@ calculate_weighted_reuse_counts <- function(matches, weights, treatment_vec) {
 
 # Main WDSM point estimation function
 wdsm_point_estimate <- function(data, M = 3, use_bias_correction = FALSE,
-                                 use_interaction_ps = TRUE, use_interaction_pg = TRUE) {
+                                 use_interaction_ps = TRUE, use_interaction_pg = TRUE,
+                                 sampling_design = c("retrospective", "prospective")) {
+  sampling_design <- match.arg(sampling_design)
   n <- nrow(data)
   w <- data$survey_weight
   
@@ -133,11 +135,12 @@ wdsm_point_estimate <- function(data, M = 3, use_bias_correction = FALSE,
     pg_formula <- Y ~ X1 + X2 + X3 + X4 + X5 + X6
   }
   
-  # Step 1: Estimate propensity score (SURVEY-WEIGHTED per paper Eq. 3)
+  # Design-specific propensity score fit; all remaining point-estimator steps unchanged.
+  ps_weights <- if (sampling_design == "retrospective") w else rep(1, n)
   ps_model <- glm(ps_formula, 
                   data = data,
                   family = quasibinomial(link = "logit"),
-                  weights = w)
+                  weights = ps_weights)
   e_score <- ps_model$fitted.values
   
   # Step 2: Estimate prognostic scores (UNWEIGHTED per paper Eq. 4)

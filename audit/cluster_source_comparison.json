@@ -1,0 +1,194 @@
+[
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Prospective_GoodOverlap_ALLFIXED/CorCor_M135_1000rep/wdsm_ci_functions.R",
+    "sha256": "fe068692808cc8b5e989da9dd5fe8982f2451450310bd99b9c6ddd7371ba91a0",
+    "canonical_ref": "R/wdsm_ci_functions_PROSPECTIVE.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Prospective_GoodOverlap_ALLFIXED/CorCor_M135_1000rep/wdsm_method2_multinomial_bootstrap.R",
+    "sha256": "f3355b53d880fa506a25706bcbb5329d23920b38b6b43b188976ed25500aa5bf",
+    "canonical_ref": "R/wdsm_method2_bootstrap_PROSPECTIVE.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Prospective_GoodOverlap_ALLFIXED/CorMis_M135_1000rep/wdsm_ci_functions.R",
+    "sha256": "fe068692808cc8b5e989da9dd5fe8982f2451450310bd99b9c6ddd7371ba91a0",
+    "canonical_ref": "R/wdsm_ci_functions_PROSPECTIVE.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Prospective_GoodOverlap_ALLFIXED/CorMis_M135_1000rep/wdsm_method2_multinomial_bootstrap.R",
+    "sha256": "f3355b53d880fa506a25706bcbb5329d23920b38b6b43b188976ed25500aa5bf",
+    "canonical_ref": "R/wdsm_method2_bootstrap_PROSPECTIVE.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Prospective_GoodOverlap_ALLFIXED/MisCor_M135_1000rep/wdsm_ci_functions.R",
+    "sha256": "fe068692808cc8b5e989da9dd5fe8982f2451450310bd99b9c6ddd7371ba91a0",
+    "canonical_ref": "R/wdsm_ci_functions_PROSPECTIVE.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Prospective_GoodOverlap_ALLFIXED/MisCor_M135_1000rep/wdsm_method2_multinomial_bootstrap.R",
+    "sha256": "f3355b53d880fa506a25706bcbb5329d23920b38b6b43b188976ed25500aa5bf",
+    "canonical_ref": "R/wdsm_method2_bootstrap_PROSPECTIVE.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Prospective_GoodOverlap_ALLFIXED/MisMis_M135_1000rep/wdsm_ci_functions.R",
+    "sha256": "fe068692808cc8b5e989da9dd5fe8982f2451450310bd99b9c6ddd7371ba91a0",
+    "canonical_ref": "R/wdsm_ci_functions_PROSPECTIVE.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Prospective_GoodOverlap_ALLFIXED/MisMis_M135_1000rep/wdsm_method2_multinomial_bootstrap.R",
+    "sha256": "f3355b53d880fa506a25706bcbb5329d23920b38b6b43b188976ed25500aa5bf",
+    "canonical_ref": "R/wdsm_method2_bootstrap_PROSPECTIVE.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Prospective_PoorOverlap_ALLFIXED/CorCor_M135_1000rep/wdsm_ci_functions.R",
+    "sha256": "fe068692808cc8b5e989da9dd5fe8982f2451450310bd99b9c6ddd7371ba91a0",
+    "canonical_ref": "R/wdsm_ci_functions_PROSPECTIVE.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Prospective_PoorOverlap_ALLFIXED/CorCor_M135_1000rep/wdsm_method2_multinomial_bootstrap.R",
+    "sha256": "f3355b53d880fa506a25706bcbb5329d23920b38b6b43b188976ed25500aa5bf",
+    "canonical_ref": "R/wdsm_method2_bootstrap_PROSPECTIVE.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Prospective_PoorOverlap_ALLFIXED/CorMis_M135_1000rep/wdsm_ci_functions.R",
+    "sha256": "fe068692808cc8b5e989da9dd5fe8982f2451450310bd99b9c6ddd7371ba91a0",
+    "canonical_ref": "R/wdsm_ci_functions_PROSPECTIVE.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Prospective_PoorOverlap_ALLFIXED/CorMis_M135_1000rep/wdsm_method2_multinomial_bootstrap.R",
+    "sha256": "f3355b53d880fa506a25706bcbb5329d23920b38b6b43b188976ed25500aa5bf",
+    "canonical_ref": "R/wdsm_method2_bootstrap_PROSPECTIVE.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Prospective_PoorOverlap_ALLFIXED/MisCor_M135_1000rep/wdsm_ci_functions.R",
+    "sha256": "fe068692808cc8b5e989da9dd5fe8982f2451450310bd99b9c6ddd7371ba91a0",
+    "canonical_ref": "R/wdsm_ci_functions_PROSPECTIVE.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Prospective_PoorOverlap_ALLFIXED/MisCor_M135_1000rep/wdsm_method2_multinomial_bootstrap.R",
+    "sha256": "f3355b53d880fa506a25706bcbb5329d23920b38b6b43b188976ed25500aa5bf",
+    "canonical_ref": "R/wdsm_method2_bootstrap_PROSPECTIVE.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Prospective_PoorOverlap_ALLFIXED/MisMis_M135_1000rep/wdsm_ci_functions.R",
+    "sha256": "fe068692808cc8b5e989da9dd5fe8982f2451450310bd99b9c6ddd7371ba91a0",
+    "canonical_ref": "R/wdsm_ci_functions_PROSPECTIVE.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Prospective_PoorOverlap_ALLFIXED/MisMis_M135_1000rep/wdsm_method2_multinomial_bootstrap.R",
+    "sha256": "f3355b53d880fa506a25706bcbb5329d23920b38b6b43b188976ed25500aa5bf",
+    "canonical_ref": "R/wdsm_method2_bootstrap_PROSPECTIVE.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Retrospective_GoodOverlap_ALLFIXED/CorCor_M135_1000rep/wdsm_ci_functions.R",
+    "sha256": "98c0365b2f7b5d3500212e6b28f39a2234847df3fa478ddde19cf949fa0200a1",
+    "canonical_ref": "R/wdsm_ci_functions.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Retrospective_GoodOverlap_ALLFIXED/CorCor_M135_1000rep/wdsm_method2_multinomial_bootstrap.R",
+    "sha256": "b127ab82ebb068b8a9b435a091fdc9505707d1bb2326f44da7df2b1a75252b1e",
+    "canonical_ref": "R/wdsm_method2_multinomial_bootstrap.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Retrospective_GoodOverlap_ALLFIXED/CorMis_M135_1000rep/wdsm_ci_functions.R",
+    "sha256": "98c0365b2f7b5d3500212e6b28f39a2234847df3fa478ddde19cf949fa0200a1",
+    "canonical_ref": "R/wdsm_ci_functions.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Retrospective_GoodOverlap_ALLFIXED/CorMis_M135_1000rep/wdsm_method2_multinomial_bootstrap.R",
+    "sha256": "b127ab82ebb068b8a9b435a091fdc9505707d1bb2326f44da7df2b1a75252b1e",
+    "canonical_ref": "R/wdsm_method2_multinomial_bootstrap.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Retrospective_GoodOverlap_ALLFIXED/MisCor_M135_1000rep/wdsm_ci_functions.R",
+    "sha256": "98c0365b2f7b5d3500212e6b28f39a2234847df3fa478ddde19cf949fa0200a1",
+    "canonical_ref": "R/wdsm_ci_functions.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Retrospective_GoodOverlap_ALLFIXED/MisCor_M135_1000rep/wdsm_method2_multinomial_bootstrap.R",
+    "sha256": "b127ab82ebb068b8a9b435a091fdc9505707d1bb2326f44da7df2b1a75252b1e",
+    "canonical_ref": "R/wdsm_method2_multinomial_bootstrap.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Retrospective_GoodOverlap_ALLFIXED/MisMis_M135_1000rep/wdsm_ci_functions.R",
+    "sha256": "98c0365b2f7b5d3500212e6b28f39a2234847df3fa478ddde19cf949fa0200a1",
+    "canonical_ref": "R/wdsm_ci_functions.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Retrospective_GoodOverlap_ALLFIXED/MisMis_M135_1000rep/wdsm_method2_multinomial_bootstrap.R",
+    "sha256": "b127ab82ebb068b8a9b435a091fdc9505707d1bb2326f44da7df2b1a75252b1e",
+    "canonical_ref": "R/wdsm_method2_multinomial_bootstrap.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Retrospective_PoorOverlap_ALLFIXED/CorCor_M135_1000rep/wdsm_ci_functions.R",
+    "sha256": "98c0365b2f7b5d3500212e6b28f39a2234847df3fa478ddde19cf949fa0200a1",
+    "canonical_ref": "R/wdsm_ci_functions.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Retrospective_PoorOverlap_ALLFIXED/CorCor_M135_1000rep/wdsm_method2_multinomial_bootstrap.R",
+    "sha256": "b127ab82ebb068b8a9b435a091fdc9505707d1bb2326f44da7df2b1a75252b1e",
+    "canonical_ref": "R/wdsm_method2_multinomial_bootstrap.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Retrospective_PoorOverlap_ALLFIXED/CorMis_M135_1000rep/wdsm_ci_functions.R",
+    "sha256": "98c0365b2f7b5d3500212e6b28f39a2234847df3fa478ddde19cf949fa0200a1",
+    "canonical_ref": "R/wdsm_ci_functions.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Retrospective_PoorOverlap_ALLFIXED/CorMis_M135_1000rep/wdsm_method2_multinomial_bootstrap.R",
+    "sha256": "b127ab82ebb068b8a9b435a091fdc9505707d1bb2326f44da7df2b1a75252b1e",
+    "canonical_ref": "R/wdsm_method2_multinomial_bootstrap.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Retrospective_PoorOverlap_ALLFIXED/MisCor_M135_1000rep/wdsm_ci_functions.R",
+    "sha256": "98c0365b2f7b5d3500212e6b28f39a2234847df3fa478ddde19cf949fa0200a1",
+    "canonical_ref": "R/wdsm_ci_functions.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Retrospective_PoorOverlap_ALLFIXED/MisCor_M135_1000rep/wdsm_method2_multinomial_bootstrap.R",
+    "sha256": "b127ab82ebb068b8a9b435a091fdc9505707d1bb2326f44da7df2b1a75252b1e",
+    "canonical_ref": "R/wdsm_method2_multinomial_bootstrap.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Retrospective_PoorOverlap_ALLFIXED/MisMis_M135_1000rep/wdsm_ci_functions.R",
+    "sha256": "98c0365b2f7b5d3500212e6b28f39a2234847df3fa478ddde19cf949fa0200a1",
+    "canonical_ref": "R/wdsm_ci_functions.R",
+    "equals_canonical_at_base": true
+  },
+  {
+    "remote_source": "audit/cluster_snapshot/PATE_Retrospective_PoorOverlap_ALLFIXED/MisMis_M135_1000rep/wdsm_method2_multinomial_bootstrap.R",
+    "sha256": "b127ab82ebb068b8a9b435a091fdc9505707d1bb2326f44da7df2b1a75252b1e",
+    "canonical_ref": "R/wdsm_method2_multinomial_bootstrap.R",
+    "equals_canonical_at_base": true
+  }
+]

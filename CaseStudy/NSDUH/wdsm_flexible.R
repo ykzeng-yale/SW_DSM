@@ -17,6 +17,50 @@
 #' No propensity clipping, rank-deficient fallback, or tie jitter is applied.
 #' Numerical implementation only: successful execution does not prove inference validity.
 
+# Standalone case-study entry points share this checked zero-start solver.
+# It solves the same logistic score equations; existing common weight scaling
+# is retained in the NHANES caller. This adds numerical diagnostics, not a model.
+wdsm_case_fit_propensity <- function(formula, data, weights, maxit = 100L,
+                              score_tolerance = 1e-7) {
+  frame <- stats::model.frame(formula, data = data, na.action = stats::na.fail)
+  response <- stats::model.response(frame)
+  design <- stats::model.matrix(formula, data = frame)
+  if (nrow(design) != nrow(data) || length(weights) != nrow(design) ||
+      any(!is.finite(c(weights, design))) || any(weights < 0) ||
+      !is.finite(sum(weights)) || sum(weights) <= 0 ||
+      !all(response %in% c(0, 1)) ||
+      length(unique(response[weights > 0])) != 2L)
+    stop("Propensity fit requires finite inputs and both positive-weight treatment arms")
+  fit <- do.call(stats::glm, list(formula = formula, data = data,
+    family = stats::quasibinomial(link = "logit"), weights = weights,
+    start = rep(0, ncol(design)), na.action = stats::na.fail,
+    control = stats::glm.control(maxit = maxit, epsilon = 1e-10)))
+  if (!isTRUE(fit$converged)) stop("Propensity-score fit did not converge from zero coefficients")
+  if (fit$rank != ncol(design) || any(!is.finite(stats::coef(fit))))
+    stop("Propensity-score fit has unidentified or nonfinite coefficients")
+  probability <- as.numeric(stats::predict(fit, newdata = data, type = "response"))
+  if (length(probability) != nrow(design) || any(!is.finite(probability)) ||
+      any(probability <= .Machine$double.eps | probability >= 1 - .Machine$double.eps))
+    stop("Propensity-score fit has nonfinite or numerically saturated probabilities")
+  # Dimensionless numerical score residual, invariant to common weight scaling
+  # and nonzero scaling of a design coordinate. This is an optimality check,
+  # not a statistical assumption or a general separation diagnostic.
+  scale <- pmax(colSums(weights * abs(design)), .Machine$double.eps * sum(weights))
+  normalized_score <- drop(crossprod(design, weights * (response - probability))) / scale
+  maximum_score <- max(abs(normalized_score))
+  if (!is.finite(maximum_score) || maximum_score > score_tolerance)
+    stop(sprintf("Propensity score residual %.3g exceeds numerical tolerance %.3g",
+                 maximum_score, score_tolerance))
+  attr(fit, "wdsm_ps_diagnostics") <- list(converged = TRUE,
+    initialization = "zero_coefficients_input_weights", iterations = fit$iter,
+    maxit = as.integer(maxit), normalized_score_max = maximum_score,
+    normalized_score_tolerance = score_tolerance,
+    probability_range = range(probability), coefficient_range = range(stats::coef(fit)),
+    rank = fit$rank, positive_weight_count = sum(weights > 0), weight_range = range(weights))
+  fit
+}
+
+
 wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_formula,
                          weight_var, M = 5, B = 200, alpha = 0.05, verbose = TRUE,
                          bootstrap_counts = NULL) {
@@ -84,15 +128,11 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
   # ---------- Step 2: Fit PROPENSITY SCORES without survey weights ----------
   if (verbose) cat("\nFitting propensity score model...\n")
   
-  ps_model <- tryCatch({
-    glm(ps_formula, data = model_data, family = quasibinomial(link = "logit"), na.action = na.fail)
-  }, error = function(e) {
-    cat("Error in PS model:", e$message, "\n")
-    stop("Failed to fit propensity score model")
-  })
+  ps_model <- wdsm_case_fit_propensity(ps_formula, model_data, rep(1, n))
+  point_ps_diagnostics <- attr(ps_model, "wdsm_ps_diagnostics")
   
   check_fit(ps_model, "Prospective propensity")
-  e_hat <- plogis(predict(ps_model, newdata = model_data, type = "link"))
+  e_hat <- as.numeric(predict(ps_model, newdata = model_data, type = "response"))
   
   if (verbose) {
     cat("Propensity score range:", round(range(e_hat), 4), "\n")
@@ -209,7 +249,7 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
   Ktilde <- rep(0, n)
   Ktilde[A == 1] <- Gamma_treated[A == 1] / omega[A == 1]
   Ktilde[A == 0] <- Gamma_control[A == 0] / omega[A == 0]
-  Ktilde[!is.finite(Ktilde)] <- 0
+  if (any(!is.finite(Ktilde))) stop("Nonfinite original reuse coefficient.")
   
   # ---------- Step 7: Point Estimate ----------
   if (verbose) cat("Computing point estimate...\n")
@@ -237,10 +277,9 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
     model_data_b$multiplicity <- multiplicities
     
     # Prospective PS and both prognostic fits use multiplicities only.
-    ps_model_b <- glm(ps_formula, data = model_data_b, weights = multiplicity,
-                      family = quasibinomial(link = "logit"), na.action = na.fail)
+    ps_model_b <- wdsm_case_fit_propensity(ps_formula, model_data_b, multiplicities)
     check_fit(ps_model_b, "Replicate propensity")
-    e_hat_b <- plogis(predict(ps_model_b, newdata = model_data_b, type = "link"))
+    e_hat_b <- as.numeric(predict(ps_model_b, newdata = model_data_b, type = "response"))
 
     control_data_b <- model_data_b[A_b == 0, ]
     pg_model_0_b <- lm(pgs_formula, data = control_data_b, weights = multiplicity,
@@ -282,27 +321,32 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
              sum(omega_b[A_b == 1] * (1 + Ktilde_fixed[A_b == 1]) * (Y_b[A_b == 1] - mu_hat_A_b[A_b == 1])) -
              sum(omega_b[A_b == 0] * (1 + Ktilde_fixed[A_b == 0]) * (Y_b[A_b == 0] - mu_hat_A_b[A_b == 0]))
     
-    return(tau_b)
+    if (!is.finite(tau_b)) stop("Nonfinite replication estimate.")
+    list(estimate = tau_b, ps_diagnostics = attr(ps_model_b, "wdsm_ps_diagnostics"))
   }
   
   # All-one multiplicities must reproduce the point estimate.
   identity_estimate <- compute_boot_estimate(Y, A, w, model_data, Ktilde,
-                                             ps_formula, pgs_formula, rep(1, n))
+                                             ps_formula, pgs_formula, rep(1, n))$estimate
   identity_error <- abs(identity_estimate - tau_hat)
   if (!is.finite(identity_error) || identity_error > 1e-9) stop("All-one replicate identity failed.")
 
   # Run bootstrap, retaining a diagnostic for every attempted replication.
   tau_boot <- rep(NA_real_, B)
   bootstrap_errors <- rep("", B)
+  bootstrap_ps_diagnostics <- vector("list", B)
   for (b in seq_len(B)) {
     if (verbose && b %% 25 == 0) cat(" Replication", b, "/", B, "\n")
     m_star <- if (is.null(bootstrap_counts)) {
       as.vector(rmultinom(1, n, rep(1/n, n)))
     } else bootstrap_counts[, b]
     w_b <- m_star * w
-    tau_boot[b] <- tryCatch(
-      compute_boot_estimate(Y, A, w_b, model_data, Ktilde, ps_formula,
-                            pgs_formula, m_star),
+    tau_boot[b] <- tryCatch({
+      boot <- compute_boot_estimate(Y, A, w_b, model_data, Ktilde, ps_formula,
+                                    pgs_formula, m_star)
+      bootstrap_ps_diagnostics[[b]] <- boot$ps_diagnostics
+      boot$estimate
+    },
       error = function(e) {
         bootstrap_errors[b] <<- conditionMessage(e)
         NA_real_
@@ -335,6 +379,8 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
     n_boot_valid = n_valid,
     bootstrap_estimates = tau_boot,
     bootstrap_errors = bootstrap_errors,
+    point_ps_diagnostics = point_ps_diagnostics,
+    bootstrap_ps_diagnostics = bootstrap_ps_diagnostics,
     identity_error = identity_error,
     raw_estimate = sum(omega * (2 * A - 1) * (1 + Ktilde) * Y),
     matches_0 = matches_0,
@@ -363,5 +409,4 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
 cat("Corrected NSDUH prospective WDSM function loaded successfully!\n")
 cat("This version accepts formula objects for PS and PGS models.\n")
 cat("Usage: wdsm_flexible(data, outcome_var, treatment_var, ps_formula, pgs_formula, weight_var, ...)\n")
-
 

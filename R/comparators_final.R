@@ -143,7 +143,8 @@ compare_final <- function(data, survey_weight = data$survey_weight,
           any(!is.finite(matched$distance)) || any(matched$distance <= 0 | matched$distance >= 1)) {
         stop("SWPSM propensity fit did not return converged finite interior probabilities")
       }
-      md <- MatchIt::match_data(matched, data = df, include.s.weights = TRUE)
+      # The historical dotted API is also exported by cluster MatchIt 4.6.x.
+      md <- MatchIt::match.data(matched, data = df, include.s.weights = TRUE)
       if (nrow(md) != nrow(df) || any(!is.finite(md$weights) | md$weights <= 0) ||
           anyNA(md$subclass)) stop("SWPSM full matching did not retain every observation with positive weight")
       outcome_formula <- Y ~ A * (X1 + X2 + X3 + X4 + X5 + X6 + X1:X2)

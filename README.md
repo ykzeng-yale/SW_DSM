@@ -4,7 +4,7 @@
 
 The paper’s original simulation tables have been traced to the saved 0727 publication results and Tong’s Bouchet production runs. The original PATE bootstrap omitted residual reuse contributions and used percentile intervals. Retrospective propensity fits also failed numerically in both PATE and PATT. The full audit additionally identified a discrepancy between the old simulation score/bias-correction implementation and the probability-score, own-arm construction used by the manuscript and corrected case studies.
 
-**Status: the full corrected pilot passed and the 1,000-replication production run is running on Bouchet (job 25694783). Final simulation results are not yet available.** Historical numbers in `Results/`, `Tables/All_12_Simulation_Tables.txt`, and existing simulation images remain the original baseline. Do not use them as corrected results. See [run status](audit/full_rerun_execution.json), [result lineage](audit/paper_result_lineage.md), and [case-study comparison](audit/case_study_fix_comparison_20260909.md).
+**Status: the full corrected pilot passed and the 1,000-replication production run is submitted to Bouchet (job 25694783). Final simulation results are not yet available. The dependent strict-audit/table/figure job is 25694919.** Historical numbers in `Results/`, `Tables/All_12_Simulation_Tables.txt`, and existing simulation images remain the original baseline. Do not use them as corrected results. See [run status](audit/full_rerun_execution.json), [result lineage](audit/paper_result_lineage.md), and [case-study comparison](audit/case_study_fix_comparison_20260909.md).
 
 ## Current implementation
 

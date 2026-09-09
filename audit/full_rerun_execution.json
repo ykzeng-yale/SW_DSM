@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-09-09T11:25:58.510938-04:00",
-  "status": "production_submitted",
+  "updated_at": "2026-09-09T11:29:41.559516-04:00",
+  "status": "production_queued",
   "repository": "ykzeng-yale/SW_DSM",
   "branch": "fix/pate-wald-replication-20260909",
   "source_commit": "f29994650568a6c74098234035420985de97b9ad",
@@ -65,5 +65,10 @@
     "code_tests": 318,
     "summary_tests": 85
   },
-  "artifact_job_id": null
+  "artifact_job_id": "25694919",
+  "artifact_dependency": "afterok:25694783",
+  "analysis_commit": "482381d",
+  "analysis_directory": "analysis_482381d",
+  "publication_output": "publication_482381d",
+  "case_rerun_manifest": "audit/case_rerun_execution_20260909.json"
 }

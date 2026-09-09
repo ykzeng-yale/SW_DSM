@@ -1,0 +1,36 @@
+\begin{sidewaystable}[htbp]
+\centering
+\caption{PILOT DIAGNOSTIC; NOT MANUSCRIPT RESULTS. Simulation results under retrospective sampling with good overlap ($\psi=0.6$): signed relative bias (\%), relative efficiency, and coverage of 95\% Wald confidence intervals across 5 replications.}
+\label{tab:pilot_retrospective_good}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{2.8pt}
+\begin{tabular}{@{} >{\centering\arraybackslash}p{1.3cm} l c c *{4}{c} *{4}{c} *{4}{c} @{}}
+\toprule
+\multirow{2}{*}{Estimand} & \multirow{2}{*}{Method} & \multicolumn{2}{c}{Score Model} & \multicolumn{4}{c}{Signed Relative Bias (\%)} & \multicolumn{4}{c}{Relative Efficiency} & \multicolumn{4}{c}{Coverage (\%)} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-8} \cmidrule(lr){9-12} \cmidrule(lr){13-16}
+& & PS & PGS & Cor|Cor & Mis|Cor & Cor|Mis & Mis|Mis & Cor|Cor & Mis|Cor & Cor|Mis & Mis|Mis & Cor|Cor & Mis|Cor & Cor|Mis & Mis|Mis \\
+\midrule
+\multirow{7}{*}{PATE} & PSM & \texttimes & \textendash & 7.0 & 12.4 & 7.0 & 12.4 & 1.00 & 0.03 & 1.00 & 0.03 & 100.0 & 100.0 & 100.0 & 100.0 \\[2pt]
+ & \cellcolor[rgb]{0.92,0.92,0.92}PGM & \cellcolor[rgb]{0.92,0.92,0.92}\textendash & \cellcolor[rgb]{0.92,0.92,0.92}\texttimes & \cellcolor[rgb]{0.92,0.92,0.92}7.9 & \cellcolor[rgb]{0.92,0.92,0.92}7.9 & \cellcolor[rgb]{0.92,0.92,0.92}11.8 & \cellcolor[rgb]{0.92,0.92,0.92}11.8 & \cellcolor[rgb]{0.92,0.92,0.92}0.19 & \cellcolor[rgb]{0.92,0.92,0.92}0.19 & \cellcolor[rgb]{0.92,0.92,0.92}0.18 & \cellcolor[rgb]{0.92,0.92,0.92}0.18 & \cellcolor[rgb]{0.92,0.92,0.92}80.0 & \cellcolor[rgb]{0.92,0.92,0.92}80.0 & \cellcolor[rgb]{0.92,0.92,0.92}80.0 & \cellcolor[rgb]{0.92,0.92,0.92}80.0 \\[2pt]
+ & DSM & \texttimes & \texttimes & 5.3 & 5.6 & 6.6 & 11.3 & 0.17 & 0.18 & 0.29 & 0.15 & 100.0 & 100.0 & 100.0 & 60.0 \\[2pt]
+ & \cellcolor[rgb]{0.92,0.92,0.92}SW-PSM & \cellcolor[rgb]{0.92,0.92,0.92}\checkmark & \cellcolor[rgb]{0.92,0.92,0.92}\textendash & \cellcolor[rgb]{0.92,0.92,0.92}$-$2.1 & \cellcolor[rgb]{0.92,0.92,0.92}0.7 & \cellcolor[rgb]{0.92,0.92,0.92}$-$2.1 & \cellcolor[rgb]{0.92,0.92,0.92}0.7 & \cellcolor[rgb]{0.92,0.92,0.92}0.08 & \cellcolor[rgb]{0.92,0.92,0.92}0.21 & \cellcolor[rgb]{0.92,0.92,0.92}0.08 & \cellcolor[rgb]{0.92,0.92,0.92}0.21 & \cellcolor[rgb]{0.92,0.92,0.92}100.0 & \cellcolor[rgb]{0.92,0.92,0.92}100.0 & \cellcolor[rgb]{0.92,0.92,0.92}100.0 & \cellcolor[rgb]{0.92,0.92,0.92}100.0 \\[2pt]
+ & WDSM ($M$=1) & \checkmark & \texttimes & $-$0.2 & $-$0.5 & $-$1.8 & 7.8 & 0.28 & 0.38 & 0.08 & 0.04 & 100.0 & 100.0 & 100.0 & 80.0 \\[2pt]
+ & WDSM ($M$=3) & \checkmark & \texttimes & $-$0.4 & $-$0.6 & $-$0.4 & 8.0 & 0.15 & 0.21 & 0.12 & 0.06 & 100.0 & 100.0 & 100.0 & 80.0 \\[2pt]
+ & WDSM ($M$=5) & \checkmark & \texttimes & $-$0.9 & $-$0.8 & $-$0.5 & 7.0 & 0.16 & 0.18 & 0.13 & 0.07 & 100.0 & 100.0 & 100.0 & 80.0 \\
+\midrule
+\multirow{7}{*}{PATT} & PSM & \texttimes & \textendash & 10.2 & 17.0 & 10.2 & 17.0 & 1.00 & 0.37 & 1.00 & 0.37 & 100.0 & 80.0 & 100.0 & 80.0 \\[2pt]
+ & \cellcolor[rgb]{0.92,0.92,0.92}PGM & \cellcolor[rgb]{0.92,0.92,0.92}\textendash & \cellcolor[rgb]{0.92,0.92,0.92}\texttimes & \cellcolor[rgb]{0.92,0.92,0.92}8.8 & \cellcolor[rgb]{0.92,0.92,0.92}8.8 & \cellcolor[rgb]{0.92,0.92,0.92}16.3 & \cellcolor[rgb]{0.92,0.92,0.92}16.3 & \cellcolor[rgb]{0.92,0.92,0.92}2.26 & \cellcolor[rgb]{0.92,0.92,0.92}2.26 & \cellcolor[rgb]{0.92,0.92,0.92}0.65 & \cellcolor[rgb]{0.92,0.92,0.92}0.65 & \cellcolor[rgb]{0.92,0.92,0.92}80.0 & \cellcolor[rgb]{0.92,0.92,0.92}80.0 & \cellcolor[rgb]{0.92,0.92,0.92}20.0 & \cellcolor[rgb]{0.92,0.92,0.92}20.0 \\[2pt]
+ & DSM & \texttimes & \texttimes & 10.7 & 9.9 & 10.2 & 14.5 & 2.94 & 2.86 & 1.11 & 1.52 & 60.0 & 60.0 & 60.0 & 40.0 \\[2pt]
+ & \cellcolor[rgb]{0.92,0.92,0.92}SW-PSM & \cellcolor[rgb]{0.92,0.92,0.92}\checkmark & \cellcolor[rgb]{0.92,0.92,0.92}\textendash & \cellcolor[rgb]{0.92,0.92,0.92}4.2 & \cellcolor[rgb]{0.92,0.92,0.92}2.0 & \cellcolor[rgb]{0.92,0.92,0.92}4.2 & \cellcolor[rgb]{0.92,0.92,0.92}2.0 & \cellcolor[rgb]{0.92,0.92,0.92}3.16 & \cellcolor[rgb]{0.92,0.92,0.92}4.22 & \cellcolor[rgb]{0.92,0.92,0.92}3.16 & \cellcolor[rgb]{0.92,0.92,0.92}4.22 & \cellcolor[rgb]{0.92,0.92,0.92}80.0 & \cellcolor[rgb]{0.92,0.92,0.92}100.0 & \cellcolor[rgb]{0.92,0.92,0.92}80.0 & \cellcolor[rgb]{0.92,0.92,0.92}100.0 \\[2pt]
+ & WDSM ($M$=1) & \checkmark & \texttimes & 4.6 & 3.0 & 4.4 & 7.9 & 2.92 & 1.84 & 1.21 & 0.53 & 100.0 & 100.0 & 100.0 & 80.0 \\[2pt]
+ & WDSM ($M$=3) & \checkmark & \texttimes & 3.4 & 2.4 & 3.8 & 7.4 & 3.23 & 7.50 & 1.12 & 1.18 & 100.0 & 100.0 & 100.0 & 80.0 \\[2pt]
+ & WDSM ($M$=5) & \checkmark & \texttimes & 3.0 & 2.7 & 3.7 & 7.6 & 2.55 & 5.03 & 2.60 & 1.02 & 100.0 & 100.0 & 100.0 & 80.0 \\
+\bottomrule
+\end{tabular}
+\vspace{0.5em}
+\begin{minipage}{\textwidth}
+\footnotesize
+\textbf{Note:} PS = propensity score model; PGS = prognostic score model. $\checkmark$ denotes survey-weighted score estimation, $\times$ unweighted estimation, and \textendash\, a score not used by that matching method. WDSM uses survey-weighted propensity estimation under retrospective sampling; prognostic fits are unweighted. WDSM additionally uses survey weights in matched imputation, bias correction, and H\'ajek normalization. Correct models include all six main effects and the $X_1X_2$ interaction; misspecified models omit that interaction. The first/second specification labels refer to PS/PGS. SW-PSM retains an always-correct treatment-interacted outcome regression. Signed relative bias is $100(\overline{\widehat\tau}-\tau)/|\tau|$. Relative efficiency is the Monte Carlo variance of PSM under Cor|Cor divided by that of each method within the same estimand, sampling design, and overlap. PSM, PGM, and DSM use $M=1$ matching with replacement; SW-PSM uses optimal full matching; WDSM uses $M\in\{1,3,5\}$. All intervals are centered normal Wald intervals. WDSM uses fixed-original-reuse replication variance with divisor $B$; PSM, PGM, and DSM retain the author's bootstrap sample variance with divisor $B-1$; SW-PSM uses subclass-cluster sandwich/delta-method variance. Bootstrap methods use $B=200$. All requested records passed the strict summary audit; no failed records are silently omitted. \textbf{These five-replication pilot diagnostics must not replace manuscript results.}
+\end{minipage}
+\end{sidewaystable}

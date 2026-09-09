@@ -1,0 +1,12 @@
+Warning message:
+In system2(file.path(R.home("bin"), "Rscript"), vapply(c("--vanilla",  :
+  running command ''/Library/Frameworks/R.framework/Resources/bin/Rscript' '--vanilla' 'Tables/generate_tables.R' '--summary' '/var/folders/36/0v652_p11r7fv5f1n0h8vcv00000gn/T//RtmpVtQML7/wdsm_table_fixture' '--output' '/var/folders/36/0v652_p11r7fv5f1n0h8vcv00000gn/T//RtmpVtQML7/wdsm_table_fixture/no_pilot' 2>&1' had status 1
+Warning message:
+In system2(file.path(R.home("bin"), "Rscript"), vapply(c("--vanilla",  :
+  running command ''/Library/Frameworks/R.framework/Resources/bin/Rscript' '--vanilla' 'Tables/generate_tables.R' '--summary' '/var/folders/36/0v652_p11r7fv5f1n0h8vcv00000gn/T//RtmpVtQML7/wdsm_table_fixture' '--output' '/var/folders/36/0v652_p11r7fv5f1n0h8vcv00000gn/T//RtmpVtQML7/wdsm_table_fixture/rendered' '--pilot-preview' 2>&1' had status 1
+Warning message:
+In system2(file.path(R.home("bin"), "Rscript"), vapply(c("--vanilla",  :
+  running command ''/Library/Frameworks/R.framework/Resources/bin/Rscript' '--vanilla' 'Tables/generate_tables.R' '--summary' '/var/folders/36/0v652_p11r7fv5f1n0h8vcv00000gn/T//RtmpVtQML7/wdsm_table_fixture' '--output' '/var/folders/36/0v652_p11r7fv5f1n0h8vcv00000gn/T//RtmpVtQML7/wdsm_table_fixture/changed' '--pilot-preview' 2>&1' had status 1
+PASS: all4 tables have14 complete method rows/16 columns, correct design-specific weighting marks, signed bias/RE/coverage formatting, and explicit pilot labels; production-pilot, overwrite, and checksum failure gates work.
+Synthetic preview: /var/folders/36/0v652_p11r7fv5f1n0h8vcv00000gn/T//RtmpVtQML7/wdsm_table_fixture/rendered/table_preview.tex 
+[1] TRUE TRUE

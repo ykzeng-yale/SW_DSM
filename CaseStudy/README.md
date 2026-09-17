@@ -1,5 +1,18 @@
 # Case study analyses
 
+## Current correction audit — September 17, 2026
+
+The complete original source datasets have now been recovered from the July 27
+folder and added under each study’s `data/raw/` directory. See
+[full-source provenance](provenance/RAW_DATA.md) and the
+[tie-correction protocol](../audit/ties_20260917/PROTOCOL.md).
+`prepare_from_raw.R` rebuilds both samples; `rerun_tie_correction.R` reruns all
+methods, with paired controls for tie allocation and NHANES missing-code changes.
+The results below and `Results/Final_20260917/` are the **preserved September 9
+baseline**, pending the newly corrected analysis. They must not be described as
+already incorporating the new tie rule or the 3,790-person NHANES sample.
+Historical reproduction commands explicitly retain the old row-order rule.
+
 ## Reproducible release — September 17, 2026
 
 The exact analytic input files are now included in `NHANES/data/` and `NSDUH/data/`.

@@ -19,8 +19,11 @@ run. All 96 stabilized summary rows and all 224 main summary rows are
 Use the [September 17 publication index](../Results/Final_20260917/README.md),
 [96-setting metrics](../Results/Final_20260917/stabilized/summary/stabilized_point_metrics.csv),
 and [comparison tables/figures](../Results/Final_20260917/stabilized/performance).
-The September 9 artifacts below remain the preserved baseline; the new raw-result
-release archive is still being prepared.
+The September 9 artifacts below remain the preserved baseline. The
+[September 17 multipart raw-results release](https://github.com/ykzeng-yale/SW_DSM/releases/tag/tie-corrected-simulations-20260917)
+contains the complete paired raw records and integrity metadata; the
+[restore and reproduction guide](../Results/Final_20260917/REPRODUCE.md)
+provides independent verification, summary, and rendering commands.
 
 The [manual manuscript guide](../audit/ties_20260917/MANUSCRIPT_GUIDANCE_20260917.md)
 explains why this tie correction requires no further simulation numerical changes

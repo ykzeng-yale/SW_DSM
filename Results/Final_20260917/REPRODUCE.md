@@ -2,7 +2,7 @@
 
 The complete main and stabilized numerical summaries and publication artifacts have passed validation and are integrated in this result tree. Main record/draw and stabilized record comparisons with the corrected September 9 baseline passed with exact numerical agreement.
 
-**Multipart archive publication is pending.** The planned release is `tie-corrected-simulations-20260917`. The download commands below apply after that release is published; they are not a claim that the archive is already available. Current tables, figures, the combined landscape PDF, validation records, and compiler reproduction files are available in this tree now.
+The [September 17 raw-results release](https://github.com/ykzeng-yale/SW_DSM/releases/tag/tie-corrected-simulations-20260917) distributes the complete multipart archive and its integrity metadata. The archive check verified all 64,503 checksum-listed files, including 32,000 main and 32,000 stabilized raw records. Current tables, figures, the combined landscape PDF, validation records, and compiler reproduction files are also available in this result tree.
 
 The release restores the complete main and stabilized runs with recipient-specific
 random allocation of boundary ties. The frozen execution source is
@@ -20,7 +20,7 @@ compressed parts and the extracted archive; alternatively run the restoration
 on Bouchet storage allocated for this purpose. Do not extract into an existing
 analysis or baseline folder.
 
-After the release is published, run from a directory of your choosing:
+Run from a directory of your choosing:
 
 ```sh
 set -e
@@ -38,14 +38,18 @@ gh release download tie-corrected-simulations-20260917 \
   --repo ykzeng-yale/SW_DSM --dir "$wdsm_download"
 ```
 
-The archive parts are named `WDSM_Ties_20260917.tar.gz.part000`, `part001`, and
-so on, consecutively with three-digit suffixes. All except possibly the final
-part are 256 MiB. These files are slices of **one** gzip-compressed tar stream;
-they are not independently extractable tarballs. The actual number of parts
-comes from the release's `SHA256SUMS.txt`, not from an assumed count.
+The six archive parts are named `WDSM_Ties_20260917.tar.gz.part000` through
+`WDSM_Ties_20260917.tar.gz.part005`, consecutively with three-digit suffixes.
+The first five are 256 MiB each; the final part contains the remainder. These
+files are slices of **one** gzip-compressed tar stream, not independently
+extractable tarballs. Verify the exact filenames, sizes, and hashes against
+the release metadata rather than relying only on this description.
 
-The archive metadata assets are `SHA256SUMS.txt`, `CONTENT_SHA256SUMS.txt`,
-`ARCHIVE_SCOPE.txt`, `ARCHIVE_MEMBERS.txt`, and `CONTENT_VERIFICATION.json`.
+The archive metadata assets are [SHA256SUMS.txt](https://github.com/ykzeng-yale/SW_DSM/releases/download/tie-corrected-simulations-20260917/SHA256SUMS.txt),
+[CONTENT_SHA256SUMS.txt](https://github.com/ykzeng-yale/SW_DSM/releases/download/tie-corrected-simulations-20260917/CONTENT_SHA256SUMS.txt),
+[ARCHIVE_SCOPE.txt](https://github.com/ykzeng-yale/SW_DSM/releases/download/tie-corrected-simulations-20260917/ARCHIVE_SCOPE.txt),
+[ARCHIVE_MEMBERS.txt](https://github.com/ykzeng-yale/SW_DSM/releases/download/tie-corrected-simulations-20260917/ARCHIVE_MEMBERS.txt), and
+[CONTENT_VERIFICATION.json](https://github.com/ykzeng-yale/SW_DSM/releases/download/tie-corrected-simulations-20260917/CONTENT_VERIFICATION.json).
 The last records the archive creator's successful stream/content check; the
 commands below also verify the downloaded bytes independently.
 

@@ -41,8 +41,12 @@ is also verified, including all 17 rows, paired controls, and 40 tie-seed sensit
 fits. Its application changes remain necessary and are documented separately.
 See the [correction protocol](audit/ties_20260917/PROTOCOL.md) and
 [Bouchet job record](audit/ties_20260917/submitted_workflow.json). The completed
-September 9 studies below remain the preserved baseline. The new raw-result
-release archive is still being prepared; its publication is a separate step.
+September 9 studies below remain the preserved baseline. The
+[September 17 multipart raw-results release](https://github.com/ykzeng-yale/SW_DSM/releases/tag/tie-corrected-simulations-20260917)
+contains all 32,000 main and 32,000 stabilized raw records, saved main bootstrap
+draws, frozen execution sources, and checksum manifests. Use the
+[restore and reproduction guide](Results/Final_20260917/REPRODUCE.md) to verify
+and independently regenerate the summaries, tables, and figures.
 
 ## Full inference and implementation correction — September 9, 2026
 

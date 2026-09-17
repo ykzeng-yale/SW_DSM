@@ -6,7 +6,7 @@ This folder implements the **separate point-estimator extension** at the end of 
 
 The implementation is based on the shared corrected **`R/wdsm_core_final.R`**, checked against main commit **`2f9f24e`** (September 9, 2026, merging the PATE/PATT corrections). It calls `wdsm_final_nuisance()` directly rather than maintaining another copy of the propensity-score solver or first-stage models. Consequently it uses the updated checked zero-initialization PS solver, probability-scale matching coordinates, arm-specific quadratic outcome regressions, and pooled unweighted standardization.
 
-The matching loop uses the same squared Euclidean distances and stable row-order tie resolution as `wdsm_final()`. A second interface reuses an existing original fit without refitting or rematching. Tests compare its original-estimator counterpart against the updated core on exactly the same synthetic data.
+The matching loop uses the same squared Euclidean distances and recipient-specific randomized boundary-tie resolution (explicit independent tie seed) as `wdsm_final()`. A second interface reuses an existing original fit without refitting or rematching. Tests compare its original-estimator counterpart against the updated core on exactly the same synthetic data.
 
 Only point estimates are implemented. **No standard errors, confidence intervals, coverage estimates, or stabilized-bootstrap validity are claimed.** The original estimator's replication routine must not be applied unchanged to the stabilized output.
 
@@ -115,7 +115,7 @@ The appendix's current feasible-consistency proof gives a particular shrinking-b
 
 The result includes imputed outcomes, `rho0`/`rho1`, saved double scores, match lists, the stabilized incoming reuse coefficients `K`, and an algebraic imputation/reuse check `identity_error`. `local_stabilizer_mass` records the mean multiplier in each match set; it need not equal one. `K` is **not** the original self-normalized reuse coefficient and is not a validated bootstrap influence coefficient.
 
-The point-estimation code is deterministic given the data, formulas, and supplied auxiliary predictions. It consumes no random draws. Compare methods on the same generated sample and use `self_normalized_tau` for an exact same-fit, same-match comparison. Record failed fits explicitly in future Monte Carlo experiments rather than deleting them from the denominator.
+The point-estimation code is reproducible given the data, formulas, auxiliary predictions, and explicit tie seed. Matching uses an isolated random stream and restores the caller’s RNG state. Compare methods on the same generated sample and use `self_normalized_tau` for an exact same-fit, same-match comparison. Record failed fits explicitly in future Monte Carlo experiments rather than deleting them from the denominator.
 
 Useful limiting checks are:
 
@@ -143,7 +143,7 @@ The user requested a direct test of whether the new point estimator reduces rela
 
 `simulation_protocol.json` and `simulation_protocol.md` freeze the experiment. `audit/execution.json` records the current cluster jobs and status. The complete five-sample pilot passed all 32 settings and 480 paired estimates, with no failures or warnings and exact agreement with the saved corrected-original point estimates. Full production and strict paired finalization completed as Bouchet jobs **25698446** and **25698530**. See the [final study results](../Results/Final_20260909/README.md), [96-setting metrics](../Results/Final_20260909/stabilized/summary/stabilized_point_metrics.csv), and [comparison tables/figures](../Results/Final_20260909/stabilized/performance). Primary outcomes are signed/absolute relative bias and the reduction in absolute relative bias in percentage points. Empirical SD, RMSE, numerical failures, and weight-multiplier diagnostics are supporting outcomes. No stabilized causal-effect interval is computed.
 
-The simulation adapter uses two supplied all-one identity vectors only to expose the official original point fit through its existing API; it discards their artificial variance/SE/interval fields. They are not bootstrap replicates. The estimator consumes no random numbers. Genuine conditional-weight failures are retained; they are not replaced or silently excluded from the 1,000-run denominator.
+The simulation adapter uses two supplied all-one identity vectors only to expose the official original point fit through its existing API; it discards their artificial variance/SE/interval fields. They are not bootstrap replicates. The estimator leaves the caller’s random stream unchanged; its separate tie stream is recorded in diagnostics. Genuine conditional-weight failures are retained; they are not replaced or silently excluded from the 1,000-run denominator.
 
 Production outputs are finalized only after both this array and the corrected-main array finish; dependent Bouchet job **25698530** uses analysis source **f5eb6b7**. `Simulations/finalize_stabilized.sbatch` runs the strict paired summary followed by the guarded performance generator. The summary preserves all requested failures and verifies the original counterpart against every completed baseline record before releasing primary tables or figures.
 

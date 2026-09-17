@@ -106,7 +106,7 @@ wdsm_stabilized_from_fit <- function(fit, M = NULL,
     fit <- c(list(Y = data$Y, A = data$A, weights = data$survey_weight,
                    mu0_bc = point$q0, mu1_bc = point$q1,
                    double_score_0_std = point$D0, double_score_1_std = point$D1,
-                   sampling_design = fit$sampling_design),
+                   sampling_design = fit$sampling_design, tie_diagnostics = fit$tie_diagnostics),
               point[setdiff(names(point), c("q0", "q1", "D0", "D1"))])
   }
   Y <- fit$Y
@@ -252,7 +252,7 @@ wdsm_stabilized_from_fit <- function(fit, M = NULL,
               auxiliary_method = "series_or_supplied", inference = "point_estimate_only")
   for (name in c("double_score_0_std", "double_score_1_std", "e_score", "psi0", "psi1",
                  "ps_model", "prog0_model", "prog1_model", "sampling_design", "m_models",
-                 "ps_diagnostics"))
+                 "ps_diagnostics", "tie_diagnostics"))
     if (!is.null(fit[[name]])) out[[name]] <- fit[[name]]
   class(out) <- c("wdsm_stabilized", "list")
   out

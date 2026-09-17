@@ -33,26 +33,48 @@ Saved sample: 3,793 adults aged 40–70 from **2015–2018**, after excluding re
 
 SW-PSM also has an interval excluding zero. WDSM estimates do not decrease with M, and the M=3/M=5 intervals are nearly identical. These comparisons do not establish bias relative to an unknown causal effect.
 
-## Reproduce the finalized comparison
+## Rebuild the paper tables and figures
 
-From a clean Git checkout at the repository root:
+From the repository root:
 
 ```sh
-Rscript --vanilla CaseStudy/reproduce.R /path/to/new-case-results
+Rscript --vanilla CaseStudy/assemble_publication.R /path/to/new-publication-output
 ```
 
-Requirements: R (validated with 4.4.0 locally and 4.4.2 on Bouchet), Python 3,
-and matplotlib. The five WDSM fits use base R. The command runs NHANES M=1/3/5
-and NSDUH AMIPY/SMIPY M=5, requires all 200 draws per fit, independently verifies
-B-divisor variance, Wald intervals, input/source hashes and RNG states, and compares
-every draw against the September 9 Bouchet output at tolerance 1e-8.
-It refuses to overwrite a nonempty output directory or run uncommitted source.
+This independently recomputes the B-divisor SEs and Wald endpoints from the 1,000
+saved Bouchet draws, checks all 1,005 propensity diagnostics, and rebuilds the
+17-row CSV, Markdown/LaTeX tables and PNG/PDF/SVG figures. It retains the 12
+unchanged comparator rows. Requirements: R, Python 3 and matplotlib.
 
-Outputs include five complete result RDS files, 1,000 draw estimates, 1,005
-propensity diagnostics, verification checks, runtime details, a 17-row CSV,
-Markdown/LaTeX tables, and PNG/PDF/SVG figures. The 12 unchanged comparator rows
-come from `reference/comparators_20260909.csv`; they are **not newly estimated**
-by this command. Every row's status is recorded in `row_provenance.csv`.
+## Rerun the estimators from the included data
+
+From a clean Git checkout:
+
+```sh
+Rscript --vanilla CaseStudy/reproduce.R /path/to/new-case-rerun
+```
+
+The five WDSM fits use base R. This command runs NHANES M=1/3/5 and NSDUH
+AMIPY/SMIPY M=5, requires 200 draws per fit, and independently checks B-divisor
+variance, Wald intervals, source/input hashes and RNG states. It saves five RDS
+records, all draws and diagnostics, runtime details and the comparison against
+Bouchet. It refuses to overwrite a nonempty output directory or run uncommitted source.
+
+**Runtime comparison:** the September 17 Mac R 4.4.0 rerun reproduced all point
+estimates within 4e-16, but its replication draws and SEs differ slightly from
+Bouchet R 4.4.2. The largest CI-endpoint difference is 0.000024549. This does not
+change which reported intervals exclude zero. The cause has not been isolated;
+identical RNG states alone do not establish identical fitted replicate values.
+See [`verification_20260917/`](verification_20260917/). Accordingly, the paper's
+**authoritative numbers remain the September 9 Bouchet results** in `Figures/`
+and `Results/Final_20260917/`; they are not replaced by this local rerun.
+
+After saving reviewable output, `reproduce.R` returns an error if any draw or
+summary differs from the authoritative run by 1e-8 or more. This is a publication
+safeguard, not a dropped-replicate procedure. Run `assemble_publication.R` to
+reconstruct the paper outputs exactly from their saved draws on either runtime.
+The 12 comparator rows are **not newly estimated** by either command; every row's
+origin is recorded in `row_provenance.csv`.
 
 ### Current code
 
@@ -60,7 +82,8 @@ by this command. Every row's status is recorded in `row_provenance.csv`.
 - `NSDUH/wdsm_flexible.R` and `NSDUH/prepare_nsduh.R`: corrected prospective estimator and original covariate preparation.
 - `case_rerun_config.R`: frozen input identities, sample specifications and RNG protocol.
 - `rerun_wdsm_final.R` and `submit_wdsm_final.sbatch`: isolated per-case execution locally or on Bouchet.
-- `reproduce.R` and `verify_results.R`: complete release reproduction and independent checks.
+- `reproduce.R` and `verify_results.R`: estimator rerun and independent numerical/reference checks.
+- `assemble_publication.R`: exact publication output from the verified Bouchet draws.
 - `Figures/plot_corrected_case_studies.py`: plot the 17-row table; accepts `--results` and `--output`.
 - `NHANES/run_wdsm_corrected.R` and `NSDUH/run_wdsm_corrected.R`: smaller per-study checks retained for compatibility.
 

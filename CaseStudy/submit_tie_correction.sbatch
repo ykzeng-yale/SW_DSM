@@ -5,7 +5,7 @@
 #SBATCH --job-name=wdsm_case_ties
 #SBATCH --array=0-15
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=8G
+#SBATCH --mem=32G
 #SBATCH --time=00:30:00
 #SBATCH --output=case_ties_%A_%a.out
 #SBATCH --error=case_ties_%A_%a.err

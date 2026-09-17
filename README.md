@@ -15,7 +15,11 @@ refused/unknown responses (n=3,790); NSDUH remains n=17,471.
 
 The [new complete case comparison](CaseStudy/Results/TieCorrection_20260917/README.md)
 is verified, including all 17 rows, paired controls, and 40 tie-seed sensitivity
-fits. The full 32-cell, 1,000-replicate main and stabilized reruns are in progress.
+fits. The full 32-cell, 1,000-replicate stabilized rerun is complete: all 95,928
+successful estimates are exactly unchanged, and the same 72 positivity rejections
+remain. The [independent comparison](audit/ties_20260917/stabilized_pairing/comparison_summary.txt)
+found no allocation-relevant ties in any of the 96,000 estimator pairs.
+The full main rerun and final pairing/summary checks are still in progress.
 The main pilot passed all settings with exact numerical parity and no ties. See the
 [correction protocol](audit/ties_20260917/PROTOCOL.md) and
 [Bouchet job record](audit/ties_20260917/submitted_workflow.json). The completed

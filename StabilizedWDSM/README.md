@@ -3,10 +3,17 @@
 ## September 17 tie-corrected rerun
 
 The estimator now uses the shared recipient-specific random tie rule in
-`R/wdsm_ties.R`. The full 32-cell, 1,000-replication paired rerun is submitted on
-Bouchet; its pilot passed and production is queued/running. It remains a
-point-estimator study. The completed September 9 results below are the preserved
-baseline, not output from the new run. See
+`R/wdsm_ties.R`. The full Bouchet rerun completed all 32 cells and 1,000
+replications per cell. An independent comparison of all 96,000 M-specific pairs
+found exact equality for all 95,928 successful stabilized estimates and all
+reference estimates; the same 72 positivity rejections and their reasons remain.
+There were no allocation-relevant ties. Thus the tie correction does not change
+the point-estimator conclusions below. See the
+[full paired comparison](../audit/ties_20260917/stabilized_pairing/comparison_summary.txt).
+
+The strict final pairing against the newly rerun main analysis and the new
+publication artifacts are still pending. The September 9 artifacts below remain
+the preserved baseline. This remains a point-estimator study. See
 [`submitted_workflow.json`](../audit/ties_20260917/submitted_workflow.json).
 
 This folder implements the **separate point-estimator extension** at the end of Section 3.3. It does not replace the original self-normalized WDSM estimator or change any existing simulation or case-study scripts.

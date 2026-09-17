@@ -23,6 +23,7 @@ expect_error <- function(expression, label) {
 }
 load_definitions <- function(path) {
   env <- new.env(parent = globalenv())
+  sys.source(file.path(repo, "R", "wdsm_ties.R"), envir = env)
   for (expr in parse(path)) if (is.call(expr) && identical(expr[[1L]], as.name("<-")) &&
       length(expr) == 3L && is.call(expr[[3L]]) && identical(expr[[3L]][[1L]], as.name("function")))
     eval(expr, envir = env)
@@ -280,7 +281,7 @@ for (design in c("retrospective", "prospective")) for (estimand in c("PATE", "PA
   expect_equal(changed$point$matches_0, original$point$matches_0, paste(design, estimand, "control donor graph excludes treated outcomes"))
 }
 
-# Exact duplicated-covariate ties must use original donor row order, with no RNG
+# The explicit legacy option preserves original donor row order, with no RNG
 # consumption when all bootstrap multiplicities are supplied.
 tie_data <- data
 donors <- which(tie_data$A == 0L)[1:6]; target <- which(tie_data$A == 1L)[[1L]]
@@ -288,7 +289,7 @@ for (i in c(donors, target)) tie_data[i, paste0("X", 1:6)] <- data[donors[[1L]],
 for (M in c(1L, 3L, 5L)) {
   set.seed(778 + M); before <- .Random.seed
   tied <- core$wdsm_final(tie_data, ps_formula, pg_formula, "PATE", "prospective", M, B,
-    bootstrap_counts = counts, keep_point = TRUE)
+    bootstrap_counts = counts, keep_point = TRUE, tie_rule = "row_order")
   expect_equal(tied$point$matches_0[[target]], donors[seq_len(M)], paste("Original-row deterministic ties M", M))
   expect_true(identical(.Random.seed, before), paste("No jitter or hidden RNG with supplied counts M", M))
 }

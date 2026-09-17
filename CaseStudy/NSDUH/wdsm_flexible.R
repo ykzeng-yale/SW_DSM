@@ -1,3 +1,16 @@
+# Load the shared tie allocator for source() and sys.source() callers.
+.wdsm_source_file <- unlist(lapply(sys.frames(), function(f) {
+  p <- if (!is.null(f$ofile)) f$ofile else f$file
+  if (is.character(p) && length(p) == 1L && endsWith(p, "wdsm_flexible.R")) p else NULL
+}))
+if (!length(.wdsm_source_file)) stop("Source this module from its repository path")
+.wdsm_module_root <- dirname(normalizePath(.wdsm_source_file[length(.wdsm_source_file)], mustWork = TRUE))
+.wdsm_module_root <- dirname(.wdsm_module_root)
+.wdsm_module_root <- dirname(.wdsm_module_root)
+.wdsm_module_root <- file.path(.wdsm_module_root, "R")
+sys.source(file.path(.wdsm_module_root, "wdsm_ties.R"), envir = environment())
+rm(.wdsm_source_file, .wdsm_module_root)
+
 #!/usr/bin/env Rscript
 
 #' =============================================================================
@@ -63,7 +76,8 @@ wdsm_case_fit_propensity <- function(formula, data, weights, maxit = 100L,
 
 wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_formula,
                          weight_var, M = 5, B = 200, alpha = 0.05, verbose = TRUE,
-                         bootstrap_counts = NULL) {
+                         bootstrap_counts = NULL, tie_seed = 20260917L,
+                         tie_rule = "random", tie_tolerance = 64 * .Machine$double.eps) {
   
   # Extract variables from data
   Y <- data[[outcome_var]]
@@ -191,11 +205,8 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
   # ---------- Step 5: Match on the standardized DOUBLE SCORES ----------
   if (verbose) cat("\nPerforming double score matching (M =", M, ")...\n")
 
-  # Equivalent rowwise Euclidean distances avoid two full n-by-n matrices.
-  # Donor order and stable original-row tie breaking are retained; no jitter.
-  row_distances <- function(D, i, donors) {
-    sqrt((D[donors, 1] - D[i, 1])^2 + (D[donors, 2] - D[i, 2])^2)
-  }
+  matching <- wdsm_make_matches(A, D_0_std, D_1_std, M, "PATE",
+    tie_seed, tie_rule, tie_tolerance)
 
   # ---------- Step 6: Compute Weighted Reuse Factor (Ktilde) ----------
   if (verbose) cat("Computing reuse factors...\n")
@@ -212,14 +223,13 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
   if (length(treated_idx) < M || length(control_idx) < M) stop("Insufficient donors.")
   
   # Store matches for fixed matching in bootstrap
-  matches_0 <- list()  # Matches for treated units
-  matches_1 <- list()  # Matches for control units
+  matches_0 <- matching$matches_0
+  matches_1 <- matching$matches_1
   
   # For each treated unit, find M nearest controls
   for (i in treated_idx) {
-    dists <- row_distances(D_0_std, i, control_idx)
     if (length(control_idx) >= M) {
-      donors <- control_idx[order(dists, method = "radix")[seq_len(M)]]
+      donors <- matches_0[[i]]
       matches_0[[i]] <- donors
       donor_weight_sum <- sum(w[donors])
       
@@ -232,9 +242,8 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
   
   # For each control unit, find M nearest treated
   for (i in control_idx) {
-    dists <- row_distances(D_1_std, i, treated_idx)
     if (length(treated_idx) >= M) {
-      donors <- treated_idx[order(dists, method = "radix")[seq_len(M)]]
+      donors <- matches_1[[i]]
       matches_1[[i]] <- donors
       donor_weight_sum <- sum(w[donors])
       
@@ -373,6 +382,7 @@ wdsm_flexible <- function(data, outcome_var, treatment_var, ps_formula, pgs_form
   # Return results
   result <- list(
     estimate = tau_hat,
+    tie_diagnostics = matching$tie_diagnostics,
     se = se_boot,
     ci_lower = ci_lower,
     ci_upper = ci_upper,

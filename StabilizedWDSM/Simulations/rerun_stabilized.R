@@ -103,6 +103,7 @@ main <- function() {
                                            paste0(population_object, ".RData"))), mustWork = TRUE)
   source_paths <- c(driver = script_path,
     wdsm_core = file.path(repo, "R", "wdsm_core_final.R"),
+                    tie_allocator = file.path(repo, "R", "wdsm_ties.R"),
     stabilized = file.path(repo, "StabilizedWDSM", "wdsm_stabilized.R"),
     paired_adapter = file.path(repo, "StabilizedWDSM", "simulation_estimator.R"),
     sampling_reference = file.path(repo, "Simulations", "rerun_wdsm_final.R"))
@@ -134,7 +135,10 @@ main <- function() {
     design = design, overlap = overlap, scenario = scenario,
     n_reps = n_reps, pilot = pilot, n_sample = 5000L, M_values = c(1L, 3L, 5L),
     result_keys = c("M1", "M3", "M5"), sample_seed_base = 2025L,
-    point_estimator_revision = "probability_arm_quadratic_20260909",
+    point_estimator_revision = "probability_arm_quadratic_random_ties_20260917",
+                 tie_rule = "recipient_specific_uniform_boundary",
+                 tie_seed_rule = "3000000 + 100 * replicate + M",
+                 tie_tolerance = 64 * .Machine$double.eps,
     stabilized_revision = "conditional_donor_weight_unweighted_quadratic_rho",
     rho_degree = 2L, inference = "point_estimates_only",
     primary_metric = "paired signed and absolute relative bias",
@@ -280,7 +284,8 @@ main <- function() {
           if (inherits(baseline_record, "error")) stop(baseline_record)
           answer <- wdsm_stabilized_simulation_fit(analysis_data, ps_formula, pg_formula,
             M = M, estimand = estimand, sampling_design = design,
-            rho_degree = config$rho_degree, core_file = source_paths[["wdsm_core"]])
+            rho_degree = config$rho_degree, core_file = source_paths[["wdsm_core"]],
+            tie_seed = as.integer(3000000L + 100L * replication + M))
           diagnostic <- answer$reference$ps_diagnostics
           if (!isTRUE(diagnostic$converged) || !is.finite(diagnostic$normalized_score_max) ||
               diagnostic$normalized_score_max > diagnostic$normalized_score_tolerance ||

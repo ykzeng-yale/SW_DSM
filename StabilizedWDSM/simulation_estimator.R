@@ -2,13 +2,13 @@
 # The two supplied all-one vectors expose the exact original point fit through
 # the shared API. Their artificial zero variance is never retained or reported.
 wdsm_stabilized_simulation_fit <- function(data, ps_formula, pg_formula, M,
-    estimand, sampling_design, rho_degree = 2L, core_file = NULL) {
+    estimand, sampling_design, rho_degree = 2L, core_file = NULL, tie_seed = 20260917L) {
   core <- .wdsm_stab_load_core(core_file)
   rng_present <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
   rng_before <- if (rng_present) get(".Random.seed", envir = .GlobalEnv) else NULL
   original <- core$wdsm_final(data, ps_formula, pg_formula, M = M, estimand = estimand,
     sampling_design = sampling_design, B = 2L,
-    bootstrap_counts = matrix(1, nrow(data), 2L), keep_point = TRUE)
+    bootstrap_counts = matrix(1, nrow(data), 2L), keep_point = TRUE, tie_seed = tie_seed)
   reference <- list(estimate = original$estimate, identity_error = original$identity_error,
     ps_diagnostics = original$point_ps_diagnostics,
     source = "corrected shared core original point estimator; supplied all-one identity counts only")
@@ -69,5 +69,6 @@ wdsm_stabilized_simulation_fit <- function(data, ps_formula, pg_formula, M,
   list(reference = reference, stabilized = stabilized, rho_diagnostics = rho_diagnostics,
     estimand = estimand, sampling_design = sampling_design, M = as.integer(M),
     rho_degree = as.integer(rho_degree), inference = "point_estimates_only",
-    random_draws_consumed = 0L)
+    tie_diagnostics = original$tie_diagnostics,
+    random_draws_consumed = 0L) # Caller RNG stream only; the isolated tie stream is recorded above.
 }

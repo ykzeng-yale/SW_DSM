@@ -1,3 +1,14 @@
+# Load the shared tie allocator for source() and sys.source() callers.
+.wdsm_source_file <- unlist(lapply(sys.frames(), function(f) {
+  p <- if (!is.null(f$ofile)) f$ofile else f$file
+  if (is.character(p) && length(p) == 1L && endsWith(p, "wdsm_core_final.R")) p else NULL
+}))
+if (!length(.wdsm_source_file)) stop("Source this module from its repository path")
+.wdsm_module_root <- dirname(normalizePath(.wdsm_source_file[length(.wdsm_source_file)], mustWork = TRUE))
+
+sys.source(file.path(.wdsm_module_root, "wdsm_ties.R"), envir = environment())
+rm(.wdsm_source_file, .wdsm_module_root)
+
 # Shared manuscript-aligned WDSM PATE/PATT implementation.
 # Uses stats only; no packages are attached and no data are loaded on sourcing.
 # Numerical verification does not establish the asymptotic assumptions or the
@@ -156,7 +167,9 @@ wdsm_final <- function(data, ps_formula, pg_formula,
                        estimand = c("PATE", "PATT"),
                        sampling_design = c("retrospective", "prospective"),
                        M = 5L, B = 200L, alpha = 0.05,
-                       bootstrap_counts = NULL, keep_point = FALSE) {
+                       bootstrap_counts = NULL, keep_point = FALSE,
+                       tie_seed = 20260917L, tie_rule = "random",
+                       tie_tolerance = 64 * .Machine$double.eps) {
   estimand <- match.arg(estimand)
   sampling_design <- match.arg(sampling_design)
   if (!is.data.frame(data) || !all(c("Y", "A", "survey_weight") %in% names(data)))
@@ -186,20 +199,9 @@ wdsm_final <- function(data, ps_formula, pg_formula,
       stop("bootstrap_counts must be an n-by-B matrix of nonnegative integer multinomial counts")
   }
   nuisance <- wdsm_final_nuisance(data, ps_formula, pg_formula, rep(1, n), estimand, sampling_design)
-  matches_0 <- vector("list", n)
-  matches_1 <- vector("list", n)
-  # Squared Euclidean distance has the same ordering as distance. Stable radix
-  # ordering of donors in original row order resolves ties without random jitter.
-  for (i in treated) {
-    distance <- (nuisance$D0[control, 1L] - nuisance$D0[i, 1L])^2 +
-                (nuisance$D0[control, 2L] - nuisance$D0[i, 2L])^2
-    matches_0[[i]] <- control[order(distance, method = "radix")[seq_len(M)]]
-  }
-  if (estimand == "PATE") for (i in control) {
-    distance <- (nuisance$D1[treated, 1L] - nuisance$D1[i, 1L])^2 +
-                (nuisance$D1[treated, 2L] - nuisance$D1[i, 2L])^2
-    matches_1[[i]] <- treated[order(distance, method = "radix")[seq_len(M)]]
-  }
+  matching <- wdsm_make_matches(A, nuisance$D0, nuisance$D1, M, estimand,
+    tie_seed, tie_rule, tie_tolerance)
+  matches_0 <- matching$matches_0; matches_1 <- matching$matches_1
   K <- wdsm_final_reuse(A, weights, matches_0, matches_1, estimand)
   # Independent direct-imputation expression verifies the algebra before any
   # bootstrap. Its observed outcomes are never replaced by fitted outcomes.
@@ -266,6 +268,7 @@ wdsm_final <- function(data, ps_formula, pg_formula,
       replication = "original matches and raw weighted reuse held fixed",
       normalization = if (estimand == "PATE") "all-observation survey-weight total" else "treated survey-weight total",
       numerical_validation = "checked zero-start propensity solution; full-rank finite regressions; all requested draws required"),
+    tie_diagnostics = matching$tie_diagnostics,
     identity_error = identity_error)
   if (keep_point) result$point <- c(list(tau = estimate, matches_0 = matches_0,
     matches_1 = matches_1, K = K, identity_error = identity_error), nuisance)

@@ -92,7 +92,7 @@ main <- function() {
           !identical(cfg$design, tolower(g$design)) || !identical(cfg$overlap, g$overlap) || !identical(cfg$scenario, g$scenario) ||
           !identical(cfg$result_keys, keys) || !identical(cfg$M_values, c(1L, 3L, 5L)) || !identical(cfg$sample_seed_base, 2025L) ||
           !identical(cfg$n_sample, 5000L) || !identical(cfg$rho_degree, 2L) || !identical(cfg$inference, "point_estimates_only") ||
-          !identical(cfg$estimator_random_draws, 0L) || !identical(cfg$point_estimator_revision, "probability_arm_quadratic_20260909") ||
+          !identical(cfg$estimator_random_draws, 0L) || !cfg$point_estimator_revision %in% c("probability_arm_quadratic_20260909", "probability_arm_quadratic_random_ties_20260917") ||
           !identical(cfg$stabilized_revision, "conditional_donor_weight_unweighted_quadratic_rho") ||
           !identical(cfg$ps_fit_method, "weighted_logistic_zero_start_convergence_checked") ||
           !identical(cfg$matching_score, "probability e and own-arm prognostic score") ||
@@ -103,7 +103,14 @@ main <- function() {
           !identical(cfg$RNG, man$runtime$RNG)) stop("Unknown or incompatible stabilized configuration")
       if (!is.logical(cfg$pilot) || length(cfg$pilot) != 1L || is.na(cfg$pilot) ||
           !integer_scalar(cfg$n_reps, 1) || cfg$n_reps != (if (cfg$pilot) 5L else 1000L)) stop("Expected5 pilot or1000 production samples")
-      if (!identical(names(man$identity$code_sha256), c("driver", "wdsm_core", "stabilized", "paired_adapter", "sampling_reference")))
+      expected_sources <- c("driver", "wdsm_core", "stabilized", "paired_adapter", "sampling_reference")
+      if (identical(cfg$point_estimator_revision, "probability_arm_quadratic_random_ties_20260917")) {
+        expected_sources <- append(expected_sources, "tie_allocator", after=2L)
+        if (!identical(cfg$tie_rule, "recipient_specific_uniform_boundary") ||
+            !identical(cfg$tie_seed_rule, "3000000 + 100 * replicate + M") ||
+            !identical(cfg$tie_tolerance, 64*.Machine$double.eps)) stop("Invalid tie protocol")
+      }
+      if (!identical(names(man$identity$code_sha256), expected_sources))
         stop("Missing required source hashes")
       NULL
     }, error = function(e) conditionMessage(e))

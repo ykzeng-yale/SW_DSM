@@ -1,3 +1,16 @@
+# Load the shared tie allocator for source() and sys.source() callers.
+.wdsm_source_file <- unlist(lapply(sys.frames(), function(f) {
+  p <- if (!is.null(f$ofile)) f$ofile else f$file
+  if (is.character(p) && length(p) == 1L && endsWith(p, "WDSM_adaptive.R")) p else NULL
+}))
+if (!length(.wdsm_source_file)) stop("Source this module from its repository path")
+.wdsm_module_root <- dirname(normalizePath(.wdsm_source_file[length(.wdsm_source_file)], mustWork = TRUE))
+.wdsm_module_root <- dirname(.wdsm_module_root)
+.wdsm_module_root <- dirname(.wdsm_module_root)
+.wdsm_module_root <- file.path(.wdsm_module_root, "R")
+sys.source(file.path(.wdsm_module_root, "wdsm_ties.R"), envir = environment())
+rm(.wdsm_source_file, .wdsm_module_root)
+
 ################################################################################
 # ADAPTIVE WDSM FUNCTIONS
 # Modified to handle arbitrary covariates without hardcoding
@@ -84,7 +97,8 @@ wdsm_adaptive <- function(data,
                          verbose = TRUE,
                          sampling_design = "retrospective",
                          replicate_counts = NULL,
-                         fit_only = FALSE) {
+                         fit_only = FALSE, tie_seed = 20260917L,
+                         tie_rule = "random", tie_tolerance = 64 * .Machine$double.eps) {
   
   if (verbose) {
     cat("\n=== Adaptive WDSM Estimation ===\n")
@@ -246,50 +260,10 @@ wdsm_adaptive <- function(data,
   
   if (verbose) cat("\nStep 5: Performing nearest neighbor matching (M =", M, ")...\n")
   
-  matches_0 <- vector("list", n)  # Matches for treated to controls
-  matches_1 <- vector("list", n)  # Matches for controls to treated
-  
-  treated_idx <- which(A == 1)
-  control_idx <- which(A == 0)
-  
-  if (verbose) {
-    cat("  Matching", length(treated_idx), "treated units to controls\n")
-  }
-  
-  # Match treated to controls
-  for (i in treated_idx) {
-    if (length(control_idx) > 0) {
-      # Calculate distances
-      distances <- sqrt(rowSums((double_score_0_std[control_idx, , drop = FALSE] - 
-                                matrix(double_score_0_std[i, ], 
-                                       nrow = length(control_idx), 
-                                       ncol = 2, byrow = TRUE))^2))
-      # Find M nearest neighbors
-      n_matches <- min(M, length(control_idx))
-      nearest <- control_idx[order(distances)[1:n_matches]]
-      matches_0[[i]] <- nearest
-    }
-  }
-  
-  if (verbose) {
-    cat("  Matching", length(control_idx), "control units to treated\n")
-  }
-  
-  # Match controls to treated
-  for (i in control_idx) {
-    if (length(treated_idx) > 0) {
-      # Calculate distances
-      distances <- sqrt(rowSums((double_score_1_std[treated_idx, , drop = FALSE] - 
-                                matrix(double_score_1_std[i, ], 
-                                       nrow = length(treated_idx), 
-                                       ncol = 2, byrow = TRUE))^2))
-      # Find M nearest neighbors
-      n_matches <- min(M, length(treated_idx))
-      nearest <- treated_idx[order(distances)[1:n_matches]]
-      matches_1[[i]] <- nearest
-    }
-  }
-  
+  matching <- wdsm_make_matches(A, double_score_0_std, double_score_1_std, M,
+    "PATE", tie_seed, tie_rule, tie_tolerance)
+  matches_0 <- matching$matches_0; matches_1 <- matching$matches_1
+
   # ===========================================================================
   # Step 6: Imputation with Bias Correction
   # ===========================================================================
@@ -370,6 +344,7 @@ wdsm_adaptive <- function(data,
   # Return comprehensive results
   return(list(
     tau = tau_wdsm,
+    tie_diagnostics = matching$tie_diagnostics,
     mu1 = mu1_wdsm,
     mu0 = mu0_wdsm,
     Y_hat_0 = Y_hat_0,
@@ -410,7 +385,8 @@ bootstrap_adaptive_wdsm <- function(data,
                                    use_bias_correction = TRUE,
                                    verbose = FALSE,
                                    seed = NULL,
-                                   sampling_design = "retrospective") {
+                                   sampling_design = "retrospective", tie_seed = 20260917L,
+                                   tie_rule = "random", tie_tolerance = 64 * .Machine$double.eps) {
   
   if (!is.null(seed)) set.seed(seed)
   
@@ -424,7 +400,8 @@ bootstrap_adaptive_wdsm <- function(data,
   point_est <- wdsm_adaptive(data, ps_formula, pg_formula, 
                              outcome_var, treatment_var, weight_var,
                              M, use_bias_correction, verbose = FALSE,
-                             sampling_design = sampling_design)
+                             sampling_design = sampling_design, tie_seed = tie_seed,
+                             tie_rule = tie_rule, tie_tolerance = tie_tolerance)
   A <- data[[treatment_var]]
   Y <- data[[outcome_var]]
   
@@ -472,6 +449,7 @@ bootstrap_adaptive_wdsm <- function(data,
   
   return(list(
     point_estimate = point_est,
+    tie_diagnostics = point_est$tie_diagnostics,
     se = se,
     ci_lower = ci_lower,
     ci_upper = ci_upper,

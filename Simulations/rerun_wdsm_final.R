@@ -102,6 +102,7 @@ main <- function() {
                                            paste0(population_object, ".RData"))), mustWork = TRUE)
   source_paths <- c(driver = script_path,
                     wdsm_core = file.path(repo, "R", "wdsm_core_final.R"),
+                    tie_allocator = file.path(repo, "R", "wdsm_ties.R"),
                     comparators = file.path(repo, "R", "comparators_final.R"))
   vendor <- sort(list.files(file.path(repo, "R", "dsmatch"), pattern = "\\.R$", full.names = TRUE))
   source_paths <- c(source_paths, setNames(vendor, paste0("vendor/", basename(vendor))))
@@ -138,7 +139,10 @@ main <- function() {
                  method_ids = c(WDSM = 1L, DSM = 2L, PGM = 3L, PSM = 4L, SWPSM = 5L),
                  result_keys = c("WDSM_M1", "WDSM_M3", "WDSM_M5", "DSM_M1", "PGM_M1", "PSM_M1", "SWPSM_full"),
                  ps_fit_method = "weighted_logistic_zero_start_convergence_checked",
-                 point_estimator_revision = "probability_arm_quadratic_20260909",
+                 point_estimator_revision = "probability_arm_quadratic_random_ties_20260917",
+                 tie_rule = "recipient_specific_uniform_boundary",
+                 tie_seed_rule = "3000000 + 100 * replicate + M",
+                 tie_tolerance = 64 * .Machine$double.eps,
                  matching_score = "probability e and own-arm prognostic score",
                  component_standardization = "pooled unweighted; multiplicities for replicate coordinates",
                  bias_correction = "own-arm complete quadratic; survey-weighted",
@@ -264,7 +268,8 @@ main <- function() {
         fit <- tryCatch(withCallingHandlers({
           answer <- if (method == "WDSM") {
             wdsm_final(analysis_data, ps_formula, pg_formula, estimand = estimand,
-              sampling_design = design, M = M, B = B, alpha = config$alpha)
+              sampling_design = design, M = M, B = B, alpha = config$alpha,
+              tie_seed = as.integer(3000000L + 100L * replication + M))
           } else {
             compare_final(analysis_data, method = method, estimand = estimand,
               sampling_design = design, M = if (method == "SWPSM") 1L else M,

@@ -266,7 +266,8 @@ wdsm_stabilized_point_estimate <- function(data, ps_formula, pg_formula,
                                            estimand = c("PATE", "PATT"),
                                            sampling_design = c("retrospective", "prospective"),
                                            rho_degree = 2L, rho_predictions = NULL,
-                                           core_file = NULL) {
+                                           core_file = NULL, tie_seed = 20260917L,
+                                           tie_rule = "random", tie_tolerance = 64 * .Machine$double.eps) {
   estimand <- match.arg(estimand)
   sampling_design <- match.arg(sampling_design)
   if (!is.data.frame(data) || !all(c(outcome_var, treatment_var, weight_var) %in% names(data)))
@@ -305,15 +306,12 @@ wdsm_stabilized_point_estimate <- function(data, ps_formula, pg_formula,
                                        estimand, sampling_design)
   fit <- list(Y = Y, A = A, weights = w, e_score = nuisance$e_score,
               ps_diagnostics = nuisance$ps_diagnostics, sampling_design = sampling_design)
+  matching <- core$wdsm_make_matches(A, nuisance$D0, nuisance$D1, M, estimand,
+    tie_seed, tie_rule, tie_tolerance)
+  fit$tie_diagnostics <- matching$tie_diagnostics
   for (z in arms) {
-    index <- which(A == z)
     D <- nuisance[[paste0("D", z)]]
-    matches <- vector("list", n)
-    for (i in which(A != z)) {
-      # Identical squared-distance ordering and deterministic ties as wdsm_final.
-      distances <- (D[index, 1L] - D[i, 1L])^2 + (D[index, 2L] - D[i, 2L])^2
-      matches[[i]] <- index[order(distances, method = "radix")[seq_len(M)]]
-    }
+    matches <- matching[[paste0("matches_", z)]]
     fit[[paste0("psi", z)]] <- nuisance[[paste0("psi", z)]]
     fit[[paste0("double_score_", z, "_std")]] <- D
     fit[[paste0("mu", z, "_bc")]] <- nuisance[[paste0("q", z)]]

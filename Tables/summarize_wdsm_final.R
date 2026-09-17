@@ -90,13 +90,18 @@ main <- function() {
           !identical(cfg$sample_seed_base, 2025L) ||
           !identical(cfg$bootstrap_seed_rule, "2000000 + 100 * replicate + 10 * method_id + M") ||
           !identical(cfg$ps_fit_method, "weighted_logistic_zero_start_convergence_checked") ||
-          !identical(cfg$point_estimator_revision, "probability_arm_quadratic_20260909") ||
+          !cfg$point_estimator_revision %in% c("probability_arm_quadratic_20260909", "probability_arm_quadratic_random_ties_20260917") ||
           !identical(cfg$matching_score, "probability e and own-arm prognostic score") ||
           !identical(cfg$component_standardization, "pooled unweighted; multiplicities for replicate coordinates") ||
           !identical(cfg$bias_correction, "own-arm complete quadratic; survey-weighted") ||
           !identical(cfg$population_object, paste0("SuperPopGen_", g$overlap, "_AllinOne_0118_2025")) ||
           !identical(cfg$RNG, man$runtime$RNG))
         stop("Unknown or incompatible final-run configuration")
+      if (identical(cfg$point_estimator_revision, "probability_arm_quadratic_random_ties_20260917") &&
+          (!identical(cfg$tie_rule, "recipient_specific_uniform_boundary") ||
+           !identical(cfg$tie_seed_rule, "3000000 + 100 * replicate + M") ||
+           !identical(cfg$tie_tolerance, 64 * .Machine$double.eps) ||
+           !"tie_allocator" %in% names(ident$code_sha256))) stop("Invalid randomized-tie protocol")
       if (!is.logical(cfg$pilot) || length(cfg$pilot) != 1L || is.na(cfg$pilot) ||
           !scalar(cfg$n_reps) || cfg$n_reps != (if (cfg$pilot) 5L else 1000L) ||
           !scalar(cfg$B) || cfg$B < 2L || cfg$B != floor(cfg$B) ||
@@ -246,6 +251,17 @@ main <- function() {
           if (!same(c(answer$ci_lower, answer$ci_upper), answer$estimate + c(-1, 1) * qnorm(1 - cfg$alpha / 2) * answer$se))
             stop("Confidence interval is not centered normal Wald")
           if (method == "WDSM") {
+            if (identical(cfg$point_estimator_revision, "probability_arm_quadratic_random_ties_20260917")) {
+              td <- answer$tie_diagnostics
+              if (!identical(td$rule, "random") ||
+                  !identical(td$seed, as.integer(3000000L + 100L*r + M)) ||
+                  !identical(td$tolerance, cfg$tie_tolerance) ||
+                  !isTRUE(td$independent_recipient_selection) ||
+                  !isTRUE(td$original_match_sets_fixed_in_replication)) stop("Invalid tie-allocation identity")
+              for (ad in td$arms) if (ad$boundary_tie_recipients != ad$randomized_recipients ||
+                  ad$total_selected_pairs != M*ad$recipients || ad$donors_used < M)
+                stop("Invalid tie-allocation counts")
+            }
             draws <- answer$bootstrap_samples
             if (!identical(answer$estimand, g$estimand) || !identical(answer$sampling_design, tolower(g$design)) ||
                 !identical(answer$interval_type, "Wald") || !identical(answer$variance_divisor, "B") ||

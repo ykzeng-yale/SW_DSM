@@ -136,7 +136,7 @@ for (estimand in c("PATE", "PATT")) {
     paste(estimand, "rank-deficient rho fails; no silent basis change"))
 }
 
-# With duplicated rows, distance ties use original donor row order. Repeating
+# With duplicated rows, the isolated tie seed makes selection reproducible. Repeating
 # the estimator preserves both outputs and an already initialized RNG stream.
 tied <- rbind(d, d[1:12, ])
 for (design in c("retrospective", "prospective")) for (estimand in c("PATE", "PATT")) {
@@ -152,8 +152,12 @@ for (design in c("retrospective", "prospective")) for (estimand in c("PATE", "PA
     candidates <- which(tied$A == arm)
     for (i in which(tied$A != arm)) {
       distance <- rowSums((D[candidates, , drop = FALSE] - matrix(D[i, ], length(candidates), 2, byrow = TRUE))^2)
-      wanted <- candidates[order(distance, candidates)][1:3]
-      assert(identical(first[[paste0("matches_", arm)]][[i]], wanted), "Tie ordering agrees with explicit donor index secondary key")
+      chosen <- first[[paste0("matches_", arm)]][[i]]
+      cutoff <- sort(distance)[3L]
+      closer <- candidates[distance < cutoff - 64*.Machine$double.eps*max(1,cutoff)]
+      assert(length(chosen)==3L && !anyDuplicated(chosen) && all(closer %in% chosen) &&
+        all(distance[match(chosen,candidates)] <= cutoff + 64*.Machine$double.eps*max(1,cutoff)),
+        "Tie selections retain closer donors and never select a farther donor")
     }
   }
 }

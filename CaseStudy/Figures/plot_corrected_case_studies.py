@@ -4,6 +4,8 @@ The original user-supplied image is never edited or overwritten.
 from pathlib import Path
 import sys
 import csv
+import argparse
+import math
 
 ROOT = Path(__file__).resolve().parent
 import matplotlib
@@ -12,12 +14,20 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
-OUT = ROOT
-with (OUT / 'results.csv').open(newline='') as f:
+parser = argparse.ArgumentParser(description='Render the verified 17-row case-study comparison.')
+parser.add_argument('--results', type=Path, default=ROOT / 'results.csv')
+parser.add_argument('--output', type=Path, default=ROOT)
+args = parser.parse_args()
+OUT = args.output
+OUT.mkdir(parents=True, exist_ok=True)
+with args.results.open(newline='') as f:
     rows = list(csv.DictReader(f))
+assert len(rows) == 17, 'Expected all 17 case-study comparisons'
 for row in rows:
     for key in ('estimate','SE','lower','upper'):
         row[key] = float(row[key])
+        assert math.isfinite(row[key]), (row, key)
+    assert row['SE'] > 0 and row['lower'] < row['estimate'] < row['upper']
 
 def get(study, outcome, method, M='1'):
     matches = [r for r in rows if r['study'] == study and r['outcome'] == outcome

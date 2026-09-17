@@ -32,7 +32,7 @@ Provide `--repo`, `--data-dir` (or `--data-file`), `--output`, `--estimand`, `--
 
 For Bouchet, set `WDSM_REPO`, `WDSM_DATA_DIR`, `WDSM_OUTPUT_DIR`, and the available R module, then submit the array with the authorized account and partition. The recorded current run uses R 4.4.2 and the `day` partition. Set BLAS/OpenMP threads to one; allocated workers provide parallelism.
 
-Canonical per-scenario R and shell entry points now route to this same driver. The public `compute_wdsm_method2_ci()` and `compute_wdsm_patt_ci()` compatibility functions call the finalized core. Separate historical point/bootstrap objects and the earlier PATE-only driver are retired because their score objects and configuration do not match the final implementation. Diagnostic versions are preserved under `R/legacy_pre_alignment_20260909/` and in Git history.
+Canonical per-scenario R and shell entry points now route to this same driver. The public `compute_wdsm_method2_ci()` and `compute_wdsm_patt_ci()` compatibility functions call the finalized core. Separate historical point/bootstrap objects and the earlier PATE-only driver are retired because their score objects and configuration do not match the final implementation. Superseded diagnostic function copies have been removed from the active tree; recovery instructions remain in `R/legacy_pre_alignment_20260909/README.md` and Git history.
 
 ## Validation and outputs
 
@@ -40,7 +40,7 @@ The final-core suite has 318 independent numerical checks, including unequal sur
 
 The actual pilot passed all 32 settings, 160 sampled data sets, 1,120 method results and 192,000 bootstrap draws without warnings or failures.
 
-The complete production run contains 32,000 sample-analysis records (4,000 distinct sampled data sets reused across estimands/specifications), 224,000 method results, and 38.4 million WDSM/vendor bootstrap draws. Publication tables and figures must come from the strict complete-run summary; failed or missing records cannot be dropped independently from estimates and intervals. Every replacement artifact must link to that run’s manifest. Participant-level case-study data are not published to GitHub.
+The complete production run contains 32,000 sample-analysis records (4,000 distinct sampled data sets reused across estimands/specifications), 224,000 method results, and 38.4 million WDSM/vendor bootstrap draws. Publication tables and figures must come from the strict complete-run summary; failed or missing records cannot be dropped independently from estimates and intervals. Every replacement artifact must link to that run’s manifest. The exact saved case-study input data, corrected scripts, verification output, tables and figures are now included under [`CaseStudy/`](CaseStudy/). Reproduce the five corrected WDSM fits and the combined comparison with `Rscript --vanilla CaseStudy/reproduce.R NEW_OUTPUT_DIRECTORY`; the 12 unchanged comparator rows are explicitly retained references.
 
 ## Full 0727 experiment folder
 

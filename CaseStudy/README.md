@@ -1,6 +1,13 @@
 # Case study analyses
 
-## Verified implementation update — September 9, 2026
+## Reproducible release — September 17, 2026
+
+The exact analytic input files are now included in `NHANES/data/` and `NSDUH/data/`.
+The release retains the corrected estimator and scientific specification verified
+on September 9. See [input provenance](DATA.md), [checksums](data_manifest.json),
+and the [final results package](Results/Final_20260917/).
+
+## Verified implementation — September 9, 2026
 
 The five WDSM fits were rerun on Yale Bouchet from frozen commit `8444359` with the original samples, formulas, seed protocol **2024**, **B=200**, and Wald intervals. All 1,000 replications and 1,005 propensity fits passed the recorded numerical checks. These results supersede the earlier WDSM numerical rows; the 12 comparator rows are preserved. These functions do not use a replacement implementation from the wdsmatch package.
 
@@ -26,22 +33,42 @@ Saved sample: 3,793 adults aged 40–70 from **2015–2018**, after excluding re
 
 SW-PSM also has an interval excluding zero. WDSM estimates do not decrease with M, and the M=3/M=5 intervals are nearly identical. These comparisons do not establish bias relative to an unknown causal effect.
 
-## Current files
+## Reproduce the finalized comparison
 
-- NHANES: `NHANES/WDSM_adaptive.R`
-- NSDUH: `NSDUH/wdsm_flexible.R`
-- The NHANES `ANALYSIS_10_SLEEP_HBA1C_FIXED.R` caller now supplies sampling weights to full matching and uses B=200. Other historical runners and saved results are not automatically updated.
-- `NHANES/run_wdsm_corrected.R` and `NSDUH/run_wdsm_corrected.R` reproduce the five WDSM results above from saved inputs with the recorded RNG protocol.
-- `Figures/results.csv` contains all 17 comparisons. This update adds no participant data or fitted-model objects.
-- `case_rerun_config.R`, `rerun_wdsm_final.R`, and `submit_wdsm_final.sbatch` record the isolated five-fit protocol and fail closed if any requested draw or numerical diagnostic fails.
-
-Run from the repository root with original inputs available:
+From a clean Git checkout at the repository root:
 
 ```sh
-Rscript CaseStudy/NHANES/run_wdsm_corrected.R
-Rscript CaseStudy/NSDUH/run_wdsm_corrected.R
-python3 CaseStudy/Figures/plot_corrected_case_studies.py
+Rscript --vanilla CaseStudy/reproduce.R /path/to/new-case-results
 ```
+
+Requirements: R (validated with 4.4.0 locally and 4.4.2 on Bouchet), Python 3,
+and matplotlib. The five WDSM fits use base R. The command runs NHANES M=1/3/5
+and NSDUH AMIPY/SMIPY M=5, requires all 200 draws per fit, independently verifies
+B-divisor variance, Wald intervals, input/source hashes and RNG states, and compares
+every draw against the September 9 Bouchet output at tolerance 1e-8.
+It refuses to overwrite a nonempty output directory or run uncommitted source.
+
+Outputs include five complete result RDS files, 1,000 draw estimates, 1,005
+propensity diagnostics, verification checks, runtime details, a 17-row CSV,
+Markdown/LaTeX tables, and PNG/PDF/SVG figures. The 12 unchanged comparator rows
+come from `reference/comparators_20260909.csv`; they are **not newly estimated**
+by this command. Every row's status is recorded in `row_provenance.csv`.
+
+### Current code
+
+- `NHANES/WDSM_adaptive.R`: corrected retrospective estimator.
+- `NSDUH/wdsm_flexible.R` and `NSDUH/prepare_nsduh.R`: corrected prospective estimator and original covariate preparation.
+- `case_rerun_config.R`: frozen input identities, sample specifications and RNG protocol.
+- `rerun_wdsm_final.R` and `submit_wdsm_final.sbatch`: isolated per-case execution locally or on Bouchet.
+- `reproduce.R` and `verify_results.R`: complete release reproduction and independent checks.
+- `Figures/plot_corrected_case_studies.py`: plot the 17-row table; accepts `--results` and `--output`.
+- `NHANES/run_wdsm_corrected.R` and `NSDUH/run_wdsm_corrected.R`: smaller per-study checks retained for compatibility.
+
+For Bouchet, supply `WDSM_REPO`, `WDSM_CODE_COMMIT`, `CASE_OUTPUT_DIR`, an R module,
+and the account/partition. Inputs default to the bundled files; `NHANES_INPUT`
+and `NSDUH_INPUT` can override paths only with files having the frozen identities.
+After the array succeeds, call `verify_case_results()` from `verify_results.R`,
+then render the figure with the resulting `results.csv`.
 
 ## Corrections and scope
 
@@ -58,8 +85,15 @@ The September 9 rerun changes CI endpoints by at most 0.000025 relative to the p
 Numerical agreement is **not a completed proof of estimated-score or bootstrap validity**. Final appendix justification and NHANES special-value coding remain author-review items. Refused/unknown codes were retained for reproduction; changing their handling requires rerunning. These checks do not establish design-valid multistage-survey inference.
 
 
-## Inputs and figures
+## Removed superseded runners
 
-Participant data are not included in these analysis directories. Set `NHANES_INPUT` to the original `WDSM_M1_M3_M5_ANALYSIS_10.rda` containing `data_prep`, and `NSDUH_INPUT` to the original `complete_case_data.rds`. Default paths are the respective study directories under `data/`. The original NHANES broad analysis runner additionally requires its raw input and dependencies; use `run_wdsm_corrected.R` for the exact reported WDSM reproduction.
+`NHANES/ANALYSIS_10_SLEEP_HBA1C_FIXED.R` and `NSDUH/11_complete_both_outcomes.R`
+were removed from the active tree. The first used a different raw-data/RNG pathway;
+the second could continue after estimator errors and emit incomplete comparisons.
+Neither is the audited five-fit reproduction entrypoint. Their prior versions are
+recoverable at Git commit `d93a7e6`.
 
-The corrected PNG/PDF in `Figures/` use `Figures/results.csv`. Historical 0727 directories and the duplicate verification directory were removed from the current branch; prior versions remain recoverable from Git history.
+The current simulation core is `R/wdsm_core_final.R`; legacy compatibility names
+already route to it. Superseded pre-alignment function copies and the obsolete
+PATE-only diagnostic runner/summary were removed. The original July 27 snapshot
+is explicitly historical and remains preserved for provenance.

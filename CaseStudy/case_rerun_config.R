@@ -1,5 +1,5 @@
 # Immutable input identities and unchanged published five-fit protocol.
-# The input files contain participant records and are supplied outside GitHub.
+# Exact original input files are included in each study's data/ directory.
 case_rerun_config <- list(
   version = "case_numerical_safeguards_20260909",
   baseline_commit = "3356769fc3d0805678d7fd927108d4b00c069980",

@@ -13,26 +13,44 @@ match sets in replication. The active main/stabilized simulations and both
 case estimators share `R/wdsm_ties.R`. NHANES preprocessing now excludes three
 refused/unknown responses (n=3,790); NSDUH remains n=17,471.
 
-The [new complete case comparison](CaseStudy/Results/TieCorrection_20260917/README.md)
-is verified, including all 17 rows, paired controls, and 40 tie-seed sensitivity
-fits. The full 32-cell, 1,000-replicate stabilized rerun is complete: all 95,928
-successful estimates are exactly unchanged, and the same 72 positivity rejections
-remain. The [independent comparison](audit/ties_20260917/stabilized_pairing/comparison_summary.txt)
-found no allocation-relevant ties in any of the 96,000 estimator pairs.
-The full main rerun and final pairing/summary checks are still in progress.
-The main pilot passed all settings with exact numerical parity and no ties. See the
-[correction protocol](audit/ties_20260917/PROTOCOL.md) and
+**The full September 17 main and stabilized reruns are complete and verified.**
+Both covered 32 cells and 1,000 replications per cell, with M=1/3/5. The
+[main raw-result comparison](audit/ties_20260917/full_pairing/comparison_summary.txt)
+checked all 32,000 sample-analysis records and 224,000 method results against the
+corrected September 9 run: estimates, SEs, interval endpoints, and every saved
+bootstrap draw are exactly unchanged. No allocation-relevant ties occurred.
+The [stabilized comparison](audit/ties_20260917/stabilized_pairing/comparison_summary.txt)
+likewise found exact equality for all 95,928 successful stabilized estimates and
+all original counterparts, with the same 72 explicit positivity rejections and
+no allocation-relevant ties. The strict main summaries and final main/stabilized
+pairing checks passed. All 224 main and 96 stabilized summary rows are
+[exactly unchanged](audit/ties_20260917/metric_comparison_20260909_20260917.json).
+
+The [September 17 publication index](Results/Final_20260917/README.md) contains
+the current [main tables](Results/Final_20260917/main/Tables),
+[main figures](Results/Final_20260917/main/Figures), and
+[stabilized comparison](Results/Final_20260917/stabilized/performance).
+The [manual manuscript guide](audit/ties_20260917/MANUSCRIPT_GUIDANCE_20260917.md)
+distinguishes the earlier required score/bootstrap corrections from this tie-only
+rerun: no additional simulation numerical or conclusion changes are needed
+relative to the corrected September 9 results, but the older paper's numbers and
+claims still require the previously identified replacements.
+
+The [complete case comparison](CaseStudy/Results/TieCorrection_20260917/README.md)
+is also verified, including all 17 rows, paired controls, and 40 tie-seed sensitivity
+fits. Its application changes remain necessary and are documented separately.
+See the [correction protocol](audit/ties_20260917/PROTOCOL.md) and
 [Bouchet job record](audit/ties_20260917/submitted_workflow.json). The completed
-September 9 studies described below remain the preserved baseline; their tables
-and figures do not yet represent the new tie correction.
+September 9 studies below remain the preserved baseline. The new raw-result
+release archive is still being prepared; its publication is a separate step.
 
 ## Full inference and implementation correction — September 9, 2026
 
 The paper’s original simulation tables have been traced to the saved 0727 publication results and Tong’s Bouchet production runs. The original PATE bootstrap omitted residual reuse contributions and used percentile intervals. Retrospective propensity fits also failed numerically in both PATE and PATT. The full audit additionally identified a discrepancy between the old simulation score/bias-correction implementation and the probability-score, own-arm construction used by the manuscript and corrected case studies.
 
-**Status: both full studies are complete and verified.** The [final results index](Results/Final_20260909/README.md) contains corrected main tables/figures, the complete stabilized point-estimator comparison, verification records, and [raw archives/input files](https://github.com/ykzeng-yale/SW_DSM/releases/tag/final-simulations-20260909). Main validation passed all 224,000 method results and 38.4 million bootstrap draws. Stabilized validation paired all 96,000 estimates; 72 positivity rejections remain explicit. The tested quadratic stabilizer improves absolute bias in 28 of 81 fully defined settings and does not generally resolve poor-overlap bias.
+**Historical September 9 status: both full studies completed and passed verification.** The [preserved results index](Results/Final_20260909/README.md) contains corrected main tables/figures, the complete stabilized point-estimator comparison, verification records, and [raw archives/input files](https://github.com/ykzeng-yale/SW_DSM/releases/tag/final-simulations-20260909). Main validation passed all 224,000 method results and 38.4 million bootstrap draws. Stabilized validation paired all 96,000 estimates; 72 positivity rejections remain explicit. The tested quadratic stabilizer improves absolute bias in 28 of 81 fully defined settings and does not generally resolve poor-overlap bias. These numerical conclusions are unchanged in the September 17 rerun.
 
-Historical numbers outside `Results/Final_20260909/`, including `Tables/All_12_Simulation_Tables.txt` and the original simulation images, remain the preserved baseline. Use the linked final outputs for corrected results. See [run status](audit/full_rerun_execution.json), [result lineage](audit/paper_result_lineage.md), and [case-study comparison](audit/case_study_fix_comparison_20260909.md).
+Older numbers in `Tables/All_12_Simulation_Tables.txt` and the original simulation images remain preserved historical outputs. Use `Results/Final_20260917/` for the current corrected results or `Results/Final_20260909/` for the earlier corrected baseline. See the [September 9 run record](audit/full_rerun_execution.json), [original result lineage](audit/paper_result_lineage.md), and [September 9 case-study comparison](audit/case_study_fix_comparison_20260909.md).
 
 A separate [conditionally stabilized point-estimator experiment](StabilizedWDSM/README.md) tests whether the Section 3.3 extension reduces relative bias. It uses the same 32 settings, 1,000 replications per setting, and M=1/3/5, with identical original samples, fits, and matches. Its [protocol](StabilizedWDSM/simulation_protocol.md) and [execution record](StabilizedWDSM/audit/execution.json) distinguish pilot checks from production results. No stabilized causal-effect SEs, confidence intervals, or coverage are being developed in this experiment.
 
@@ -66,12 +84,13 @@ The final-core suite has 318 independent numerical checks, including unequal sur
 
 The actual pilot passed all 32 settings, 160 sampled data sets, 1,120 method results and 192,000 bootstrap draws without warnings or failures.
 
-The completed September 9 production run contains 32,000 sample-analysis records
+Each completed September 9 and September 17 main production run contains 32,000 sample-analysis records
 (4,000 distinct sampled data sets reused across estimands/specifications),
-224,000 method results, and 38.4 million WDSM/vendor bootstrap draws. The new
-September 17 tie-corrected production runs are still in progress. Publication
-simulation tables and figures must come from their strict complete-run summary;
-failed or missing records cannot be silently dropped.
+224,000 method results, and 38.4 million WDSM/vendor bootstrap draws. The September 17
+strict summaries, original/stabilized pairing, and independent old/new comparisons
+all passed. Current publication tables and figures are generated from the complete
+September 17 summaries; no failed or missing main results were dropped, and all
+72 stabilized-estimator rejections remain explicit.
 
 For the current applications, use
 `CaseStudy/Results/TieCorrection_20260917/` and reproduce all 17 comparison rows

@@ -11,10 +11,23 @@ There were no allocation-relevant ties. Thus the tie correction does not change
 the point-estimator conclusions below. See the
 [full paired comparison](../audit/ties_20260917/stabilized_pairing/comparison_summary.txt).
 
-The strict final pairing against the newly rerun main analysis and the new
-publication artifacts are still pending. The September 9 artifacts below remain
-the preserved baseline. This remains a point-estimator study. See
-[`submitted_workflow.json`](../audit/ties_20260917/submitted_workflow.json).
+The strict final pairing against the newly rerun main analysis has also passed.
+The complete main raw-result comparison found exact equality of estimates, SEs,
+interval endpoints, and saved bootstrap draws against the corrected September 9
+run. All 96 stabilized summary rows and all 224 main summary rows are
+[exactly unchanged](../audit/ties_20260917/metric_comparison_20260909_20260917.json).
+Use the [September 17 publication index](../Results/Final_20260917/README.md),
+[96-setting metrics](../Results/Final_20260917/stabilized/summary/stabilized_point_metrics.csv),
+and [comparison tables/figures](../Results/Final_20260917/stabilized/performance).
+The September 9 artifacts below remain the preserved baseline; the new raw-result
+release archive is still being prepared.
+
+The [manual manuscript guide](../audit/ties_20260917/MANUSCRIPT_GUIDANCE_20260917.md)
+explains why this tie correction requires no further simulation numerical changes
+relative to the corrected September 9 results, while the older paper's score/bootstrap
+corrections remain necessary. This remains a point-estimator study, without stabilized
+SEs, intervals, or coverage. See the current
+[Bouchet execution record](../audit/ties_20260917/submitted_workflow.json).
 
 This folder implements the **separate point-estimator extension** at the end of Section 3.3. It does not replace the original self-normalized WDSM estimator or change any existing simulation or case-study scripts.
 
@@ -153,11 +166,11 @@ Tests include seeded comparisons to the updated original shared core, hand-calcu
 
 Verified on September 9, 2026 with R 4.4.3: **28 synthetic tests passed**, including both estimands and sampling designs at `M = 1, 3, 5`, using seed 2024. The shared-core reference uses two supplied all-one count vectors solely to expose its original point fit; these are not used for stabilized inference. All 12 combinations in the synthetic example also completed. Existing repository functions and analysis results were left unchanged.
 
-## Paired full-scale bias experiment (September 9, 2026)
+## Preserved paired full-scale bias experiment (September 9, 2026)
 
-The user requested a direct test of whether the new point estimator reduces relative bias. The new `Simulations/rerun_stabilized.R` preserves the corrected main simulation's populations, sampling implementation, seed 2025+replication, truth, model specification, and M=1/3/5. It compares original and stabilized point estimates using the same fitted models and match sets. There are 32 settings and 1,000 sampled data sets per setting (96,000 requested stabilized estimates). The original main simulation continues independently.
+The user requested a direct test of whether the new point estimator reduces relative bias. `Simulations/rerun_stabilized.R` preserves the corrected main simulation's populations, sampling implementation, seed 2025+replication, truth, model specification, and M=1/3/5. It compares original and stabilized point estimates using the same fitted models and match sets. There are 32 settings and 1,000 sampled data sets per setting (96,000 requested stabilized estimates). The original main simulation was run separately and paired during final verification.
 
-`simulation_protocol.json` and `simulation_protocol.md` freeze the experiment. `audit/execution.json` records the current cluster jobs and status. The complete five-sample pilot passed all 32 settings and 480 paired estimates, with no failures or warnings and exact agreement with the saved corrected-original point estimates. Full production and strict paired finalization completed as Bouchet jobs **25698446** and **25698530**. See the [final study results](../Results/Final_20260909/README.md), [96-setting metrics](../Results/Final_20260909/stabilized/summary/stabilized_point_metrics.csv), and [comparison tables/figures](../Results/Final_20260909/stabilized/performance). Primary outcomes are signed/absolute relative bias and the reduction in absolute relative bias in percentage points. Empirical SD, RMSE, numerical failures, and weight-multiplier diagnostics are supporting outcomes. No stabilized causal-effect interval is computed.
+`simulation_protocol.json` and `simulation_protocol.md` freeze the original experiment. `audit/execution.json` records its September 9 cluster jobs and status. The complete five-sample pilot passed all 32 settings and 480 paired estimates, with no failures or warnings and exact agreement with the saved corrected-original point estimates. Full production and strict paired finalization completed as Bouchet jobs **25698446** and **25698530**. See the [preserved September 9 study results](../Results/Final_20260909/README.md), [96-setting metrics](../Results/Final_20260909/stabilized/summary/stabilized_point_metrics.csv), and [comparison tables/figures](../Results/Final_20260909/stabilized/performance). Primary outcomes are signed/absolute relative bias and the reduction in absolute relative bias in percentage points. Empirical SD, RMSE, numerical failures, and weight-multiplier diagnostics are supporting outcomes. No stabilized causal-effect interval is computed.
 
 The simulation adapter uses two supplied all-one identity vectors only to expose the official original point fit through its existing API; it discards their artificial variance/SE/interval fields. They are not bootstrap replicates. The estimator leaves the caller’s random stream unchanged; its separate tie stream is recorded in diagnostics. Genuine conditional-weight failures are retained; they are not replaced or silently excluded from the 1,000-run denominator.
 

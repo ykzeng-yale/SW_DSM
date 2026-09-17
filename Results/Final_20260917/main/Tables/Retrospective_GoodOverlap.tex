@@ -1,0 +1,36 @@
+\begin{sidewaystable}[htbp]
+\centering
+\caption{Simulation results under retrospective sampling with good overlap ($\psi=0.6$): signed relative bias (\%), relative efficiency, and coverage of 95\% Wald confidence intervals across 1,000 replications.}
+\label{tab:retrospective_good}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{2.8pt}
+\begin{tabular}{@{} >{\centering\arraybackslash}p{1.3cm} l c c *{4}{c} *{4}{c} *{4}{c} @{}}
+\toprule
+\multirow{2}{*}{Estimand} & \multirow{2}{*}{Method} & \multicolumn{2}{c}{Score Model} & \multicolumn{4}{c}{Signed Relative Bias (\%)} & \multicolumn{4}{c}{Relative Efficiency} & \multicolumn{4}{c}{Coverage (\%)} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-8} \cmidrule(lr){9-12} \cmidrule(lr){13-16}
+& & PS & PGS & Cor|Cor & Mis|Cor & Cor|Mis & Mis|Mis & Cor|Cor & Mis|Cor & Cor|Mis & Mis|Mis & Cor|Cor & Mis|Cor & Cor|Mis & Mis|Mis \\
+\midrule
+\multirow{7}{*}{PATE} & PSM & \texttimes & \textendash & 6.4 & 14.7 & 6.4 & 14.7 & 1.00 & 0.85 & 1.00 & 0.85 & 97.0 & 84.0 & 97.0 & 84.0 \\[2pt]
+ & \cellcolor[rgb]{0.92,0.92,0.92}PGM & \cellcolor[rgb]{0.92,0.92,0.92}\textendash & \cellcolor[rgb]{0.92,0.92,0.92}\texttimes & \cellcolor[rgb]{0.92,0.92,0.92}6.3 & \cellcolor[rgb]{0.92,0.92,0.92}6.3 & \cellcolor[rgb]{0.92,0.92,0.92}11.4 & \cellcolor[rgb]{0.92,0.92,0.92}11.4 & \cellcolor[rgb]{0.92,0.92,0.92}2.60 & \cellcolor[rgb]{0.92,0.92,0.92}2.60 & \cellcolor[rgb]{0.92,0.92,0.92}1.82 & \cellcolor[rgb]{0.92,0.92,0.92}1.82 & \cellcolor[rgb]{0.92,0.92,0.92}81.2 & \cellcolor[rgb]{0.92,0.92,0.92}81.2 & \cellcolor[rgb]{0.92,0.92,0.92}68.5 & \cellcolor[rgb]{0.92,0.92,0.92}68.5 \\[2pt]
+ & DSM & \texttimes & \texttimes & 6.4 & 6.4 & 6.6 & 10.5 & 2.35 & 2.34 & 2.11 & 1.85 & 81.6 & 81.5 & 87.6 & 70.9 \\[2pt]
+ & \cellcolor[rgb]{0.92,0.92,0.92}SW-PSM & \cellcolor[rgb]{0.92,0.92,0.92}\checkmark & \cellcolor[rgb]{0.92,0.92,0.92}\textendash & \cellcolor[rgb]{0.92,0.92,0.92}$-$0.1 & \cellcolor[rgb]{0.92,0.92,0.92}$-$0.4 & \cellcolor[rgb]{0.92,0.92,0.92}$-$0.1 & \cellcolor[rgb]{0.92,0.92,0.92}$-$0.4 & \cellcolor[rgb]{0.92,0.92,0.92}1.75 & \cellcolor[rgb]{0.92,0.92,0.92}1.70 & \cellcolor[rgb]{0.92,0.92,0.92}1.75 & \cellcolor[rgb]{0.92,0.92,0.92}1.70 & \cellcolor[rgb]{0.92,0.92,0.92}93.2 & \cellcolor[rgb]{0.92,0.92,0.92}92.6 & \cellcolor[rgb]{0.92,0.92,0.92}93.2 & \cellcolor[rgb]{0.92,0.92,0.92}92.6 \\[2pt]
+ & WDSM ($M$=1) & \checkmark & \texttimes & $-$0.2 & 0.0 & $-$2.7 & 4.6 & 1.85 & 1.82 & 1.51 & 1.17 & 94.2 & 94.5 & 96.0 & 91.5 \\[2pt]
+ & WDSM ($M$=3) & \checkmark & \texttimes & $-$0.2 & $-$0.1 & $-$0.8 & 5.9 & 2.26 & 2.23 & 1.84 & 1.36 & 94.3 & 94.7 & 96.2 & 89.1 \\[2pt]
+ & WDSM ($M$=5) & \checkmark & \texttimes & $-$0.2 & $-$0.1 & $-$0.4 & 6.3 & 2.33 & 2.30 & 1.93 & 1.42 & 94.6 & 94.3 & 96.7 & 87.9 \\
+\midrule
+\multirow{7}{*}{PATT} & PSM & \texttimes & \textendash & 6.0 & 11.4 & 6.0 & 11.4 & 1.00 & 0.86 & 1.00 & 0.86 & 96.1 & 83.5 & 96.1 & 83.5 \\[2pt]
+ & \cellcolor[rgb]{0.92,0.92,0.92}PGM & \cellcolor[rgb]{0.92,0.92,0.92}\textendash & \cellcolor[rgb]{0.92,0.92,0.92}\texttimes & \cellcolor[rgb]{0.92,0.92,0.92}5.8 & \cellcolor[rgb]{0.92,0.92,0.92}5.8 & \cellcolor[rgb]{0.92,0.92,0.92}12.9 & \cellcolor[rgb]{0.92,0.92,0.92}12.9 & \cellcolor[rgb]{0.92,0.92,0.92}1.98 & \cellcolor[rgb]{0.92,0.92,0.92}1.98 & \cellcolor[rgb]{0.92,0.92,0.92}1.32 & \cellcolor[rgb]{0.92,0.92,0.92}1.32 & \cellcolor[rgb]{0.92,0.92,0.92}80.3 & \cellcolor[rgb]{0.92,0.92,0.92}80.3 & \cellcolor[rgb]{0.92,0.92,0.92}53.1 & \cellcolor[rgb]{0.92,0.92,0.92}53.1 \\[2pt]
+ & DSM & \texttimes & \texttimes & 5.7 & 5.7 & 5.6 & 9.8 & 1.89 & 1.93 & 1.46 & 1.31 & 81.2 & 80.4 & 87.2 & 69.9 \\[2pt]
+ & \cellcolor[rgb]{0.92,0.92,0.92}SW-PSM & \cellcolor[rgb]{0.92,0.92,0.92}\checkmark & \cellcolor[rgb]{0.92,0.92,0.92}\textendash & \cellcolor[rgb]{0.92,0.92,0.92}$-$0.2 & \cellcolor[rgb]{0.92,0.92,0.92}$-$0.4 & \cellcolor[rgb]{0.92,0.92,0.92}$-$0.2 & \cellcolor[rgb]{0.92,0.92,0.92}$-$0.4 & \cellcolor[rgb]{0.92,0.92,0.92}2.19 & \cellcolor[rgb]{0.92,0.92,0.92}2.25 & \cellcolor[rgb]{0.92,0.92,0.92}2.19 & \cellcolor[rgb]{0.92,0.92,0.92}2.25 & \cellcolor[rgb]{0.92,0.92,0.92}90.9 & \cellcolor[rgb]{0.92,0.92,0.92}89.0 & \cellcolor[rgb]{0.92,0.92,0.92}90.9 & \cellcolor[rgb]{0.92,0.92,0.92}89.0 \\[2pt]
+ & WDSM ($M$=1) & \checkmark & \texttimes & $-$0.2 & $-$0.2 & 0.2 & 3.6 & 1.88 & 1.84 & 1.57 & 1.40 & 93.7 & 94.0 & 96.2 & 91.0 \\[2pt]
+ & WDSM ($M$=3) & \checkmark & \texttimes & $-$0.3 & $-$0.2 & 0.0 & 3.9 & 2.29 & 2.25 & 1.98 & 1.59 & 94.1 & 94.2 & 96.8 & 88.6 \\[2pt]
+ & WDSM ($M$=5) & \checkmark & \texttimes & $-$0.3 & $-$0.3 & $-$0.1 & 4.0 & 2.38 & 2.35 & 2.09 & 1.67 & 94.9 & 94.3 & 97.0 & 88.7 \\
+\bottomrule
+\end{tabular}
+\vspace{0.5em}
+\begin{minipage}{\textwidth}
+\footnotesize
+\textbf{Note:} PS = propensity score model; PGS = prognostic score model. $\checkmark$ denotes survey-weighted score estimation, $\times$ unweighted estimation, and \textendash\, a score not used by that matching method. WDSM uses survey-weighted propensity estimation under retrospective sampling; prognostic fits are unweighted. WDSM additionally uses survey weights in matched imputation, bias correction, and H\'ajek normalization. Correct models include all six main effects and the $X_1X_2$ interaction; misspecified models omit that interaction. The first/second specification labels refer to PS/PGS. SW-PSM retains an always-correct treatment-interacted outcome regression. Signed relative bias is $100(\overline{\widehat\tau}-\tau)/|\tau|$. Relative efficiency is the Monte Carlo variance of PSM under Cor|Cor divided by that of each method within the same estimand, sampling design, and overlap. PSM, PGM, and DSM use $M=1$ matching with replacement; SW-PSM uses optimal full matching; WDSM uses $M\in\{1,3,5\}$. All intervals are centered normal Wald intervals. WDSM uses fixed-original-reuse replication variance with divisor $B$; PSM, PGM, and DSM retain the author's bootstrap sample variance with divisor $B-1$; SW-PSM uses subclass-cluster sandwich/delta-method variance. Bootstrap methods use $B=200$. All requested records passed the strict summary audit; no failed records are silently omitted.
+\end{minipage}
+\end{sidewaystable}

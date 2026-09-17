@@ -1,5 +1,27 @@
 # Weighted Double Score Matching (WDSM)
 
+## September 17 tie and full-source correction
+
+Full NSDUH 2023 and merged NHANES 2007–2018 sources are now in
+[`CaseStudy/`](CaseStudy/provenance/RAW_DATA.md). A full byte-read of the July 27
+folder verified every one of its 7,106 regular files against the preserved
+snapshot; no unavailable iCloud placeholders or substitute datasets are used.
+
+Current WDSM uses recipient-specific randomized selection at tied distance
+boundaries, with an independent reproducible RNG stream and fixed original
+match sets in replication. The active main/stabilized simulations and both
+case estimators share `R/wdsm_ties.R`. NHANES preprocessing now excludes three
+refused/unknown responses (n=3,790); NSDUH remains n=17,471.
+
+The [new complete case comparison](CaseStudy/Results/TieCorrection_20260917/README.md)
+is verified, including all 17 rows, paired controls, and 40 tie-seed sensitivity
+fits. The full 32-cell, 1,000-replicate main and stabilized reruns are in progress.
+The main pilot passed all settings with exact numerical parity and no ties. See the
+[correction protocol](audit/ties_20260917/PROTOCOL.md) and
+[Bouchet job record](audit/ties_20260917/submitted_workflow.json). The completed
+September 9 studies described below remain the preserved baseline; their tables
+and figures do not yet represent the new tie correction.
+
 ## Full inference and implementation correction — September 9, 2026
 
 The paper’s original simulation tables have been traced to the saved 0727 publication results and Tong’s Bouchet production runs. The original PATE bootstrap omitted residual reuse contributions and used percentile intervals. Retrospective propensity fits also failed numerically in both PATE and PATT. The full audit additionally identified a discrepancy between the old simulation score/bias-correction implementation and the probability-score, own-arm construction used by the manuscript and corrected case studies.
@@ -40,7 +62,18 @@ The final-core suite has 318 independent numerical checks, including unequal sur
 
 The actual pilot passed all 32 settings, 160 sampled data sets, 1,120 method results and 192,000 bootstrap draws without warnings or failures.
 
-The complete production run contains 32,000 sample-analysis records (4,000 distinct sampled data sets reused across estimands/specifications), 224,000 method results, and 38.4 million WDSM/vendor bootstrap draws. Publication tables and figures must come from the strict complete-run summary; failed or missing records cannot be dropped independently from estimates and intervals. Every replacement artifact must link to that run’s manifest. The exact saved case-study input data, corrected scripts, verification output, tables and figures are now included under [`CaseStudy/`](CaseStudy/). Rebuild the authoritative paper outputs with `Rscript --vanilla CaseStudy/assemble_publication.R NEW_OUTPUT_DIRECTORY`. `CaseStudy/reproduce.R` reruns the five WDSM fits and flags platform differences; the 12 unchanged comparator rows are explicitly retained references. The September 17 Mac rerun has small SE differences and is stored separately without replacing the verified Bouchet results.
+The completed September 9 production run contains 32,000 sample-analysis records
+(4,000 distinct sampled data sets reused across estimands/specifications),
+224,000 method results, and 38.4 million WDSM/vendor bootstrap draws. The new
+September 17 tie-corrected production runs are still in progress. Publication
+simulation tables and figures must come from their strict complete-run summary;
+failed or missing records cannot be silently dropped.
+
+For the current applications, use
+`CaseStudy/Results/TieCorrection_20260917/` and reproduce all 17 comparison rows
+from the full raw sources with `CaseStudy/reproduce_tie_correction.R`.
+The September 9 case commands (`assemble_publication.R`, `reproduce.R`) retain
+the old sample/tie convention and are historical reproductions only.
 
 ## Full 0727 experiment folder
 

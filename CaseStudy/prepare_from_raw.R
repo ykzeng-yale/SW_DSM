@@ -30,7 +30,12 @@ prepare_case_raw <- function(repo = getwd(), output = file.path(repo,"CaseStudy"
   # Preserve all substantive category choices; only refused/unknown are missing.
   cleaned <- raw_nh
   exclusions <- list()
-  missing_codes <- list(diq010=c(7,9),smq020=c(7,9),dmdeduc2=c(7,9),sld012=c(77,99))
+  missing_codes <- list(diq010=c(7,9),smq020=c(7,9),dmdeduc2=c(7,9))
+  # SLD012 is derived: cycle 9 permits 2..14.5; cycle 10 permits 2..14.
+  # In cycle 10, 2 and 14 are valid bottom/top-coded categories.
+  stopifnot(all(is.na(raw_nh$sld012) |
+    (raw_nh$sddsrvyr==9 & raw_nh$sld012>=2 & raw_nh$sld012<=14.5) |
+    (raw_nh$sddsrvyr==10 & raw_nh$sld012>=2 & raw_nh$sld012<=14)))
   for (v in names(missing_codes)) {
     exclusions[[v]] <- data.frame(variable=v,code=missing_codes[[v]],
       count_in_old_analytic=vapply(missing_codes[[v]],function(code)sum(historical[[v]]==code,na.rm=TRUE),integer(1)))

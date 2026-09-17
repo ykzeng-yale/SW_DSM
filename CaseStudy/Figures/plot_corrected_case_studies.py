@@ -69,7 +69,7 @@ for k,key in enumerate(right_methods):
 
 axes[0].set(xlim=(-.6,2.2),ylim=(-.065,.175),xticks=[0,1.6],xticklabels=['AMIPY','SMIPY'],
             ylabel='Estimated effect (risk difference) and 95% CI')
-axes[1].set(xlim=(-.8,.8),ylim=(-.03,.205),xticks=[0],xticklabels=['PATE'],
+axes[1].set(xlim=(-.8,.8),ylim=(-.03,.24),xticks=[0],xticklabels=['PATE'],
             ylabel='Estimated effect (HbA1c percentage points) and 95% CI')
 for ax,methods in zip(axes,[left_methods,right_methods]):
     ax.set_axisbelow(True)

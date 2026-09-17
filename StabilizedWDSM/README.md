@@ -1,5 +1,14 @@
 # Conditionally stabilized WDSM
 
+## September 17 tie-corrected rerun
+
+The estimator now uses the shared recipient-specific random tie rule in
+`R/wdsm_ties.R`. The full 32-cell, 1,000-replication paired rerun is submitted on
+Bouchet; its pilot passed and production is queued/running. It remains a
+point-estimator study. The completed September 9 results below are the preserved
+baseline, not output from the new run. See
+[`submitted_workflow.json`](../audit/ties_20260917/submitted_workflow.json).
+
 This folder implements the **separate point-estimator extension** at the end of Section 3.3. It does not replace the original self-normalized WDSM estimator or change any existing simulation or case-study scripts.
 
 ## Source and scope

@@ -1,4 +1,14 @@
-# Frozen case-study inputs
+# Case-study source and historical inputs
+
+The **current complete source datasets and corrected analysis samples** are
+documented in [provenance/RAW_DATA.md](provenance/RAW_DATA.md). They are included
+in `NHANES/data/raw/` and `NSDUH/data/raw/`; the current reconstruction yields
+NHANES n=3,790 and NSDUH n=17,471. All 17 current comparison rows were rerun.
+
+## Preserved September 9 analytic inputs
+
+The remainder describes the earlier frozen reproduction baseline, not the
+current missing-code/tie-corrected analysis.
 
 These are the exact saved analytic inputs used by the September 9, 2026 Bouchet
 verification, included at the author's request on September 17. The SHA-256 and

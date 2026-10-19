@@ -1,0 +1,34 @@
+# External data and local results
+Data/*.RData
+CaseStudy/**/data/
+CaseStudy/data_preparation*/
+CaseStudy/**/*.rds
+CaseStudy/**/*.rda
+CaseStudy/**/*.RData
+CaseStudy/**/*.[rR][dD][aA][tT][aA]
+CaseStudy/**/records/
+local-output/
+local-data/
+*.xpt
+*.XPT
+
+# R build artifacts
+.Rhistory
+.RData
+.Rproj.user
+
+# Local development files
+.DS_Store
+__pycache__/
+*.pyc
+.env
+.env.*
+AGENTS.md
+CLAUDE.md
+.codex/
+.claude/
+.cursor/
+audit/
+*.log
+*.aux
+*.out

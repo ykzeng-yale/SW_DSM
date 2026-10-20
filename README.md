@@ -3,6 +3,9 @@
 Code and aggregate results for **Where to weight? Estimating population causal
 effects with weighted double score matching in complex surveys**.
 
+[Read the arXiv preprint](https://arxiv.org/abs/2610.25870) ·
+[Get the `wdsmatch` R package on CRAN](https://CRAN.R-project.org/package=wdsmatch)
+
 ## Publication files
 
 | Content | Location |
@@ -33,3 +36,29 @@ The scripts check required R packages. Figure generation also requires Python
 The vendored `dsmatch` routines in `R/dsmatch/` are the subset used by the
 publication comparators. Their original author attribution and GPL-3 license
 are retained in `R/dsmatch/DESCRIPTION`.
+
+## Citation
+
+If you use this repository, please cite the accompanying preprint:
+
+Zeng Y, Tong G, Tong J, Lu H, Mukherjee B, Li F. Where to weight? Estimating population causal effects with weighted double score matching in complex surveys. Preprint. arXiv. Posted online October 19, 2026. doi:10.48550/arXiv.2610.25870.
+
+[View the preprint](https://arxiv.org/abs/2610.25870) ·
+[Resolve the DOI](https://doi.org/10.48550/arXiv.2610.25870)
+
+<details>
+<summary>BibTeX</summary>
+
+```bibtex
+@misc{zeng2026weightestimatingpopulationcausal,
+  title = {Where to weight? Estimating population causal effects with weighted double score matching in complex surveys},
+  author = {Yukang Zeng and Guangyu Tong and Jiaqi Tong and Haidong Lu and Bhramar Mukherjee and Fan Li},
+  year = {2026},
+  eprint = {2610.25870},
+  archivePrefix = {arXiv},
+  primaryClass = {stat.ME},
+  url = {https://arxiv.org/abs/2610.25870}
+}
+```
+
+</details>

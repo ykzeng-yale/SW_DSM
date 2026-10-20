@@ -1,0 +1,40 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite the accompanying preprint below."
+type: software
+title: "SW_DSM: Weighted Double Score Matching"
+authors:
+  - family-names: Zeng
+    given-names: Yukang
+  - family-names: Tong
+    given-names: Guangyu
+  - family-names: Tong
+    given-names: Jiaqi
+  - family-names: Lu
+    given-names: Haidong
+  - family-names: Mukherjee
+    given-names: Bhramar
+  - family-names: Li
+    given-names: Fan
+repository-code: "https://github.com/ykzeng-yale/SW_DSM"
+url: "https://github.com/ykzeng-yale/SW_DSM"
+preferred-citation:
+  type: article
+  title: "Where to weight? Estimating population causal effects with weighted double score matching in complex surveys"
+  authors:
+    - family-names: Zeng
+      given-names: Yukang
+    - family-names: Tong
+      given-names: Guangyu
+    - family-names: Tong
+      given-names: Jiaqi
+    - family-names: Lu
+      given-names: Haidong
+    - family-names: Mukherjee
+      given-names: Bhramar
+    - family-names: Li
+      given-names: Fan
+  year: 2026
+  date-released: "2026-10-19"
+  doi: "10.48550/arXiv.2610.25870"
+  url: "https://arxiv.org/abs/2610.25870"
+  notes: "Preprint. arXiv:2610.25870."
